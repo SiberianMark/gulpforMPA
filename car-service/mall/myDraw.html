@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>我的优惠券</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/coupon.css"/>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+</head>
+<body>
+<div class="modal" id="showSharePic">
+    <!--fade-->
+    <div class="sharepic-right">
+        <img src="/web/assets/image/fenxiangtishi_ico.png">
+    </div>
+</div>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll">
+        <div class="drawRule"><img src="/web/car-service/assets/image/mall/ico_guize@2x.png">使用规则</div>
+        <div class="dm-list-box"></div>
+        <div class="noData">
+            <img src="/web/car-service/assets/image/mall/ico_wuyouhuiquan@2x_65.png">
+            暂无优惠券
+        </div>
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="tmpl-data-list">
+    {{~it.data:item:index}}
+    <div class="dm-list {{=item.status==0||item.status==4?'':'lose'}}" get_id="{{=item.get_id}}" pid="{{=item.id}}">
+        {{?item.status==1}}
+            <em class="sy"></em>
+        {{??item.status==2}}
+            <em class="dj"></em>
+        {{??item.status==3}}
+            <em class="sx"></em>
+        {{?}}
+        <span>{{?item.click_status==0}}￥{{?}}<i>{{=item.ticket_much}}</i>{{?item.click_status==2}}折{{?}}</span>
+        <div class="tit">{{=item.activity_name}}</div>
+        <div class="time">有效期 {{=item.mintime.split(' ')[0]}}~{{=item.maxtime.split(' ')[0]}}</div>
+        <div class="handle flex-y">
+            <div class="name flex-c">{{=item.give_person?item.give_person+'赠送':item.name}}</div>
+            {{?item.apply==0||item.apply==1||item.apply==2}}
+            <div class="bot {{=item.status==4?'close':''}}" apply="{{=item.apply}}">立即使用</div>
+            {{?}}
+            {{?item.can_give==1}}
+                <div class="bot" title="{{=item.title}}" desc="{{=item.desc}}" images="{{=item.image}}" link="{{=item.link}}">转赠给朋友</div>
+            {{?}}
+        </div>
+    </div>
+    {{~}}
+</script>
+<script>
+    var render_list = getRender('tmpl-data-list');
+    var page = 1;
+
+    function onStart(){
+
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_PRIVILEGE_USER,{'wxappid':getWxappid(),'userid':getUserid(),'page':page},function(data){
+            if (data.status == 1) {
+                if (data.data.length <= 0) {
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(page==1){
+                        $('.noData').addClass('fade');
+                    }
+                    loadEnd();
+                    return false;
+                }
+                if (page == 1) {
+                    $('.dm-list-box').html(render_list(data));
+
+                }else {
+                    $('.dm-list-box').append(render_list(data));
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(page==1){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+            }
+            loadEnd();
+        })
+    }
+
+    $('.dm-list-box').on('tap','.bot',function(event){
+        if(!$(this).parents('.dm-list').hasClass('lose')){ //券未失效才可点击
+            event.stopPropagation();
+            if($(this).text()=='立即使用'){
+                if(!$(this).hasClass('close')){
+                    var oApply = $(this).attr('apply');
+                    if(oApply==2){ //通用券跳至首页
+                        PageJumpTap('gotoMallIndex');
+                    }else { //商品券跳至商品选择
+                        var obj = M();
+                        obj.get_id = $(this).parents('.dm-list').attr('get_id');
+                        PageJumpTap('gotoMallPartake',obj);
+                    }
+                }
+            }else if($(this).text()=='转赠给朋友'){
+                $('#showSharePic').addClass('fade');
+                WxShare.title = $(this).attr('title');
+                WxShare.desc = $(this).attr('desc');
+                WxShare.imgUrl = $(this).attr('images');
+                WxShare.link = $(this).attr('link');
+                onWxShare();
+            }
+        }
+    }).on('tap','.dm-list',function(){
+        var obj = M();
+        obj.get_id = $(this).attr('get_id');
+        obj.pid = $(this).attr('pid');
+        PageJumpTap('gotoMallDrawDetail',obj);
+    });
+
+    $('#showSharePic').on('click',function(){
+        $(this).removeClass('fade');
+    });
+
+    $('.drawRule').on('tap',function(){
+        jsonAjax(API.API_LIST.GOLD_PRIVILEGE_HELPPRIVILEGE,{'wxappid':getWxappid()},function(data){
+            if(data.status==1){
+                window.location.href=data.data;
+            }
+        })
+    });
+
+    function onWxReady(){
+        _initMui();
+        getData();
+    }
+
+    function JumpAfterSharing(){
+        jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,{'rid':I('pid',''),'source':3,'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+            }
+        })
+    }
+
+</script>
+</html>

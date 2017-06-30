@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script src="/web/assets/js/smdg/uploadPic.js"></script>
+    <title>编辑车队介绍</title>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/pub-acct/assets/css/weui.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/fleet-introduceEdit.css">
+</head>
+
+<body>
+  <div class="content publish-btn">
+
+  </div>
+</div>
+  </div>
+  <div id="addContent">+ 添加内容</div>
+  <div id="issue">发布</div>
+  <div class="modul-info flex">
+    <div id="mask" class="weui_mask_transition" style="display:none"></div>
+    <div class="wrapInfo weui_actionsheet">
+      <div class="addWrap">
+        <div class="addArticle" scl-pe="before">添加文字</div>
+        <span class="pub-btn spec">添加图片</span>
+      </div>
+      <div id="doCancel">取消</div>
+    </div>
+  </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+var contentText = '', // 点击添加文字
+    contentArr = new Array(),// 添加的内容
+    hasUpload = true; //发布开关
+function onStart() {
+    imageUpdate();
+    // 登录验证
+    isLogin(function(ret) {
+        if(ret) {
+            getData();
+        }
+    });
+    loadEnd();
+};
+
+
+//点击编辑内容
+$("#addContent").on("click",function() {
+  $('#mask').addClass('weui_fade_toggle').show();
+  $('.wrapInfo').addClass('weui_actionsheet_toggle');
+  $('body').css("overflow", "hidden");
+});
+//点击取消
+$("#doCancel").on("click",function() {
+  $('#mask').removeClass('weui_fade_toggle').hide();
+  $('.wrapInfo').removeClass('weui_actionsheet_toggle');
+  $('body').css("overflow-y","scroll");
+})
+
+//点击添加文字
+$(".addWrap").on("click",".addArticle",function() {
+  contentText = '<div class="contentText" type_id="text">' +
+                  '<textarea class="text-area" id="text" contenteditable="true" placeholder="请填写内容~"></textarea>' +
+                  '<div class="delateText" scl-pe="before"><div class="delete">删除</div></div>' +
+                '</div>';
+  $(".content").append(contentText);
+  $('#mask').removeClass('weui_fade_toggle').hide();
+  $('.wrapInfo').removeClass('weui_actionsheet_toggle');
+  $('body').css("overflow-y","scroll");
+
+  // 控制输入框随内容自动换行
+  document.getElementById("text").onkeyup = function() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + "px";
+  }
+
+});
+
+
+//点击删除文字编辑区域
+$(".content").on("click",".delateText .delete",function() {
+  $(this).parents(".contentText").remove();
+})
+
+function getData() {
+  var objData = new Object();
+  //点击发布
+  $("#issue").on("click",function() {
+    console.log(hasUpload);
+    if($(".content").children().length == 0) {
+      inputTipsText("请填写内容再发布");
+      return;
+    }
+    $.each($(".content").children(),function(i) {
+      $(this).attr("sort",i+1);
+      if($(this).attr("type_id") == "text") {
+        objData = {
+          content: $(this).find("textarea").val(),
+          sort: Number($(this).attr("sort")),
+          cid: 1
+        }
+        if(objData.content == ""){
+          inputTipsText("请填写内容再发布");
+          hasUpload = false;
+          return;
+        }else{
+          hasUpload = true;
+        }
+      }else {
+        objData = {
+          content: ($(this).attr("href")).substring(35),
+          sort: Number($(this).attr("sort")),
+          cid: 2
+        }
+      }
+      contentArr.push(objData);
+      $("#issue").hide();
+    });
+    console.log(contentArr);
+    if(hasUpload) {
+      contentArr = JSON.stringify(contentArr);
+      jsonAjax(API.API_LIST.GOLD_PLAY_ADDINTRODUCE,{"data":contentArr,"tid":I("tid"),"userid":getUserid()},function(data) {
+        inputTipsText(data.info);
+        if(data.status == 1) {
+          var obj = M();
+          obj.tid = I('tid');
+          InterfaceTap('gotoFleetIntroduce',obj);
+        }
+      });
+    }
+  });
+}
+
+</script>
+</html>

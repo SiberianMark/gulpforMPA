@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>购车计算器</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body class="positioin">
+<div class="cal-wrap">
+    <div class="tabs bgwh">
+        <ul class="tabs-menu clear tc pr">
+            <li class="col-6 pr current">全款计算<div class="triangle"></div></li>
+            <li class="col-6 pr ">贷款计算<div class="triangle"></div></li>
+            <li class="pa divide-line"></li>
+        </ul>
+        <div class="tabs-con">
+            <div class="con-list loan tc">
+                    <span class="cons dib">
+                        预计花费总额
+                        <p class="total_money">￥<span>0</span></p>
+                    </span>
+            </div>
+            <div class="con-list lobn tc" style="display: none;">
+                    <span class=" dib">
+                        预计花费总额
+                        <p class="total_money">￥<span class="priceAll">0</span></p>
+                    </span>
+                <ul class="tc ovh spend-detail">
+                    <li class="col-4">
+                        <p>首付</p>
+                        <p>￥<span class="firstPay">0</span></p>
+                    </li>
+                    <li class="col-4">
+                        <p>月供</p>
+                        <p>￥<span class="monthPay">0</span></p>
+                    </li>
+                    <li class="col-4">
+                        <p>多花</p>
+                        <p>￥<span class="morePay">0</span></p>
+                    </li>
+                </ul>
+                <div class="msg-ph clear bgwh tl ovh pay" border="bottom">
+                    <span class="ph-num mgr-2">首付比例</span>
+                    <div class="fr db count-component pr tc ovh">
+                        <a class="reduce" href="javascript:void(0);">-</a>
+                        <div class="countval_box"><input class="countval tc" type="tel" maxlength="4" value=""></div>
+                        <a class="add" href="javascript:void(0);">+</a>
+                    </div>
+                </div>
+                <div class="msg-ph clear bdb bgwh tl year" border="bottom">
+                    <span class="ph-num mgr-2">还款年限</span>
+                    <div class="fr db count-component pr tc ovh">
+                        <a class="reduce" href="javascript:void(0);">-</a>
+                        <div class="countval_box"><input class="countval tc" type="text" maxlength="4" value=""></div>
+                        <a class="add" href="javascript:void(0);">+</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chooseCar" border="bottom">
+            <div class="con-l">选择车款</div>
+            <div class="con-r">请选择车款</div>
+        </div>
+        <div class="carPrice">
+            <div class="con-l">裸车价格</div>
+            <div class="con-r">￥<input value="" placeholder="请输入裸车价格"></div>
+        </div>
+    </div>
+    <div class="btn-box">
+        <a class="btn red">开始计算</a>
+    </div>
+    <div class="dataBox">
+
+    </div>
+
+</div>
+
+<script type="text/template" id="temp-list">
+    <div class="itemsBox must">
+        <div class="title">
+            <div class="con-l">必要花费</div>
+            <div class="con-r">￥<span>1111</span></div>
+            <div class="tb"><i></i></div>
+        </div>
+        <div class="list cur" border="top" type="buytex" num="0">
+            <div class="con-l"><i></i>购置税<span>{{=it.data.buytex.name}}</span></div>
+            <div class="con-c">￥<span>{{=Math.round(it.data.buytex.value)}}</span></div>
+            <div class="con-r"></div>
+        </div>
+        <div class="list cur" border="top" type="numberfee" num="0">
+            <div class="con-l"><i></i>上牌费用<span>{{=it.data.numberfee.name}}</span></div>
+            <div class="con-c">￥<span>{{=Math.round(it.data.numberfee.value)}}</span></div>
+            <div class="con-r"></div>
+        </div>
+        <div class="list cur" border="top" type="usetex" num="0">
+            <div class="con-l"><i></i>车船使用税<span>{{=it.data.usetex.name}}</span></div>
+            <div class="con-c">￥<span>{{=Math.round(it.data.usetex.value)}}</span></div>
+            <div class="con-r"></div>
+        </div>
+        <div class="list cur" border="top" type="accidentfee" num="0">
+            <div class="con-l"><i></i>交通事故责任强制险<span>{{=it.data.accidentfee.name}}</span></div>
+            <div class="con-c">￥<span class="acc">{{=Math.round(it.data.accidentfee.value)}}</span></div>
+            <div class="con-r"></div>
+        </div>
+    </div>
+    <div class="itemsBox trade">
+        <div class="title">
+            <div class="con-l">商业保险</div>
+            <div class="con-r">￥<span>1111</span></div>
+            <div class="tb"><i></i></div>
+        </div>
+        <div class="list cur" border="top" type="third" num="0">
+            <div class="con-l"><i></i>第三方责任险<span>{{=it.data.third.name}}</span></div>
+            <div class="con-c">￥<span class="third">{{=Math.round(it.data.third.value)}}</span></div>
+            <div class="con-r"></div>
+        </div>
+
+        <div class="list cur" border="top">
+            <div class="con-l"><i></i>车辆损失险<span></span></div>
+            <div class="con-c">￥<span class="loss"></span></div>
+            <div class="con-r no"></div>
+        </div>
+        <div class="list cur" border="top">
+            <div class="con-l"><i></i>全车盗抢险<span></span></div>
+            <div class="con-c">￥<span class="steal"></span></div>
+            <div class="con-r no"></div>
+        </div>
+        <div class="list cur" border="top" type="glass" num="0">
+            <div class="con-l"><i></i>玻璃单独破碎险<span>{{=it.data.glass.name}}</span></div>
+            <div class="con-c">￥<span>{{=Math.round(it.data.glass.value)}}</span></div>
+            <div class="con-r"></div>
+        </div>
+        <div class="list cur" border="top">
+            <div class="con-l"><i></i>自燃损失险<span></span></div>
+            <div class="con-c">￥<span>{{=Math.round(it.data.burn)}}</span></div>
+            <div class="con-r no"></div>
+        </div>
+        <div class="list cur" border="top">
+            <div class="con-l"><i></i>不计免赔特约险<span></span></div>
+            <div class="con-c">￥<span class="escape"></span></div>
+            <div class="con-r no"></div>
+        </div>
+        <div class="list cur" border="top">
+            <div class="con-l"><i></i>无过责任险<span></span></div>
+            <div class="con-c">￥<span class="unerring"></span></div>
+            <div class="con-r no"></div>
+        </div>
+        <div class="list cur" border="top" type="personfee" num="0">
+            <div class="con-l"><i></i>车上人员责任险<span>{{=it.data.personfee.name}}</span></div>
+            <div class="con-c">￥<span>{{=Math.round(it.data.personfee.value)}}</span></div>
+            <div class="con-r"></div>
+        </div>
+        <div class="list cur" border="top" type="scratch" num="0">
+            <div class="con-l"><i></i>车身划痕险<span>{{=it.data.scratch.name}}</span></div>
+            <div class="con-c">￥<span>{{=Math.round(it.data.scratch.value)}}</span></div>
+            <div class="con-r"></div>
+        </div>
+        <div class="list cur" border="top">
+            <div class="con-l"><i></i>涉水险<span></span></div>
+            <div class="con-c">￥<span class="water"></span></div>
+            <div class="con-r no"></div>
+        </div>
+    </div>
+</script>
+
+<div class="data-box">
+
+</div>
+<script type="text/template" id="temp-con">
+    <div class="calculator-header">
+        <div class="title">{{=it.data.name}}</div>
+        <span class="close">关闭</span>
+    </div>
+    <ul class="list">
+        {{var i = 0;}}
+        {{$.each(it.data.list,function(key,value){ }}
+        <li num="{{=i}}" value="{{=Math.round(value)}}" border="top">{{=key}}</li>
+        {{i++;}}
+        {{});}}
+    </ul>
+</script>
+</body>
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var detailid = I('detailid','');
+    var carName = decodeURIComponent(I('detailname',''));
+    var newCarName = carName.replace(/=/g," ");
+    var renderList = getRender('temp-list');
+    var renderCon = getRender('temp-con');
+    var price = 0; //全款总花费额
+    var priceAll = 0; //贷款总花费额
+    var loss = 0; //车辆损失险费率
+    var steal = 0; //全车盗抢险费率
+    var escape = 0; //不计免赔特约险费率
+    var unerring = 0; //无过责任险费率
+    var water = 0; //涉水险费率
+    var must = 0; //必要花费总额
+    var trade = 0; //商业保险总额
+    var swi = false;
+    var allM = 0; //预计花费总额
+    var paymin = 0; //最低首付比例
+    var paymax = 0; //最高首付比例
+    var year = 0; //还款年限
+    var yearRate = 0; //年利率
+    var mRate = 0; //月供
+    var yearRateString = [];
+    var oKeyString = [];
+    var valueString = [];
+    var oFirst = 0;
+    var index = 0;
+    var firstPay = 0; //贷款首付
+    var oPayAll = 0; //贷款总额
+    var canDo = false; //开始计算
+    console.log('.',newCarName);
+    function onStart(){
+        if(detailid!=null||detailid!=''){
+            jsonAjax(API.API_LIST.CAR_BUYCAR_CONSULTPRICE,{'detailid':detailid},function (res) {
+                if(res.status == 1){
+                    price = res.data.price=='暂无报价'?'':res.data.price;
+                    $('.carPrice input').val(price*10000);
+                    console.log('..',price);
+                }
+                loadEnd();
+            });
+            $('.chooseCar .con-r').css('color','#333')
+        }
+        jsonAjax(API.API_LIST.CAR_BUYCAR_CALCULATORLOAN,{},function (res) {
+            if(res.status == 1){
+                paymin = parseInt(res.data.paymin);
+                paymax = parseInt(res.data.paymax);
+                yearRateString = res.data.yearrate;
+                console.log(paymin,paymax,'111qq');
+                oFirst = paymin;
+                $('.pay input.countval').val(oFirst+'%');
+                for(i in yearRateString){
+                    oKeyString.push(i);
+                    valueString.push(yearRateString[i]);
+                }
+                year = oKeyString[0];
+                yearRate = yearRateString[year];
+                $('.year input.countval').val(year+'年');
+//                alert(yearRateString['1年']);
+                console.log(paymin,paymax,yearRateString,oKeyString,valueString,year,yearRate,oKeyString.length,'123456..');
+                count2();
+                loadEnd();
+            }
+        });
+
+    }
+
+    $('.pay').on('click','.add',function(){ //首付比例+
+        if(oFirst<paymax){
+            oFirst+=10;
+        }
+        $('.pay input.countval').val(oFirst+'%');
+        if(canDo){
+            $('.firstPay').text((allM*oFirst/100).toFixed(2));
+        }
+        count2();
+    });
+
+    $('.pay').on('click','.reduce',function(){ //首付比例-
+        if(oFirst>paymin){
+            oFirst-=10;
+        }
+        $('.pay input.countval').val(oFirst+'%');
+        if(canDo){
+            $('.firstPay').text((allM * oFirst / 100).toFixed(2));
+        }
+        count2();
+    });
+
+    $('.year').on('click','.add',function(){ //还款年限+
+        if(index<oKeyString.length-1){
+            ++index;
+        }
+        year = oKeyString[index];
+        yearRate = yearRateString[year];
+        $('.year input.countval').val(year+'年');
+        console.log(year,yearRate);
+        count2();
+    });
+
+    $('.year').on('click','.reduce',function(){ //还款年限-
+        if(index>0){
+            --index;
+        }
+        year = oKeyString[index];
+        yearRate = yearRateString[year];
+        $('.year input.countval').val(year+'年');
+        console.log(year,yearRate);
+        count2();
+    });
+
+    function count(){ // 动态计算价格
+        if(canDo){
+            $('.loss').text(Math.round($('.carPrice input').val()*loss+parseInt($('.acc').text())));
+            $('.steal').text(Math.round($('.carPrice input').val()*steal+parseInt($('.acc').text())));
+            $('.escape').text(Math.round((parseInt($('.third').text())+parseInt($('.loss').text()))*escape));
+            $('.unerring').text(Math.round($('.third').text()*unerring));
+            console.log(water+'water');
+            $('.water').text(Math.round(parseInt($('.loss').text())*water));
+            console.log(parseInt($('.loss').text()),water,'##')
+        }
+    }
+
+    function count2(){ // 贷款相关计算
+        if(canDo) {
+            console.log(oFirst, must, trade, '$$$');
+            firstPay = (price * oFirst / 100 + must + trade);
+            $('.firstPay').text(formatMoney(Math.round(firstPay),0));
+            oPayAll = price * (1 - oFirst / 100); //贷款总额
+            mRate = ((oPayAll * yearRate * Math.pow((1 + yearRate), year * 12)) / (Math.pow((1 + yearRate), year * 12) - 1));
+            $('.monthPay').text(formatMoney(Math.round(mRate),0));
+            console.log('...', price, oFirst, mRate, year, firstPay);
+            priceAll = mRate * year * 12 + firstPay;
+            $('.priceAll').text(formatMoney(Math.round(priceAll),0));
+            $('.morePay').text(formatMoney(Math.round(priceAll - allM),0));
+        }
+    }
+
+
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_CALCULATOR,{'price':$('.carPrice input').val()},function (res) {
+            inputTipsText(res.data.info);
+            if(res.status == 1){
+                $('.dataBox').html(renderList(res));
+                $('.dataBox').show();
+                $('.btn-box').hide();
+                loss = res.data.loss;
+                steal = res.data.steal;
+                escape = res.data.escape;
+                unerring = res.data.unerring;
+                water = res.data.water;
+                price = parseFloat($('.carPrice input').val());
+                count();
+                getTrade();
+                getMush();
+                allM = (trade + must + price);
+                $('.loan .total_money span').text(formatMoney(allM,0));
+                count2();
+//                console.log('allM',allM,price);
+            }else {
+                inputTipsText(res.data.info);
+            }
+        });
+    }
+
+    $('.tabs-menu .col-6').on('click',function(index){
+        var index = $(this).index();
+        var currentDiv = $(".tabs-con > div:eq(" + index + ")");
+        $(this).addClass('current').siblings('.col-6').removeClass('current');
+        currentDiv.siblings().hide();
+        currentDiv.show();
+    });
+
+    $('.btn-box').on('click',function(){
+        var num = /^[0-9]*$/;
+        var val = $('.carPrice input').val();
+        var oCar = $('.chooseCar .con-r').text();
+
+        if(oCar=='请选择车款'){
+            inputTipsText('请选择车款');
+            return false;
+        }
+
+        if(!num.test(val)){
+            inputTipsText('仅可输入数字');
+            return false;
+        }
+
+        if(val.length==0){
+            inputTipsText('请输入裸车价格');
+            return false;
+        }
+        $('.dataBox').show();
+        $('.btn-box').hide();
+        $('.carPrice input').val($('.carPrice input').val());
+        getData();
+        swi = true;
+        canDo = true;
+    });
+
+    var a; //可选参数键
+    var b; //可选参数值
+    //展开
+    $('.dataBox').on('click','.itemsBox .list .con-r',function(e){
+        if($(this).hasClass('no')){
+            return false;
+        }
+        e.stopPropagation();
+        var type = $(this).parent().addClass('me').attr('type');
+        var oNum = $(this).parent().attr('num');
+        console.log(oNum);
+        jsonAjax(API.API_LIST.CAR_BUYCAR_CALCULATORNEXT,{'type':type,'price':$('.carPrice input').val()},function (res) {
+            if(res.status == 1){
+                $('.data-box').html(renderCon(res));
+                $('.data-box .list li').eq(oNum).addClass('cur');
+            }else {
+                inputTipsText(res.data.info);
+            }
+        });
+        $('.data-box').addClass('show');
+    });
+    //关闭
+    $('.data-box ').on('click','.close',function(){
+        $('.data-box').removeClass('show');
+    }).on('click','li',function(){
+        $('.data-box').removeClass('show');
+        a=$(this).text();
+        b=$(this).attr('value');
+        $('.me').attr('num',$(this).attr('num')).find('.con-l span').text(a).end().find('.con-c span').text(b).end().removeClass('me');
+        console.log(a,b);
+        price = parseFloat($('.carPrice input').val());
+        count();
+        getTrade();
+        getMush();
+        allM = (trade + must + price);
+        $('.loan .total_money span').text(formatMoney(allM,0));
+    });
+
+
+
+    $('.chooseCar').on('click',function(){
+        var obj = M();
+        obj.source = 'buyJs';
+        PageJump('gotoBuyCarIndex',JSON.stringify(obj));
+    }).find('.con-r').text(newCarName!=''?newCarName:'请选择车款');
+
+    $('.dataBox').on('click','.title',function(){
+        $(this).toggleClass('show').siblings().toggle();
+    }).on('click','.trade .list',function(){
+        $(this).toggleClass('cur');
+        price = parseFloat($('.carPrice input').val());
+        getTrade();
+        allM = (trade + must + price);
+        count2();
+        $('.loan .total_money span').text(formatMoney(allM,0));
+    });
+
+
+
+
+
+    function getTrade(){ //获取商业保险总额
+        trade = 0;
+        $('.trade .cur').each(function(){
+            trade += parseInt($(this).find('.con-c span').text());
+            console.log('trade',trade);
+            $('.trade .title .con-r span').text(formatMoney(trade,2));
+            return trade;
+        })
+    }
+
+    function getMush(){ //获取商业保险总额
+        must = 0;
+        $('.must .cur').each(function(){
+            must += parseInt($(this).find('.con-c span').text());
+            console.log('must',must);
+            $('.must .title .con-r span').text(formatMoney(must,2));
+            return must;
+        })
+    }
+
+    var oTime;
+
+    $('.carPrice input').bind('input propertychange', function() {
+        if(swi){
+            var num = /^[0-9]*$/;
+            var val = $('.carPrice input').val();
+            if(!num.test(val)){
+                inputTipsText('仅可输入数字');
+                return false;
+            }
+//            $('.dataBox').empty();
+            clearTimeout(oTime);
+            oTime = setTimeout(getData,1000);
+        }
+    });
+
+    /*
+     * formatMoney(s,type)
+     * 功能：金额按千位逗号分割
+     * 参数：s，需要格式化的金额数值.
+     * 参数：type,判断格式化后的金额是否需要小数位.
+     * 返回：返回格式化后的数值字符串.
+     */
+    function formatMoney(s, type) {
+        if (/[^0-9\.]/.test(s))
+            return "0";
+        if (s == null || s == "")
+            return "0";
+        s = s.toString().replace(/^(\d*)$/, "$1.");
+        s = (s + "00").replace(/(\d*\.\d\d)\d*/, "$1");
+        s = s.replace(".", ",");
+        var re = /(\d)(\d{3},)/;
+        while (re.test(s))
+            s = s.replace(re, "$1,$2");
+        s = s.replace(/,(\d\d)$/, ".$1");
+        if (type == 0) {// 不带小数位(默认是有小数位)
+            var a = s.split(".");
+            if (a[1] == "00") {
+                s = a[0];
+            }
+        }
+        return s;
+    }
+
+</script>
+</html>

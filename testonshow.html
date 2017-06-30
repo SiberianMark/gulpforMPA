@@ -1,0 +1,39 @@
+<html>
+    <head>
+    <script>
+
+    function myLoadHandler(evt)
+    {
+        if (evt.persisted) {
+          alert('load');
+            
+        }
+        alert('load');
+    
+       
+    }
+
+    function myUnloadHandler(evt)
+    {
+        if (evt.persisted) {
+           
+             alert('unload');
+        }
+        window.cookie.setItem('unload','unload');
+    
+       
+    }
+
+    if ("onpagehide" in window) {
+        window.addEventListener("pageshow", myLoadHandler, false);
+        window.addEventListener("pagehide", myUnloadHandler, false);
+    } else {
+        window.addEventListener("load", myLoadHandler, false);
+        window.addEventListener("beforeunload", myUnloadHandler, false);
+    }
+
+    </script>
+    <body>
+    <a href="https://www.baidu.com">Your content goes here!</a>
+    </body>
+    </html>

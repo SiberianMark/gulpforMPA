@@ -1,0 +1,177 @@
+<!doctype html>
+<html style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>选择方案</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body style="height: 100%">
+<div id="dataBox">
+    <script type="text/template">
+    <div class="fill-step">
+        <ul>
+            <li class="cur">填里程</li>
+            <li class="cur">选方案</li>
+            <li>下订单</li>
+        </ul>
+        <div class="picture">
+            <div class="cur"></div>
+            <div class="cur"></div>
+            <div class="last"></div>
+            <img src="/web/car-service/assets/image/car@2x.png" style="left:60%;;"/>
+        </div>
+    </div>
+    <div class="recommend" style="margin-bottom: 1rem;">
+        {{var mileage=I('mileage');}}
+        <div class="title">为您推荐{{=mileage}}公里保养方案，有{{=(it.data.default).length}}处需要保养</div>
+        <ul>
+            {{~it.data.default:val:index}}
+            <li class="pr selected" aid="{{=val.id}}" border="bottom">
+                <span></span>
+                <div class="clear">
+                    <div class="project"><span class="pro">{{=val.content}}</span><span class="tips" style="display: none;"></span></div>
+                    <div class="price">&yen;<span>{{=val.child.price}}</span></div>
+                </div>
+                <div class="clear">
+                    <div class="detail">{{=val.child.content}}</div>
+                    <div class="cost">工时费&yen;<span>{{=val.price}}</span></div>
+                </div>
+            </li>
+            {{~}}
+        </ul>
+    </div>
+    {{?it.data.optional}}
+    <div class="recommend recommend2">
+        <div class="title2 pr">还有<span>{{=it.data.optional.length}}</span>项零件暂不需要保养，可自主选择<i></i></div>
+        <ul>
+            {{~it.data.optional:val:index}}
+            <li class="pr" aid="{{=val.id}}"  border="bottom">
+                <span class="no_select"></span>
+                <div class="clear">
+                    <div class="project"><span class="pro">{{=val.content}}</span><span class="tips"></span></div>
+                    <div class="price">&yen;<span>{{=val.child.price}}</span></div>
+                </div>
+                <div class="clear">
+                    <div class="detail">{{=val.child.content}}</div>
+                    <div class="cost">工时费&yen;<span>{{=val.price}}</span></div>
+                </div>
+            </li>
+            {{~}}
+        </ul>
+    </div>
+    {{?}}
+    </script>
+</div>
+<div id="priceList">
+    <!--<div class="list" border="bottom">-->
+        <!--<div class="l-l">基友</div>-->
+        <!--<div class="l-c">131313福袋</div>-->
+        <!--<div class="l-r"><em>原厂价488</em></div>-->
+    <!--</div>-->
+    <!--<div class="list" border="bottom">-->
+        <!--<div class="l-l">工时折扣（8折）</div>-->
+        <!--<div class="l-c">131313福袋</div>-->
+        <!--<div class="l-r"><i>-￥488</i></div>-->
+    <!--</div>-->
+</div>
+<div class="fixdBox" border="top">
+    <div class="total-price">
+        <div class="yuji">预计费用：</div>
+        <div class="price">&yen;<span></span></div>
+        <div class="detail">
+            <div class="save">省&yen;<i></i><span></span></div>
+            <div class="mx">（价格明细）</div>
+        </div>
+        <div>
+            <div class="btn3" >预约优惠</div>
+        </div>
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var sum=0;
+    var rate=0;
+    var discount=0; //优惠率
+    var ids = [];
+    var money=0;
+    var plan_id;
+    var oStr = '';
+    function onStart(){
+        getData();
+    }
+
+    $('#dataBox').on('click','.title2',function(){
+        $(this).find('i').toggleClass('r').end().siblings('ul').toggle();
+    }).on('click','.recommend2 li',function(){
+        $(this).toggleClass('selected');
+        sum = 0;
+        rate = 0;
+        ids = [];
+        count();
+    });
+
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_UPKEEP_MAINTAINOPTIONS,{'car_id':I('car_id',''),'mileage':I('mileage','')},function(data){
+            if(data.status==1){
+                doTer(data, $('#dataBox'));
+                discount =parseFloat(data.data.discount);
+                plan_id = data.data.plan_id;
+                count();
+                loadEnd();
+            }else {
+                var obj = M();
+                var obj2 = M();
+                obj.ids = 0;
+                obj.car_id = I('car_id');
+                obj2.carid = I('car_id');
+                changeBackUrlL("car-service/keep-car/fill-mileage",obj2);
+                PageJump('gotoConfirmBooking',obj);
+            }
+        })
+    }
+
+    $('.fixdBox').on('click','.btn3',function(){
+        var obj = M();
+        obj.ids = ids;
+        obj.car_id = I('car_id');
+        obj.plan_id = plan_id;
+        obj.money = money;
+        console.log(ids);
+        PageJump('gotoConfirmBooking',obj);
+    });
+
+    $('.detail').on('click',function(){
+        oStr = '';
+        $('#dataBox,#priceList').fadeToggle(200);
+        $(this).toggleClass('open');
+        $('.recommend li.selected').each(function(){
+            var oName = $(this).find('.pro').text();
+            var oDet = $(this).find('.detail').text();
+            var oPri = $(this).find('.price span').text();
+            var oS = '<div class="list" border="bottom"><div class="l-l">'+oName+'</div><div class="l-c">'+oDet+'</div> <div class="l-r"><em>原厂价'+oPri+'</em></div></div>'
+            oStr += oS;
+        });
+        var oSp = '<div class="list" border="bottom"> <div class="l-l">工时折扣（'+discount+'折）</div> <div class="l-c"></div> <div class="l-r"><i>-￥'+(rate*(10-discount)/10).toFixed(2)+'</i></div> </div>'
+        $('#priceList').html(oStr).append(oSp);
+    });
+
+    function count(){
+        $('.recommend .selected').each(function(index){
+            sum+=(parseFloat($(this).find('.price span').text())+parseFloat($(this).find('.cost span').text())*(discount)/10);
+            rate+=parseFloat($(this).find('.cost span').text());
+            ids.push($(this).attr('aid'));
+            console.log(index,sum,rate,ids);
+            return sum;
+        });
+        ids = ids.join('_');
+        $('.fixdBox .price span').text(sum.toFixed(2));
+        money = $('.fixdBox .price span').text();
+        $('.fixdBox .save i').text((rate*(10-discount)/10).toFixed(2));
+        console.log('..',ids,money);
+    }
+</script>
+</html>

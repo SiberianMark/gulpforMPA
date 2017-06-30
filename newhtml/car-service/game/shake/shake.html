@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>摇一摇</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/shake.css"/>
+</head>
+<body>
+<div class="container bg01">
+    <div class="rule"><img src="/web/car-service/assets/image/game/guizeicon@2x.png"> 规则</div>
+    <div class="inputBox">
+        <div class="input-l"><input type='tel' id="mobile" placeholder="输入手机号码参与游戏" value="" maxlength="11"></div>
+        <div class="input-r"></div>
+    </div>
+    <div class="userBox" style="height: 10rem;">
+        <div class="user">
+            <img src="/web/car-service/assets/image/game/bg-2@2x.jpg">
+            <i>狂奔的欧牛</i>
+        </div>
+        <div class="goal"><i>立即参与</i></div>
+    </div>
+</div>
+<div class="modal"> <!-- 样式加fade显示 -->
+    <div class="box">
+        <div class="ruleBox">
+            <i class="close"></i>
+            <div id='rule'></div>
+            <!-- <div class="txt01">游戏规则</div>
+            <div class="txt02">就是摇一摇</div>
+            <div class="txt03">奖项设置</div>
+            <div class="txt04">一等奖：啪啪啪啪啪啪</div>
+            <div class="txt04">一等奖：啪啪啪啪啪啪</div>
+            <div class="txt04">一等奖：啪啪啪啪啪啪</div> -->
+        </div>
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    $('.rule').on('click',function(){
+        $('.modal').addClass('fade');
+    });
+    $('.modal .close').on('click',function(){
+        $('.modal').removeClass('fade');
+    });
+    $('.input-r,.goal i').on('click',function(){
+        var mobile=$('#mobile').val();
+        if (mobile.length == 11 && regex_mobile.test(mobile)) {
+            $.cookie('did_game_mobile', mobile, {expires: 30, path: '/'});
+            var obj=M();
+            obj.id=I('id',0);
+            PageJump('gotoShakePlay',obj);
+        }else if(mobile.length==0){
+            inputTipsText('请输入手机号');
+        }else{
+            inputTipsText('手机号格式不正确');
+        }
+    });
+    function onStart(){
+        if($.cookie('did_game_mobile')!=''&&$.cookie('did_game_mobile')!=undefined){
+            $('#mobile').val($.cookie('did_game_mobile'));
+            $('.userBox .user i').text(UserInfo.nickname);
+            $('.user>img').attr('src',UserInfo.photo!=''?UserInfo.photo:'/web/car-service/assets/image/game/bg-2@2x.jpg');
+            $('.inputBox').hide();
+            $('.userBox').show();
+        }else {
+            $('.inputBox').show();
+            $('.userBox').hide();
+        }
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKE,{'userid':getUserid(),id:I('id',0)},function(data){
+            if(data.status==1){
+                $('#rule').html(data.data.game_rule.decodeHtml());
+                $('.container').css({'background-image':'url('+data.data.start_img+')'});
+            }
+            loadEnd();
+        });
+
+    }
+    function onWxReady(){
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKESHARE,{'userid':getUserid(),id:I('id',0)},function(data){
+            if(data.status==1){
+                WxShare.title = data.data.title;
+                WxShare.desc = data.data.desc;
+                WxShare.imgUrl = data.data.imgUrl;
+                WxShare.link = data.data.link;
+                onWxShare();
+            }
+            loadEnd();
+        });
+    }
+</script>
+</html>

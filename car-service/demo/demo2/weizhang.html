@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>违章查询</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/exclusive-adviser.css"/>
+    <style>
+        .list-box ul:nth-child(1) li:nth-child(1) {
+            width: 66.6%;
+            padding-top: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+<div class="car-data">
+    <div class="list-box">
+        <ul class="flex-box flex-box-left-center top" scl-pe="before">
+            <li scl-pe="before"><b id="a">粤B</b><b></b><b id="b">2X4L3</b></li>
+            <li id="edit"><span></span>编辑</li>
+        </ul>
+        <ul class="flex-box flex-box-left-center bottom" scl-pe="before">
+            <li scl-pe="before">
+                <span>违章</span>
+                <span>1</span>
+            </li>
+            <li scl-pe="before">
+                <span>扣分</span>
+                <span>3</span>
+            </li>
+            <li>
+                <span>罚款</span>
+                <span>￥200</span>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="add-peccancy">
+    <div id="add">添加车辆</div>
+</div>
+</body>
+<script type="text/javascript">
+    function onStart(){
+       loadEnd();
+    }
+
+    $("#add").on("click", function(){
+        location.href = '/web/car-service/demo/demo2/add-car.html';
+    })
+
+    $("#edit").on("click", function(){
+        var a = $("#a").text();
+        var b = $("#b").text();
+        location.href = '/web/car-service/demo/demo2/add-car.html?source=edit&a='+a+'&b='+b;
+    })
+
+    $(".bottom").on("click",function(){
+        location.href = '/web/car-service/demo/demo2/peccancy-list.html';
+    });
+</script>
+</html>

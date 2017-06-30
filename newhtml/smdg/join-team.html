@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title></title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <style>
+    .inputTipsText{
+        top: 70%;
+    }
+    </style>
+</head>
+<body>
+    <section class="join-team" >
+        <div class="head">
+        </div>
+        <div class="jtm-title">
+            <span class="team-member active">队员</span>
+            <span class="team-list">榜单</span>
+            <div class="mst-line"></div>
+        </div>
+        <div class="jt-main">
+            <!-- 榜单列表 -->
+            <div id="pullrefresh" class="mui-scroll-wrapper" style="margin-top: 23.7rem;">
+                <div class="mui-scroll">
+                    <ul class="ranking-list player-list" val="0"></ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id="dishead">
+{{ var val = it.data;}}
+        <img class="jh-logo" src="{{=val.logo}}" alt="">
+        <div class="jh-info">
+            <p class="tname">{{=val.name}}</p>
+            <p arms ="{{=val.arms}}">{{=val.are}}</p>
+            <p>{{=val.sums + '人'}}</p>
+        </div>
+        <div class="btn-download">下载神马嘀嘀 与队友互动起来</div>
+
+</script>
+<script type="text/template" id="templist">
+{{ var val = it.data;}}
+    {{?value == 1}}
+    {{~val.list:i:index}}
+    <li>
+        {{?index < 3}}
+        <span class="trophy"></span>
+        {{??}}
+        <span class="trophy">{{=index+1}}</span>
+        {{?}}
+        <img class="teamlogo" src="{{=i.logos}}" alt="">
+        <span class="team-name">{{=i.name}}</span>
+        <span class="integral">积分<b class="jifennum">{{=i.count}}</b></span>
+    </li>
+    {{~}}
+    {{??}}
+    {{?val.captain}}
+    <li class="personal-info" border="bottom" uid="{{=it.data.captain.userid}}" id="{{=it.data.captain.id}}" founderid="{{=it.data.captain.userid}}">
+        <div class="item-cons clear">
+            <span class="img-cons">
+                <img class="playlogo" src="{{=it.data.captain.image}}" alt="">
+                <i class="{{=(it.data.captain.status==0)?'certifying':'certified'}}"></i>
+            </span>
+            <p class="t1">{{=it.data.captain.uname}}
+                {{?it.data.captain.sex > 0}}
+                <i class="user-sex {{=(it.data.captain.sex == 1)?'male':'female'}}"></i>
+                {{?}}
+                <i class="user-lv {{=(it.data.captain.rankid!='')?'v'+it.data.captain.rankid:''}}"></i>
+                <span class="is_captain">队长</span>
+            </p>
+            <p>{{=it.data.captain.brand}} {{=it.data.captain.model}} {{=it.data.captain.detail}}</p>
+            {{?it.data.captain.grade != null}}
+                <p>最好成绩：{{=it.data.captain.grade}} {{=it.data.captain.gname ? '(' + it.data.captain.gname + ')' :""}}</p>
+            {{?}}
+            <span class="integral"><b class="jifennum">{{=it.data.captain.total}}</b>分</span>
+        </div>
+    </li>
+    {{?}}
+    {{~val.list:i:index}}
+    <li class="personal-info" uid="{{=i.userid}}">
+        <span class="img-cons">
+                <img class="playlogo" src="{{=i.image}}" alt="">
+                <i class="{{=(i.status==0)?'certifying':'certified'}}"></i>
+        </span>
+        <p class="t1">{{=i.uname}}
+            {{?i.sex > 0}}
+            <i class="user-sex {{=(i.sex== 1)?'male':'female'}}"></i>
+            {{?}}
+            <i class="user-lv {{=(i.rankid!='')?'v'+i.rankid:''}}"></i>
+        </p>
+        <p>{{=i.brand}} {{=i.model}} {{=(i.detail) ? (i.detail) : ""}}</p>
+        {{?i.grade != null}}
+        <p>最好成绩：{{=i.grade}} {{=i.gname ? '(' +i.gname + ')' :""}}</p>
+        {{?}}
+        <span class="integral"><b class="jifennum">{{=i.total}}</b>分</span>
+    </li>
+    {{~}}
+    {{?}}
+</script>
+<script>
+
+    var sort_index =0,
+        value = $('.ranking-list').attr("val"),
+        type = I('type','0'),
+        tid = I('tid'),
+        page =I('page',1),
+        dishead = getRender('dishead'),
+        userid = getUserid(),
+        render=getRender('templist');
+    function onStart(){
+        isLogin(function(ret){
+            if(ret){
+                _initMui();
+                getdishead();
+                getData(true);//渲染数据 
+                if(I('source') == 'succ'){
+                    inputTipsText('已加入车队');
+                }
+            }
+            loadEnd();
+        });
+    }
+    //获取数据并渲染
+    function getdishead(){
+        jsonAjax(API.API_LIST.GOLD_MODULEGOROUP_USERJOIN,{userid:userid,page: page,type:type,tid:tid,val:value},function(data){
+            if(data.status==1){
+               $('.head').prepend(dishead(data));
+               var str = "--神马嘀嘀";
+               $('title').html(data.data.name + str);
+                if(data.data.is_appr == 0){
+                    $('.join-team').append("<div class='btn-jion'>加入车队</div>");
+                    $('#pullrefresh').css({'margin-bottom':'4.4rem'});
+                }else{
+                    $('.join-team').find(".btn-join").remove();
+                }
+            }
+                loadEnd();
+        });
+    }
+  function getData() {
+    var  type=arguments[0]?true:false;
+        jsonAjax(API.API_LIST.GOLD_MODULEGOROUP_USERJOIN,{userid:userid,page: page,type:type,tid:tid,val:value}, function (data) {
+            if (data.status == 1) {
+                 if(data.data.list.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(type){
+                       $('.ranking-list').html(render(data));
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(page == 1){
+                    $('.ranking-list').html(render(data));
+                }else{
+                    data.data["captain"]="";
+                    $('.ranking-list').append(render(data));
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }
+            $('.mui-pull-caption').show();
+            loadEnd();
+        });
+    }
+
+    //切换
+    $('.jtm-title').on("click",'span',function (){
+        page=1;
+        $('.jtm-title span').removeClass('active');
+        $(this).addClass('active');
+
+        if($('.team-member').hasClass('active')){
+            $('.ranking-list').removeClass("fleet-list").addClass("player-list").attr('val','0');
+            value=0;
+        }
+        else{
+            $('.ranking-list').removeClass("player-list").addClass("fleet-list").attr('val','1');
+            value=1;;
+        }
+        $(".ranking-list").html("");
+        $(".mui-scroll").css({'transform': 'translate3d(0px, 0px, 0px) translateZ(0px)'});
+        getData(true);
+        //线移动
+        var _index = $(this).index();
+        var line_width = $(this).width();
+        $('.mst-line').css({'-webkit-transform': 'translate('+line_width*_index +'px,0px)'});
+
+    });
+     //加入车队
+    $('.join-team').on('click','.btn-jion',function(){
+        var param = M();
+        param.tid = tid;
+        param.share = I('share');
+        isLogin(function(ret){
+            if(ret){
+                InterfaceTap('gotoTeamInfo',param);
+            }
+        })
+    });
+    //下载神马嘀嘀
+    $('.head').on('click','.btn-download',function(){
+        InterfaceTap('downApp');
+    });
+    //点击个人信息
+    $('.ranking-list').on('tap','.personal-info',function(){
+        var param = M();
+        param.uid = $(this).attr("uid");
+        isLogin(function(ret){
+            if(ret){
+                InterfaceTap('gotoPersonInfo',param);
+            }
+        })
+    });
+    //刷新滑动到顶部
+    $("#pullrefresh").on("scroll",function(e){
+        if(e.originalEvent.detail.lastY<0){
+            $(".head").fadeOut();
+            $("#pullrefresh").css(
+                {
+                    "margin-top":"5.7rem",
+                    "transition":"margin-top 0.5s",
+                    "-webkit-transition":"margin-top 0.5s"
+                }
+            );
+        }else if(e.originalEvent.detail.lastY>0){
+            $(".head").fadeIn();
+             $("#pullrefresh").css(
+                {
+                    "margin-top":"23.7rem",
+                    "transition":"margin-top 0.5s",
+                    "-webkit-transition":"margin-top 0.5s"
+                }
+            );
+
+        }
+    });
+</script>
+</html>

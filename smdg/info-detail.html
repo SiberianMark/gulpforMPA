@@ -1,0 +1,220 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>资讯详情</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/assets/css/smdg/details.css">
+    <style>
+         .page-footer>div{float: left;width: 22.5%;margin-top: 0.8rem;border-right: 1px solid #ddd;}
+        .page-footer>div:nth-child(3){border-right: none;}
+        /*.page-footer>div>p{font-size: 0.8rem;}*/
+        .flex-wrap{  flex-flow: row wrap;align-items: stretch;}
+        .page-footer .jump_btn{margin-top: 0;border-right: none;width: 32%!important;position: absolute;bottom: 0;right: 0;height: 100%;}
+        .activity-wrap .page-footer .img{width: 1.8rem;height: 1.8rem;}
+                .activity-wrap .page-footer .like .img{width: 1.7rem;height: 1.7rem;}
+    </style>
+</head>
+<body>
+    <div class="activity-wrap">
+
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="dataTml">
+    {{var pub_time=getLocalTime(it.data.add_time);}}
+    <div class="active-detail">
+        <div class="active-sub bdb">
+            <div class="active-name">{{=it.data.title}}</div>
+            <span class="platform dib">{{=it.data.unit}}</span><span class="pub-time dib">{{=pub_time}}发布</span>
+            <div class="active-views">{{=it.data.views}}</div>
+        </div>
+    </div>
+    <div class="active-content">
+        {{var div=document.createElement('div');div.innerHTML=it.data.content;var con=div.innerText || div.textContent;}}
+                            {{=con}}
+    </div>
+    <div class="bgwh comment-list">
+        {{?it.data.comment_num>0}}
+            <div class="comment-head comment_btn" articleid="{{=it.data.article_id}}">
+                <div class="list-nums">{{=it.data.comment_num}}条</div>
+                <div class="list-title">评论</div>
+            </div>
+            <ul class="comment-item">
+                {{~it.data.comment_list:list:$index}}
+                    <li class="bdt ovh pr">
+                        <img class="smUsrImg" src="{{=list.photo}}" alt="">
+                        <div class="usr_detail">
+                            <p class="usr_name">{{=list.nickname?list.nickname:''}}</p>
+                            <p class="usr_comment single-line">{{=list.contents}}</p>
+                        </div>
+                        <div class="pa comment-date">{{=list.comment_time}}</div>
+                    </li>
+                {{~}}
+            </ul>
+            <div class="apply-foot tc bdt"><div class="more_btn comment_btn dib" articleid="{{=it.data.article_id}}">查看更多评论</div></div>
+        {{??}}
+            <div class="comment-head bg-no comment" articleid="{{=it.data.article_id}}">
+                <div class="list-title">评论</div>
+            </div>
+            <div class="no-apply-item bdt">还没有评论</div>
+        {{?}}
+    </div>
+    <div class="page-footer ovh bgwh">
+        <div class="tc comment" articleid="{{=it.data.article_id}}">
+            <span class="img"></span>
+            <p>评论(<i class="nums">{{=it.data.comment_num}}</i>)</p>
+        </div>
+        {{?it.data.is_collections==0}}
+            <div class="tc collect" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">收藏</i>(<i class="nums">{{=it.data.collections}}</i>)</p>
+            </div>
+        {{??}}
+            <div class="tc collect cur" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">已收藏</i>(<i class="nums">{{=it.data.collections}}</i>)</p>
+            </div>
+        {{?}}
+        {{?it.data.is_click==0}}
+            <div class="tc like" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">点赞</i>(<i class="nums">{{=it.data.click}}</i>)</p>
+            </div>
+        {{??}}
+            <div class="tc like cur" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">已点赞</i>(<i class="nums">{{=it.data.click}}</i>)</p>
+            </div>
+        {{?}}
+        <div class="jump_btn fr tc">
+            查看更多
+        </div>
+    </div>
+</script>
+<script>
+    var at_id=I('activity_id','136');
+    var sm_type=I('type',0);
+    var share=I('share');
+    var dataTml=getRender('dataTml');
+    var userid=getUserid();
+    function onStart(){
+        if(share){
+            if(is_weixn(true)&&share_ornot==0){
+                downloadApp('body','float');
+            }
+        }
+        getData();
+    }
+    function getLocalTime(str) {
+        var d=new Date(str.replace(/-/g,'/'));
+        var year=d.getFullYear();
+        var month=d.getMonth()+1;
+        var date=d.getDate();
+        var hour=d.getHours();
+        var minute=d.getMinutes();
+        var second=d.getSeconds();
+        month=month>9?month:'0'+month;
+        date=date>9?date:'0'+date;
+        return month+"月"+date+"日";
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_HOME_HOLIDAYDETAIL, {id:at_id,userid:userid}, function (data) {
+            if(data.status==1){
+                console.log(data);
+                $(".activity-wrap").html(dataTml(data));
+                 WxShare.title=data.data.share_title;
+                WxShare.imgUrl=data.data.share_pic;
+                WxShare.link=data.data.share_link;
+                WxShare.desc=data.data.share_content;
+                loadWxObject(true); //获取微信分享对象
+                loadEnd();
+            }else {
+                console.log(data.info);
+            }
+        });
+    }
+    $(".activity-wrap").delegate('.collect','click',function(){
+        var $this=$(this);
+        if(isLogin()){
+            var artical_id=$this.attr('artical');
+            $this.toggleClass('cur');
+            if($this.hasClass('cur')){
+                collect(artical_id,1,'');
+                $this.find('i.acs').text('已收藏');
+                $this.find('i.nums').text(parseInt($this.find('i.nums').text())+1);
+            }else {
+                collect(artical_id,1,'cancel');
+                $this.find('i.acs').text('收藏');
+                $this.find('i.nums').text(parseInt($this.find('i.nums').text())-1);
+            }
+        }
+    });
+    $(".activity-wrap").delegate('.like','click',function(){
+        if(isLogin()){
+            var artical_id=$(this).attr('artical');
+            $(this).toggleClass('cur');
+            if($(this).hasClass('cur')){
+                zan(artical_id,1,'');
+                $(this).find('i.acs').text('已点赞');
+                $(this).find('i.nums').text(parseInt($(this).find('i.nums').text())+1);
+            }else {
+                zan(artical_id,1,'cancel');
+                $(this).find('i.acs').text('点赞');
+                $(this).find('i.nums').text(parseInt($(this).find('i.nums').text())-1);
+            }
+        }
+    });
+    //评论
+    $(".activity-wrap").delegate('.comment','click',function(){
+        if(isLogin()){
+            var at_id=$(this).attr('articleid');
+            var obj = new Object();
+            obj.id=at_id;
+            obj.type=0;
+            Interface('gotoStarComment',JSON.stringify(obj));
+        }
+    });
+    // 点赞
+    function zan(artical_id,type,action){
+        jsonAjax(API.API_LIST.GOLD_HOME_DOLIKEARTICAL, {id:artical_id,userid:userid,type:type,action:action}, function (data) {
+            if(data.status==1){
+                inputTipsText(data.info);
+                loadEnd();
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    // 收藏
+    function collect(artical_id,type,action){
+        jsonAjax(API.API_LIST.GOLD_HOME_DOCOLLECTARTICAL, {id:artical_id,userid:userid,type:type,action:action}, function (data) {
+            if(data.status==1){
+                inputTipsText(data.info);
+                loadEnd();
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    //更多评论
+    $(".activity-wrap").delegate('.comment_btn','click',function(){
+        if(isLogin()){
+            var at_id=$(this).attr('articleid');
+            var obj = new Object();
+            obj.id=at_id;
+            obj.type=0;
+            Interface('gotoStarComment',JSON.stringify(obj));
+        }
+    });
+    $(".activity-wrap").delegate('.jump_btn','click',function(){
+        Interface('gotoSMholiday','');
+    });
+    $(document).on('click','.close',function(){
+        $('.activity-wrap').css("margin-bottom","4.8rem");
+    });
+</script>
+</html>

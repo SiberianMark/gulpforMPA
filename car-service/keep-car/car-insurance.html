@@ -1,0 +1,975 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>车险续保</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js" type="text/javascript"></script>
+</head>
+<body>
+    <div class="first-items">
+        <div class="item pr  flex" scl-pe="before">
+            <span>选择车款</span>
+            <span></span>
+            <span class="arrow"></span>
+        </div>
+        <div class="item flex" scl-pe="before">
+            <span>裸车价格</span>
+            <span>&yen; <input type="tel" name="tel" placeholder="请输入裸车价格" class="input-tel" /></span>
+        </div>
+        <div class="item flex" >
+            <span>公&nbsp;里&nbsp;数&nbsp;</span>
+            <span><input type="tel" name="tel" placeholder="请输入行驶里程" class="input"/></span>
+        </div>
+        <div class="item flex availability-date" style="display: none;">
+            <span>保单生效日期</span>
+            <span><input type="text" name="start" placeholder="请输入生效日期" />至<input type="text" name="end" placeholder="请输入失效日期"/></span>
+        </div>
+    </div>
+    <!--保险类别-->
+    <div class="second-items">
+        <div class="title">
+            <div class="fl">选择保险公司</div>
+        </div>
+        <div class="item pr orange bank" type="insurance-company">
+            <label>保险公司</label>
+            <span class="arrow"></span>
+            <span style="color:#999;">请选择保险公司</span>
+        </div>
+    </div>
+    <div class="calculation ">
+        <div class="data-box">
+
+        </div>
+        <div class="forth-items">
+        <div scl-pe="before">
+            <div class="fl">新车保险市场价</div>
+            <div class="fr">&yen;<span></span></div>
+        </div>
+        <div>
+            此结果仅供参考，实际费用以当地费用为准
+        </div>
+    </div>
+        <div class="guwen" style="display: none;">
+
+        </div>
+        <!--<div class="insurance-bottom">-->
+            <!--<div class="fl">新车保险市场价</div>-->
+            <!--<div class="fr">&yen;<span></span></div>-->
+        <!--</div>-->
+    </div>
+    <!--提交-->
+    <div class="start-calculation">
+        提交
+    </div>
+    <!--选项卡-->
+    <div class="list-data">
+        <div class="calculator-header">
+            <div class="title">车船使用税</div>
+            <span class="close">关闭</span>
+        </div>
+        <ul class="list">
+        </ul>
+    </div>
+    <!--提示框-->
+    <div class="prompt-box hide">
+        <ul>
+            <li></li>
+            <li><p>续保顾问正在为您核算保费</p>
+                <p>并为您提供专业服务</p>
+                <p>敬请等待！</p>
+            </li>
+        </ul>
+    </div>
+    <!--<div class="fr">小计：<b class="force">{{=str.accidentfee[0].value}}</b></div>-->
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="temp1">
+    {{var val=it,len=val.length;}}
+    {{for(var i=0;i<len;i++){}}
+    <li value="{{=val[i].value}}">{{=val[i].name}}</li>
+    {{}}}
+</script>
+<script type="text/template" id="temp2">
+    {{var str=it.data;}}
+    <div class="second-items compulsory-insurance">
+        <div class="title">
+            <div class="fl">强制保险</div>
+            <div class="fr">小计:&yen;<b class="force">{{=str.accidentfee[0].value}}</b></div>
+        </div>
+        <div class="item pr orange" type="0">
+            <label>交强险&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <span class="arrow"></span>
+            <span>{{=str.accidentfee[0].name}}</span>
+        </div>
+    </div>
+    <div class="third-items ">
+        <div class="title">
+            <div class="fl">商业保险</div>
+            <div class="fr"><b></b></div>
+        </div>
+        <div class="content" scl-pe="before">
+            <div class="fl">推荐套餐</div>
+            <div class="fr"><span>基本险</span><span>经济险</span><span>全险</span>
+            </div>
+        </div>
+        <ul class="insurance">
+            <li scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>无法查找第三方责任险</i><span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before" ><label for=""></label><span></span><input type="text" class="selected1 burn" disabled="disabled" style="background-color:#fff;"/>
+                       /* <span class="selected1 burn" ></span>*/
+                    </span>
+                    <i class="orange"></i>
+                </div>
+            </li>
+            <li class="" scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>第三者责任险</i><span>赔付<span>{{=str.third[0].name}}</span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before"><label for=""></label><span></span><input type="text" class="selected1 third" disabled="disabled" style="background-color:#fff;"/>
+                        /*<span class="selected1 third">{{=str.third[0].value}}</span>*/
+                    </span>
+                    <span class="orange" type="1"></span>
+                </div>
+            </li>
+            <li scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>车俩损失险</i><span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before"><label for=""></label><span></span><input type="text" class="loss selected1" disabled="disabled" style="background-color:#fff;"/>
+                        /*<span class="loss selected1"></span>*/
+                    </span>
+                    <i class="orange"></i>
+                </div>
+            </li>
+            <li scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>不计免赔特约险</i><span class="deductible">赔付<span>{{=str.third[0].name}}</span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before"><label for=""></label><span></span><input type="text" class="escape selected1" disabled="disabled" style="background-color:#fff;"/>
+                        /*<span class="escape selected1"></span>*/
+                    </span>
+                    <i class="orange"></i>
+                </div>
+            </li>
+            <li scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>全车盗抢险</i><span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before" ><label for=""></label><span></span><input type="text" class="steal selected1" disabled="disabled" style="background-color:#fff;"/>
+                        /*<span class="steal selected1"></span>*/
+                    </span>
+                    <i class="orange"></i>
+                </div>
+            </li>
+            <li class="" scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>玻璃单独破碎险</i><span><span>{{=str.glass[0].name}}</span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before" ><label for=""></label><span></span><input type="text" class="glass1 selected1" disabled="disabled" style="background-color:#fff;"/>
+                       /* <span class="glass1 selected1"  glass="{{=str.glass[0].value}}"></span>*/
+                    </span>
+                    <span class="orange" type="5"></span>
+                </div>
+            </li>
+            <li scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>自燃损失险</i><span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before" ><label for=""></label><span></span><input type="text" class="selected1 burn" disabled="disabled" style="background-color:#fff;"/>
+                       /* <span class="selected1 burn" ></span>*/
+                    </span>
+                    <i class="orange"></i>
+                </div>
+            </li>
+            <li scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>涉水险/发动机特别损失险</i><span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before" ><label for=""></label><span></span><input type="text" class="water selected1" disabled="disabled" style="background-color:#fff;"/>
+                        /*<span class="water selected1"></span>*/
+                    </span>
+                   <i class="orange"></i>
+                </div>
+            </li>
+            <li class="" scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>车身划痕险</i><span>赔付<span>{{=str.scratch[0].name}}</span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before" ><label for=""></label><span></span><input type="text" class="selected1" disabled="disabled" style="background-color:#fff;"/>
+                        /*<span class="selected1">{{=str.scratch[0].value}}</span>*/
+                    </span>
+                    <span class="orange" type="8"></span>
+                </div>
+            </li>
+            <li class="" scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i>司机座位责任险</i><span>赔付<span>{{=str.drive[0].name}}</span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before" ><label for=""></label><span></span><input type="text" class="selected1" disabled="disabled" style="background-color:#fff;"/>
+                        /*<span class="selected1">{{=str.drive[0].value}}</span>*/
+                    </span>
+                    <span class="orange" type="9"></span>
+                </div>
+            </li>
+            <li class="" scl-pe="before">
+                <span class="selected" scl-pe="before"></span>
+                <div class="fl">
+                    <i >乘客座位责任险</i><span>赔付<span>{{=str.passenger[0].name}}</span></span>
+                </div>
+                <div class="fr">
+                    <span scl-pe="before"><label for=""></label><span></span><input type="text" class="selected1" disabled="disabled" style="background-color:#fff;"/>
+                        /*<span class="selected1">{{=str.passenger[0].value}}</span>*/
+                    </span>
+                    <span class="orange" type="10"></span>
+                </div>
+            </li>
+
+        </ul>
+    </div>
+</script>
+<script type="text/template" id="temp3">
+    {{var str=it;}}
+    <div class="second-items compulsory-insurance">
+        <div class="title">
+            <div class="fl">强制保险</div>
+            <div class="fr">小计:&yen;<b class="force">{{=str[0].price}}</b></div>
+        </div>
+        <div class="item pr orange" type="0">
+            <label>交强险&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <span class="arrow"></span>
+            <span>{{=str[0].sonname}}</span>
+        </div>
+    </div>
+    <div class="third-items">
+        <div class="title">
+            <div class="fl">商业保险</div>
+            <div class="fr">小计:&yen;<b></b></div>
+        </div>
+        <div class="content" scl-pe="before">
+            <div class="fl">推荐套餐</div>
+            <div class="fr"><span>基本险</span><span>经济险</span><span>全险</span>
+            </div>
+        </div>
+        <ul class="insurance">
+            {{for(var i=1,len=str.length;i<len;i++){}}
+            <li class="" scl-pe="before" >
+                {{var _select=str[i].select;}}
+                {{?_select==1}}
+                <span class="selected" scl-pe="before"></span>
+                {{??}}
+                <span class="" scl-pe="before"></span>
+                {{?}}
+                <div class="fl">
+                    <i>{{=str[i].name}}</i>
+                    {{?str[i].sonname==''}}
+                    <span><span></span></span>
+                    {{??}}
+                        {{?i!=3}}
+                        <span>赔付<span>{{=str[i].sonname}}</span></span>
+                        {{??}}
+                        <span class="deductible">赔付<span >{{=str[i].sonname}}</span></span>
+                        {{?}}
+                    {{?}}
+                </div>
+                <div class="fr">
+                    {{?_select==1}}
+                    <span scl-pe="before" >
+                    {{??}}
+                    <span scl-pe="before" class="hide">
+                    {{?}}
+                        {{var _type=I('status');}}
+                        {{?_select=='1'}}
+                        <label for="">&yen;</label>
+                        {{??}}
+                         <label for=""></label>
+                        {{?}}
+                        {{var source_page=I('source_page',0);}}
+                        {{?source_page==='business'&&(_type==3||_type==4)}}
+                            <input type="text" name="money" class="selected1" value="{{=str[i].price}}" />
+                        {{??}}
+                        <span class="selected1">{{=str[i].price}}</span>
+                        {{?}}
+                    </span>
+                    {{?source_page==='business'&&(_type==3||_type==4)}}
+                        {{?str[i].sonid==1}}
+                        <span class="orange" type="{{=i}}"></span>
+                        {{??}}
+                        <i class="" ></i>
+                        {{?}}
+                    {{?}}
+                </div>
+            </li>
+            {{}}}
+        </ul>
+    </div>
+</script>
+<script>
+    function onStart(){
+        displayPage();
+//        getEmployee(API.API_LIST.CAR_INSURANCE_RENEWINSURANCEEMPLOYEE,$(".guwen"));//专属顾问信息
+    }
+
+    var render=getRender('temp1');
+    var render2=getRender('temp2');
+    var render3=getRender('temp3');
+    var order=null;//订单
+    var merge_no=null;//合并订单号
+    var carid=0;
+    var user_id=0;
+    var submit=true;
+    //获得车辆名
+    function getCarName(){
+        var obj=M();
+        obj.userid=getUserid();
+        obj.carid=I('carid',0);
+        obj.source = 1;
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETONECARINFO,obj,function(data){
+            if(data.status==1){
+                var _data=data.data;
+                if(_data.detail==''||_data.detail==null){
+                    $('.first-items .pr').find('span').eq(1).text(_data.brand+' '+_data.model);
+                }else{
+                    $('.first-items .pr').find('span').eq(1).text(_data.brand+' '+_data.model+' '+_data.detail);
+                }
+                if(_data.carprice!==0){
+                    $('.input-tel').val(_data.carprice);
+                    carprice=data.carprice;
+                }
+                $('.input').val(I('mileage'));
+            }else{
+                inputTipsText('请添加车款');
+            }
+        });
+    }
+    //获得基础保险类别
+    function getRate(){
+        jsonAjax(API.API_LIST.CAR_INSURANCE_CALCULATOR,{},function(data){
+            if(data.status==1){
+                /*loss=parseFloat(data.data.loss);
+                steal=parseFloat(data.data.steal);
+                burn=parseFloat(data.data.burn);
+                escape=parseFloat(data.data.escape);
+                unerring=parseFloat(data.data.unerring);
+                water=parseFloat(data.data.water);*/
+                $('.data-box').html(render2(data));
+                $('.forth-items').hide();
+                getCarName();
+                loadEnd();
+            }
+
+        })
+    }
+    //获得总价格
+    function getTotalValue(type){
+        var force=parseFloat($('.force').text())?parseFloat($('.force').text()):0,commercial=0;
+        if(type){//已经确定保单项目或输入保单费用
+            $('.selected1').each(function(i,item){
+                var value=item.innerText?item.innerText:item.value;
+                commercial+=parseFloat(value?value:0);
+            });
+        }
+        $('.third-items b').text(Math.round(commercial));
+        $('.forth-items span').text(Math.round((commercial+force)));
+        $('.insurance-bottom span').text(Math.round((commercial+force)))
+    }
+    //判断跳转来源显示页面
+    function displayPage(){
+        var source_page=I('source_page',0);
+        var type=I('status');//客户端：0--已提交 1--待付款  2--已付款。商户端：3--待处理 4--跟进中 5--已完成 6--已战败
+        if(source_page==='business'){//商户端
+            getPolicjInfo(source_page,type);
+        }else if(source_page==='customer'){//客户端--养车首页
+            getRate();
+        }else if(source_page==='myinfo'||source_page==='IM'){//客户端--个人中心或直接点击链接进入
+            getPolicjInfo(source_page,type);
+
+        }
+    }
+    //获得保险信息
+    function getInsurance(){
+        var parent=$('.compulsory-insurance').find('div.pr'), arr=[
+            {
+                "id": 1,
+                "name": '交强险',
+                "select": 1,
+                "sonname":parent.find('span').eq(1).text(),
+                "price": $('.force').text(),
+                "sonid":1
+            }
+        ];
+        $('.insurance>li').find('div.fl').each(function(i,item){
+            arr.push(
+                    {
+                        "id": i+2,
+                        "name": $(item).find('i').text(),
+                        "select": $(item).prev().attr('class')==='selected'?1:0,
+                        "sonname":$(item).find('span').find('span').text(),
+                        "price": $(item).next().find('input[name="money"]').val()?$(item).next().find('input[name="money"]').val():'',
+                        "sonid":$(item).next().find('span.orange').attr('type')?1:0
+                    }
+            );
+        });
+       return arr;
+    }
+    //获得确定保单数据
+    function getPolicjInfo(){
+        var type=arguments[0],status=arguments[1];
+        jsonAjax(API.API_LIST.CAR_MANAGEPLATFORM_INSURANCEEDIT,{id:I('id')},function(data){
+            if(data.status==1){
+                var _data=data.data;
+                $('.data-box').html(render3(_data.insurance));
+                if(_data.cardetail==''||_data.cardetail==null){
+                    $('.first-items .pr').find('span').eq(1).text(_data.brand+' '+_data.model);
+                }else{
+                    $('.first-items .pr').find('span').eq(1).text(_data.brand+' '+_data.model+' '+_data.cardetail);
+                }
+                if(type==='business'){//商户端
+                    if(status==='3'||status==='4'){//待处理||跟进中
+                        $('.availability-date').show();
+                        $('.start-calculation').text('生成保单并复制保单');
+                        $('.insurance>li').find('div.fr').each(function(i,item){
+                            var _status=$(item).siblings('span').attr('class');
+                            var first=item.firstElementChild,last=item.lastElementChild;
+                            if(_status){
+                                first.className='change';
+                            }else{
+//                                $(first).find('label').addClass('hide');
+//                                $(first).find('input').addClass('hide');
+                                $(first).next('.orange').addClass('hide');
+                            }
+
+                        });
+                    }else if(status==='5'){//已完成
+                        changeSubmit(false,'已完成');
+                        hideOption()
+                    }else if(status==='6'){//已战败
+                        changeSubmit(false,'已战败');
+                        hideOption()
+                    }
+                }else if(type==='myinfo'||type==='IM'){//客户端--链接直接打开 和  从个人中心进入
+                    if(status==0){
+                        changeSubmit(false,'已提交');
+                        $('.forth-items').hide();
+                    }else if(status==1){
+                        $('.start-calculation').text('去付款');
+                    }else if(status==2){
+                        changeSubmit(false,'已付款');
+                    }
+                    hideOption();
+
+                }
+                getTotalValue(true);
+                user_id=_data.user_id;
+                var bank=$('.bank').find('span').eq(1);
+                bank.css('color','#333').attr('bank-id',_data.dreamcompanyid);
+                bank.text(_data.dreamcompany);
+                $('.input').val(_data.mileage);
+                $('.input-tel').val(_data.carmoney);
+                carid=_data.carid;
+                function changeSubmit(){//修改提交按钮样式
+                    $('.start-calculation').text(arguments[1]).css('background-color','#999');
+                    submit=arguments[0];
+                }
+                function hideOption(){//隐藏选项卡按钮
+                    $('.bank').off('click');//解绑事件
+                    $('.data-box').off('touchstart').off('click');//解绑事件
+                    $('.first-items .pr').off('click');//解绑事件
+                    $('.arrow').each(function(i,item){
+                        $(item).hide();
+                    });
+                    $('input[name="tel"]').each(function(i,item){
+                        item.setAttribute('disabled','disabled');
+                        item.style='background-color:#fff;';
+                    });
+                }
+                loadEnd();
+            }
+        })
+    }
+    //开始计算
+   /* $('.start-calculation').on('click',function(){
+        if($('.first-items .pr span').eq(0).text()==''){
+            inputTipsText('请选择车辆');
+            return;
+        }
+        if($('input[name="tel"]').val()==''){
+            inputTipsText('请输入裸车价格');
+            return;
+        }
+//        if(!parrt.test($('input[name="tel"]').val())){
+//            inputTipsText('请输数字');
+//            $('input[name="tel"]').val('');
+//            return;
+//        }
+       $(this).addClass('hide');
+        $('.calculation').removeClass('hide');
+//        $('input[name="tel"]').addClass('input');
+            getPremiums();
+            getTotalValue();
+
+    });*/
+    //选择日期
+    var now = new Date();
+    $('input[name="start"],input[name="end"]').mobiscroll().date({
+        theme: 'android-holo-light',
+        lang: 'zh',
+        display: 'bottom',
+        mode: 'scroller',
+        min: new Date(2000, 0, 1),
+        max:new Date(2040,0,1),
+        /*invalid: ['w0', 'w6', '5/1', '12/24', '12/25'],*/
+        dateFormat: 'yy-mm-dd', // 日期格式
+        rows:3
+    });
+    //跳转到我的车辆页面
+    $('.first-items .pr').on('click',function(){
+        var obj=M();
+        obj.userid=getUserid();
+        obj.source='insurance';
+        obj.source_page=I('source_page');
+        obj.username=decodeURIComponent(I('username'));//用户名
+        obj.carnum=decodeURIComponent(I('carnum'));//昵称
+        obj.phone=I('phone');//手机
+        obj.vin=I('vin');//车架
+        obj.engineno=I('engineno');//发动机
+        obj.earlytime=decodeURIComponent(I('earlytime'));//初登日期
+        obj.aid=I('aid');//顾问id
+        PageJumpTap('gotoMyCar',obj);
+    });
+    //打开选项卡
+    $('.data-box').on('click','.orange',function(){
+        $(this).parents('li').addClass('this');
+        var type=$(this).attr('type'),
+                title=$(this).parent('div').siblings('div').find('i').text();
+        console.log(title);
+        jsonAjax(API.API_LIST.CAR_INSURANCE_CALCULATOR,{price:$('input[type="tel"]').val()},function(data){
+            if(data.status==1){
+                    switch (type){
+                        case '0'://交通事故责任强制险
+                            $('.list').html(render(data.data.accidentfee));
+                            title='强制保险';
+                            break;
+                        case '1'://第三方责任保险
+                            $('.list').html(render(data.data.third));
+                            break;
+                        case '5'://玻璃保险
+                            $('.list').html(render(data.data.glass));
+                            break;
+                        case '8'://车身划痕险
+                            $('.list').html(render(data.data.scratch));
+                            break;
+                        case '9'://司机座位责任险
+                            $('.list').html(render(data.data.drive));
+                            break;
+                        case '10'://乘客责任险
+                            $('.list').html(render(data.data.passenger));
+                            break;
+                        default:
+                            $('.list').text('无数据');
+                            break;
+                    }
+                $('.calculator-header>.title').text(title);
+                    $('.list li').each(function(i,item){
+                        item.setAttribute('type',type);
+                    });
+                }
+        });
+        $('.list-data').addClass('middle');
+    });
+    //选择保险公司
+    $('.bank').on('click',function(){
+        var type=$(this).attr('type');
+        var wxappid=$.cookie('wxappid');
+        var mid=$.cookie('mid')?$.cookie('mid'):I('mid');
+        jsonAjax(API.API_LIST.CAR_INSURANCE_GETINSCOMPANY,{wxappid:wxappid,mid:mid},function(data){
+            if(data.status==1){
+                $('.list').html(render(data.data));
+                $('.list li').each(function(i,item){
+                    item.setAttribute('type',type);
+                });
+            }else{
+                $('.list').html(data.info);
+            }
+            $('.calculator-header>.title').text('保险公司');
+            $('.list-data').addClass('middle');
+        })
+    });
+    //关闭选项卡
+    $('.close').on('click',function(){
+        $('.list-data').removeClass('middle');
+    });
+    //选择并关闭选择卡
+    $('.list').on('click','li',function(){
+        var type=$(this).attr('type');
+        var calculator=$(this).text();
+        var value=$(this).attr('value');
+        $('.list-data').removeClass('middle');
+        switch (type){
+            case '5':
+                $('.this').find('.fl').find('span').find('span').text(calculator);
+            break;
+            case '0':
+                $('.compulsory-insurance b').text(value);
+                $('.compulsory-insurance .pr span').eq(1).text(calculator);
+                break;
+            case '1':
+                $('.deductible').find('span').text(calculator);
+                $('.this').find('.fl').find('span').find('span').text(calculator);
+                break;
+            case 'insurance-company':
+                $('.bank').find('span').eq(1).text(calculator).attr('bank-id',value).css('color','#333');
+                break;
+            default:
+                $('.this').find('.fl').find('span').find('span').text(calculator);
+                break;
+        }
+        $('.this').removeClass('this');
+    });
+    //修改裸车价格
+   /* $('input[name="tel"]').on('input',function(){
+
+//        var parrt=/^([1-9]{1}[0-9]*)$/;
+//        var parrt2=/^([0-9]*\.?[0-9]+)$/;
+        var value=$(this).val();
+        if($(this).val()==''){
+                inputTipsText('请输入小数或者整数');
+                return;
+        }
+        var type=parrt.test(value);
+        var len=value.split('.').length;
+        console.log(type,len>2)
+        if(len>2){
+            $(this).val(value.slice(0,value.length-1));
+        }else{
+            if(!type){
+                $(this).val(value.slice(0,value.length-1));
+            }
+        }
+
+    });*/
+    //切换保险类别
+    $('.data-box').on('touchstart','.content .fr span',function(){
+        var index=$(this).index(),statues=I('source_page');
+        for(var i=0;i<=4;i++){
+            $('.insurance>li>span').eq(i).addClass('selected').removeClass('no_select');
+            setInput(i);
+        }
+        if(index==0){//基本险
+            for(var a=4;a<=10;a++){
+                $('.insurance>li>span').eq(a).removeClass('selected').addClass('no_select');
+                setInput(a,true)
+            }
+        }else if(index==1){//经济险
+            for(var b=4;b<=8;b++){
+                $('.insurance>li>span').eq(b).removeClass('selected').addClass('no_select');
+                setInput(b,true)
+            }
+            for(var j=9;j<=10;j++){
+                $('.insurance>li>span').eq(j).addClass('selected').removeClass('no_select');
+                setInput(j)
+            }
+        }else if(index==2){//全险
+            for(var c=4;c<11;c++){
+                $('.insurance>li>span').eq(c).addClass('selected').removeClass('no_select');
+                setInput(c)
+            }
+        }
+        function setInput(i){
+            if(statues==='business'){
+                var next=$('.insurance>li>span').eq(i).siblings('div.fr');
+                if(arguments[1]){
+                    next.find('span').eq(0).removeClass('change').addClass('hide');
+                    next.find('input').val('');
+                    next.find('span').addClass('hide');
+                }else{
+                    next.find('span').eq(0).addClass('change').removeClass('hide');
+                    next.find('span').removeClass('hide');
+                }
+                if(next.find('label').text()!='￥'){
+                    next.find('label').text('￥');
+                }
+            }
+        }
+    });
+    //单独取消或选中保险项
+    $('.data-box').on('touchstart','.insurance>li>span:nth-child(1)',function(){
+        var statues=I('source_page');
+        if(statues==='business'){
+            var next=$(this).siblings('div.fr');
+            next.find('span').eq(0).toggleClass('change hide');
+            next.find('input').val('');
+            if(next.find('label').text()=='￥'){
+//                next.find('label').text('');
+            }else{
+                next.find('label').text('￥');
+            }
+            next.find('span.orange').toggleClass('hide')
+        }
+        $(this).toggleClass('selected no_select');
+
+    });
+    $('input[name="tel"]').on('input',function(){
+        limitInput(this);
+    });
+    //输入保险费用
+    $('.data-box').on('input','.selected1',function(){
+        limitInput(this);
+        getTotalValue(true);
+    });
+    //限制只能输入整数跟浮点数
+    function limitInput(obj){
+        var pattr=/^\d+$|^(\d+\.?)$|^(\d+\.?\d+)$/,
+                value=$(obj).val(),
+                pattr1=/[\u0391-\uFFE5]+/i;
+        if(pattr1.test(value)){
+            $(obj).val('');
+            return
+        }
+        if(!pattr.test(value)){
+            $(obj).val(value.slice(0,value.length-1));
+        }
+    }
+    //提交页面
+    $('.start-calculation').on('click',function(){
+        if(submit){
+            var type=I('source_page'),
+                    arr=getInsurance(),
+                    bank_id=$('.bank').find('span').eq(1).attr('bank-id'),
+                    patt= /^\d+(\.\d+)?$/,
+                    obj={
+                        'carmoney':$('.input-tel').val(),//裸车价格
+                        'mileage':$('.input').val(),//里程
+                        'insurance':JSON.stringify(arr)//保险详情
+                    };
+            if(!patt.test(obj.carmoney)){
+                inputTipsText('请输入正确的价格');
+                return ;
+            }
+            if(!patt.test(obj.mileage)){
+                inputTipsText('请输正确的里程');
+                return;
+            }
+            if(type==='business'){//商户端
+                obj.id=I('id');//续保线索id
+                obj.carid=carid;//车辆id
+                obj.starttime=$('input[name="start"]').val();//保险起始时间
+                obj.endtime=$('input[name="end"]').val();//保险结束时间
+                obj.endcompany=bank_id?bank_id:'';//保险公司
+                obj.premium=$('.forth-items>div').find('div.fr').find('span').text();//保费总额
+                console.log(obj);
+                var start_time=new Date(obj.starttime).getTime(),end_time=new Date(obj.endtime).getTime();
+                if(start_time>=end_time){
+                    inputTipsText('失效日期不能早于生效日期');
+                    return;
+                }
+                if(obj.starttime===''){
+                    inputTipsText('请输入生效日期');
+                    return;
+                }
+                if(obj.endtime===''){
+                    inputTipsText('请输入失效日期');
+                    return;
+                }
+                if(obj.endcompany===''){
+                    inputTipsText('请选择保险公司');
+                    return;
+                }
+                var value_arr=[];
+                $('.selected').siblings('div.fr').find('input').each(function(i,item){
+                    value_arr.push(item.value);
+                });
+                for(var i= 0,le=value_arr.length;i<le;i++){
+                    if(value_arr[i]===''){
+                        inputTipsText('请输入保费');
+                        return;
+                    }
+                }
+              jsonAjax(API.API_LIST.CAR_MANAGEPLATFORM_INSURANCEEDITOK,obj,function(data){
+                  if(data.status==1){
+                      var obj={
+                          appid:2,
+                          to_id:I('aid'),
+                          user_id:user_id,
+                          msgurl:API.SERVER_URL+'/web/car-service/keep-car/car-insurance.html?carid='+carid+'&status=1&source_page=IM&aid='+I('aid')+'&id='+I('id')+'&orderid=0'
+                      };
+                      PageJumpTap('gotoChatRoom',obj)
+                  }
+              })
+            }else if(type==='customer'){//客户端--养车首页--选择保险项目
+                obj.userid=getUserid();
+                obj.username=decodeURIComponent(I('username'));//用户名
+                obj.carnum=decodeURIComponent(I('carnum'));//昵称
+                obj.phone=I('phone');//手机
+                obj.vin=I('vin');//车架
+                obj.engineno=I('engineno');//发动机
+                obj.earlytime=decodeURIComponent(I('earlytime'));//初登日期
+                obj.carid=I('carid');//车辆id
+                obj.aid=I('aid');//顾问id
+                obj.inscompany=bank_id?bank_id:'';//保险公司id
+                if(obj.inscompany===''){
+                    inputTipsText('请选择保险公司');
+                    return;
+                }
+                jsonAjax(API.API_LIST.CAR_INSURANCE_PUTINSURANCEINFO,obj,function(data){
+                    if(data.status==1){
+                        $('.prompt-box').removeClass('hide');
+                        $('.start-calculation').css('background-color','#999');
+                        setTimeout(function(){ $('.prompt-box').addClass('hide');},3000)
+                    }else{
+                        inputTipsText(data.info);
+                        BackKeepIndex();
+                    }
+                },'post')
+            }else if(type==='myinfo'||type==='IM'){//客户端--个人中心或直接点击链接进入
+                if(I('status')==='1'){//去付款
+                    var data={
+                       'userid':getUserid(),
+                        'id':I('id'),
+                        'orderid':I('orderid'),
+                        'openid':getOpenid(),
+                        'wxappid': $.cookie('wxappid'),
+                        'sync':0
+                    };
+                    inputTipsText('正在生成订单，请稍后...');
+                    jsonAjax(API.API_LIST.CAR_INSURANCE_PUTINSURANCEORDER,data,function(data){
+                        if(data.status==1){
+                            order=data.data;
+                            buyFn();
+                        }else if(data.status==2){
+                            showLoad(data.info);
+                            getOrderNo(data.data);
+                        }else{
+                            $('.start-calculation').css('background-color','#999').text('已付款');
+                            order = null;
+                            buy = 0;
+                            inputTipsText(data.info, 3000);
+                        }
+                    })
+                }
+            }
+            submit=false;
+        }
+    });
+    //生产订单
+    function getOrderNo(token) {
+        var t = setInterval(function () {
+            jsonAjax(API.API_LIST.ORDER_GETORDERNO, {'userid': getUserid(), 'token': token}, function (data) {
+                if (data.status == 1) {
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad('订单生成成功正在进行跳转...');
+                    $('.inputTipsText').addClass('hide');
+                    order = data.data;
+//                    order.id = record_id;
+                    $("#cover").removeClass("fade");
+                    $('.apply-immediately').slideUp(100);
+                    $('.now-in-progress').slideDown(200);
+                    buyFn();
+                    //unableAll();
+                } else if(data.status == 0){
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad(data.info);
+                }else{
+                    showLoad(data.info);
+                }
+            });
+        }, 2000);
+    }
+    //支付
+    function buyFn() {
+        if (is_weixn(true)) {
+            //获取微信支付参数
+            //wxPay(order, 0);
+            var obj = M();
+            var go_param = M();
+            go_param.orderid = order.orderid;
+            go_param.merge_no = order.merge_no;
+//            go_param.id = record_id;
+//            go_param.expsId = expsId;
+//            go_param.expsType = type;
+//            go_param.expsGrade = grade;
+            obj.orderid = order.orderid;
+//            obj.merge_no = order.merge_no;
+//            obj.expsId = expsId;
+            if(I('source_page')==='IM'){
+                go_param.appid=1;
+                go_param.to_id=I('aid');
+                go_param.user_id=user_id;
+                obj.go_action = "gotoImChat";
+            }else if(I('source_page')==='myinfo'){
+                obj.go_action = "gotoPubAcctMyInfo";
+            }
+            obj.go_param = go_param;
+            obj.from_page = 'carsvc';
+//            obj.expsType = type;
+//            console.log(obj);
+            PageJumpTap('gotoCashier', obj);
+//            console.log(obj);
+        } else if(is_smdd()) {
+            //APP端购买
+            if (order.orderid == 0) {
+                order.orderid = order.merge_no;  //合并订单号赋值给订单id
+            }
+            if (order.merge_no == '') {
+                order.merge_no = 0;
+            }
+            event_link(API.SERVER_URL + 'sdp/' + API.API_LIST.ORDER_ORDERPAY + '?userid=' + getUserid() + '&order_type=' + order.order_type + '&orderid=' + order.orderid + '&merge_no=' + order.merge_no);
+        } else {
+            //获取微信支付参数
+            //wxPay(order, 0);
+            var obj = M();
+            var go_param = M();
+            go_param.orderid = order.orderid;
+            go_param.merge_no = order.merge_no;
+//            go_param.id = record_id;
+//            go_param.expsId = expsId;
+//            go_param.expsType = type;
+//            go_param.expsGrade = grade;
+            obj.orderid = order.orderid;
+//            obj.merge_no = order.merge_no;
+//            obj.expsId = expsId;
+            if(I('source_page')==='IM'){
+                go_param.appid=1;
+                go_param.to_id=I('aid');
+                go_param.user_id=user_id;
+                obj.go_action = "gotoImChat";
+            }else if(I('source_page')==='myinfo'){
+                obj.go_action = "gotoPubAcctMyInfo";
+            }
+            obj.go_param = go_param;
+            obj.from_page = 'carsvc';
+//            obj.expsType = type;
+//            console.log(obj);
+            PageJumpTap('gotoCashier', obj);
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>使用规则</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/coupon.css"/>
+</head>
+<body>
+<div class="live-rule"></div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+
+<script>
+    var code = I('code','');
+
+    function onStart(){
+        getData();
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_PRIVILEGE_USER,{'code':code},function(data){
+            if(data.status==1){
+                $('.live-rule').html(data.data.content);
+                loadEnd();
+            }
+        })
+    }
+</script>
+</html>

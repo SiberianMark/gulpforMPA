@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>添加车辆</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=6k8EkQ4GBKCBqiDixvyzGpK462AoF7mM"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.min.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.picker.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.poppicker.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script src="/web/car-service/assets/js/mui.min.js"></script>
+    <script src="/web/car-service/assets/js/mui.picker.js"></script>
+    <script src="/web/car-service/assets/js/mui.poppicker.js"></script>
+    <script src="/web/car-service/assets/js/license.data.js"></script>
+    <script src="/web/car-service/assets/js/chose_car.js"></script>
+</head>
+<body style="background-color:#eee;">
+    <div class="fill-tips">请根据《机动车行驶证》仔细填写</div>
+    <div class="main">
+        <div class="input-box" scl-pe="before">
+            <label>车牌号码</label>
+            <div class="quyu" id="quyu">
+                <div><span id="license">粤B</span><span class="down" id="arrow"></span></div>
+            </div>
+            <input type="text" name="carNum" placeholder="请输入车牌号" maxlength="5" verify="1" style="width: 50%;">
+        </div>
+        <div class="input-box brand" scl-pe="before">
+            <label>发动机号</label>
+            <input type="text" name="engineno" placeholder="请输入您的发动机号" maxlength="7" verify="1"/>
+            <span class="warn"></span>
+        </div>
+        <div class="input-box car-body" scl-pe="before">
+            <label>车身架号</label>
+            <input type="text" name="vin" placeholder="请输入您的车身架号" maxlength="17" verify="1"/>
+            <span class="warn"></span>
+        </div>
+        <div class="input-box" id="choseCar" scl-pe="before">
+            <label>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系</label>
+            <span id="res">请选择你爱车的车型</span>
+            <span class="arrow"></span>
+        </div>
+        <div class="input-box" style="display: none;">
+            <label>备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</label>
+            <input type="text" name="remark" placeholder="如张三的车" maxlength="20"/>
+        </div>
+    </div>
+    <div class="tips">所填信息为当地交管局查询所需，你的信息将被严格保密</div>
+    <div class="btn-box" id="save">
+        <span class="btn" >保存并查询</span>
+    </div>
+    <div class="btn-box" id="delete">
+        <span class="btn delete" >删除</span>
+    </div>
+
+    <div class="mask">
+        <div class="show-content">
+            <img src="/web/car-service/assets/image/chejiahao@2x.png"/>
+        </div>
+    </div>
+
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    function onStart(){
+        if(I('source')=='edit'){
+            $("#license").text(decodeURIComponent(I('a')));
+            $("input[name='carNum']").val(I('b'));
+            $("input[name='engineno']").val(3207695);
+            $("input[name='vin']").val('LHGCR2663G8005303');
+            $("#res").text('CRV 2016款2.0L两驱经典版').css('color','#333333');
+        }
+        loadEnd();
+    }
+
+    choseLicense('license','quyu');
+
+    //弹出
+    $(".warn").on('click',function(){
+        $(".mask").show();
+    });
+
+    $(".mask").on('click',function(){
+        $(".mask").hide();
+    });
+</script>
+</html>

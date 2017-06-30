@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>提交成功</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body>
+    <div class="wrap suc-wrap ovh">
+        <div class="success tc">
+            <img style="width:8rem;height:8rem;" src="/web/car-service/assets/image/success@2x.png">
+        </div>
+        <div class="mgl-3 mgr-3">
+            <p class="text mgb-3 tl">您已提交成功，请等待专属顾问与您联系。如果您等不及，您也可以直接联系专属顾问。</p>
+        </div>
+        <div class="btn tj-btn contact-btn">联系专属顾问</div>
+        <div class="modal">
+            <div class="modal-content ol-content">
+                <div class="ol-pn">
+                    <div><span class="ol-pn-text"></span><span class="ol-cover-bname"></span></div>
+                    <div class="ol-pn-number"></div>
+                </div>
+                <div class="ol-cover-btn" border="top"><a class="hv" id="btn-cancel">取消</a><a class="hv" border="left" href="tel:" id="btn-confirm">确定</a></div>
+            </div>
+        </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+
+    function onStart(){
+        getEmploy();
+    }
+    function getEmploy(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_PRICECOUNSELOR,{userid:getUserid()},function (data) {
+            if(data.status==1){
+                console.log(data);
+                $('.ol-pn-text').text('联系专属顾问：');
+                $('.ol-cover-bname').text(data.data.realname);
+                $('.ol-pn-number').text(data.data.mobile);
+                $('#btn-confirm').attr('href','tel:'+data.data.mobile);
+            }else{
+                $('.modal').hide();
+            }
+            loadEnd();
+        });
+    }
+    $('.contact-btn').on('click',function(){
+        $('.modal').addClass('fade');
+        $(".ol-cover-bname").show();
+    })
+    $('#btn-cancel,#btn-confirm').on('click',function(){
+        $('.modal').removeClass('fade');
+
+    })
+</script>
+</html>

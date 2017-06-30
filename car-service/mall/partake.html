@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>参与商品</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/coupon.css"/>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+</head>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll">
+        <div class="pt-list-box"></div>
+    </div>
+</div>
+<div class="ensure"><span>确定</span></div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="tmpl-data-list">
+    {{~it.data.goods:item:index}}
+    <div class="pt-list flex " id="{{=item.id}}">
+        <div class="select flex-center">
+            <i></i>
+        </div>
+        <div class="pt-pic">
+            <img src="{{=item.img}}">
+        </div>
+        <div class="pt-con flex-c">
+            <div class="tit" limitline="2">{{=item.name}}</div>
+            <div class="ms">{{=item.content}}</div>
+            <div class="price">
+                <span>￥<i>{{=item.sell_price.split('.')[0]}}</i>.{{=item.sell_price.split('.')[1]}}</span>
+            </div>
+        </div>
+    </div>
+    {{~}}
+</script>
+<script>
+    var render_list = getRender('tmpl-data-list');
+    var page = 1;
+    var goods_id = '';
+    var is_goods = 0; // 0 普通商品  1会员特惠商品  2跳转商城列表
+//    var oFirst = true;
+
+    function onStart(){
+        _initMui();
+        getData();
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_PRIVILEGE_JOINGOODS,{'get_id':I('get_id',''),'page':page},function(data){
+            if (data.status == 1) {
+                is_goods = data.data.is_goods;
+                if(page==1){
+                    if(!data.data.goods.length){
+                        console.log(1);
+                        inputTipsText('可用商品已下架');
+                        setTimeout(function(){
+                            PageJumpTap('gotoMallMyDraw');
+                        },2000);
+                        return;
+                    }else {
+                        goods_id = data.data.goods[0].id;
+                    }
+                }
+                if (data.data.length <= 0) {
+                    if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return false;
+                }
+                if (page == 1) {
+                    $('.pt-list-box').html(render_list(data));
+                    $('.pt-list').each(function(){
+                        if($(this).index()==0){
+                            $(this).addClass('cur');
+                        }
+                    });
+                }else {
+                    $('.pt-list-box').append(render_list(data));
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+
+            }else{
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(page==1){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+            }
+            loadEnd();
+        })
+    }
+
+    $('.pt-list-box').on('tap','.pt-list',function(){
+        goods_id = $(this).attr('id');
+        $(this).addClass('cur').siblings().removeClass('cur');
+    });
+
+    $('.ensure').on('click','span',function(){
+        var obj = M();
+        obj.id = goods_id;
+        if(is_goods==0){
+            obj.source = 'omall';
+            PageJumpTap('gotoGoodsDetail',obj);
+        }else if(is_goods==1){
+            PageJumpTap('gotoGoodDetail',obj);
+        }else {
+            PageJumpTap('gotoMallIndex');
+        }
+    });
+
+</script>
+</html>

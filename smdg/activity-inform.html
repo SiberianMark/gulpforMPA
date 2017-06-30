@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="/web/assets/js/load.meta.js"></script>
+	<title>活动通知</title>
+	<!-- 顶部共用↓ -->
+	 <script src="/web/assets/js/load.head3.js"></script>
+<!--<script src="http://10.10.12.151:8081/target/target-script-min.js#anonymous"></script> -->
+	 <link rel="stylesheet" href="/web/assets/css/smdg/activity-inform.css">
+</head>
+<body>
+	<div class="content">
+		<div class="content-head">
+			<div class="ordersbox">
+			    <div class="tabs-box">
+			        <div class="shop-order border">
+			            <ul class="shop-order-nav" border='bottom'>
+			                <li index='0'><span border="right">报名</span></li>
+			                <li index='1'class="cur"><span border="right">活动</span></li>
+			                <li index='2' ><span border="right">晒图</span></li>
+			            </ul>
+			        </div>
+			    </div>
+			</div>
+			<div class="activity-header">				
+			</div>
+		</div>
+		<div class="activity-body">			
+		</div>
+		<div class="no-consultant-prompt"><div></div> <span>还没有活动项目哦~晚点再来~</span> </div>
+	</div>	
+</body>
+<script type="text/template" id="head-img">
+	{{?it.status==1}}
+		<div class="activity-header">
+			<img class="head-img" src="{{=it.data.image_url}}" alt="">
+		</div>
+	{{?}}
+</script>
+<!-- 0未进行，1进行中，2已结束 -->
+<script type="text/template" id="program">
+	{{?it.status==1}}
+		{{~it.data.info:item:index}}
+			{{?item.status==1}}
+				<div class="process" id="processing">
+			{{??}}
+				<div class="process">
+			{{?}}
+				{{?item.status==0}}
+					<div class="left-status-line">
+						<div class="line-head"></div>
+						<div class="line-circle"></div>
+						<div class="line-end"></div>
+					</div>
+				{{??item.status==1}}
+					<div class="left-status-line">
+						<div class="line-head border-start"></div>
+						<div class="line-circle background-start"></div>
+						<div class="line-end"></div>
+					</div>		
+				{{??item.status==2}}
+					<div class="left-status-line">
+						<div class="line-head border-start"></div>
+						<div class="line-circle background-start"></div>
+						<div class="line-end border-start"></div>
+					</div>
+				{{?}}
+				{{?item.tit_link}}
+					<div class="right-activity-process"><a href="{{=item.tit_link}}">
+						<div class="process-step">
+							<div class="step-header">
+								{{?item.status==0}}
+									<p class="process-title">{{=item.title}}</p>
+								{{??}}
+									<p class="process-title font-start">{{=item.title}}</p>
+								{{?}}
+								<div class="process-time">{{=item.start_time}}-{{=item.end_time}}</div>
+							</div>
+							
+							<div class="process-detail">{{=item.content}}</div>
+								<a href="javascript:;"><p class="rule-desc" style="display:inline-block;" link="{{=item.tit_link}}">{{=item.tit}}</p></a>
+							{{?item.button}}
+								<div class="process-btn" link="{{=item.button_link}}"><a href='javascript:;' >{{=item.button}}</a></div>
+							{{??!item.button}}
+							{{?}}
+						</div></a>
+					</div>
+				{{??}}
+					<div class="right-activity-process">
+						<div class="process-step">
+							<div class="step-header">
+								{{?item.status==0}}
+									<p class="process-title">{{=item.title}}</p>
+								{{??}}
+									<p class="process-title font-start">{{=item.title}}</p>
+								{{?}}
+								<div class="process-time">{{=item.start_time}}-{{=item.end_time}}</div>
+							</div>
+							<div class="process-detail">{{=item.content}}</div>
+							{{?item.button}}
+								<div class="process-btn" link="{{=item.button_link}}"><a href='javascript:;'>{{=item.button}}</a></div>
+							{{??!item.button}}
+							{{?}}
+						</div>
+					</div>
+				{{?}}
+			</div>
+		{{~}}
+	{{?}}
+</script>
+<script>
+var share=1;
+var head_render = getRender('head-img');
+var render = getRender('program');
+var $div_li=$("ul.shop-order-nav > li");
+function onStart(){
+	if(share==1){
+            downloadApp('body','float');
+        };
+	getData();	    
+    loadEnd();
+
+	//切换列表
+	$div_li.on('click',function () {
+	    _index = parseInt($(this).attr('index'));
+	    $(this).addClass("cur").siblings().removeClass("cur");
+	    var obj = new Object();
+	    obj.id=I("id");
+	    obj.activity_id=I("id");
+	    if(_index=="0"){
+	        Interface('gotoCarnivalDetail',JSON.stringify(obj));
+	    }else if(_index=="2"){
+	        Interface('gotoCarnival', obj);
+	    }
+	});
+
+}
+function getData(){
+    jsonAjax(API.API_LIST.CARNIVAL_PROGRAM_LIST, {aid:I('id'),userid:getUserid()}, function (data) {
+        if(data.status==1){
+        	var datastr=JSON.stringify(data);
+        	datastr=datastr.replace(/\\r\\n/g, "<br>&nbsp;");
+        	console.log(datastr);
+        	datastr=datastr.replace(/&nbsp;【/g, "【");
+        	data=JSON.parse(datastr);       
+            WxShare.title=data.data.share_title;
+            WxShare.imgUrl=data.data.share_pic;
+            WxShare.link=data.data.share_link;
+            WxShare.desc=data.data.share_content;
+            WxShare.linkUrl=data.data.share_url;//分享到其他平台时可用
+             loadWxObject(true); //获取微信分享对象
+            // WxShare(obj);	//微信分享
+            if(data.data.info!=''){
+	            $('.activity-header').html(head_render(data));     
+	            $('.activity-body').html(render(data));
+			}else {
+           		$('.no-consultant-prompt').css('display','block');
+        	}
+           
+        }
+    });
+}
+$(".activity-body").on('click', '.rule-desc[link]', function () {
+    var obj = new Object();
+    var _link = $(this).attr("link");
+    var new_link =_link.match(/(https:\/\/)/g);
+    if (new_link==null){
+    	_link = "http:"+ '//'+_link;
+    };
+    obj.link = _link;
+    InterfaceTap('gotoLink', JSON.stringify(obj));
+});
+
+$(".activity-body").on('click', '.process-btn[link]', function () {
+    var obj = new Object();
+    _link = $(this).attr("link");
+    var new_link =_link.match(/(https:\/\/)/g);
+    if (new_link==null){
+    	_link = "http:"+ '//'+_link;
+    };
+    obj.link = _link;
+    InterfaceTap('gotoLink', JSON.stringify(obj));
+});
+
+</script>
+<script>
+	window.onload=function(){
+		var container = $('html,body');
+	    var scrollTo = $('#processing');
+	    if(jQuery(container).length == 0 || jQuery(scrollTo).length == 0){
+	    	return;
+		}else{
+			var htmlHight=scrollTo.offset().top;
+		    var processHight=$('#processing').height();
+		    var fontsize=$
+			container.scrollTop(
+		    htmlHight - processHight
+			);
+		}
+	}
+</script>
+</html>

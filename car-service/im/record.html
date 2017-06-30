@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title></title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+	<script src="/web/assets/js/mui_list_data.js?v=1.0.5"></script>
+	<link rel="stylesheet" href="/web/car-service/assets/css/chat.css"/>
+</head>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+	<div class="mui-scroll">
+		<div class="record-list"></div>
+	</div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="tmpl-data">
+	{{~it.data:val:index}}
+    <div class="msg-item flex-y" toid="{{=val.to_id}}">
+    	{{?parseInt(val.unread_num)>0}}
+			<em>{{=parseInt(val.unread_num)>=100?'99+':val.unread_num}}</em>
+    	{{?}}
+		<img src="{{=val.photo}}"/>
+		<div class="flex-c">
+			<p class="nickname">{{=val.nickname}}</p>
+			<p class="content">{{=val.type=='image'?'[图片]':val.content.length<10?val.content:val.content.substr(0,10)+'...'}}</p>
+		</div>
+		<div class="time">{{=val.add_time}}</div>
+	</div>
+	{{~}}
+</script>
+<script>
+	var muiDataList=null;//mui data list obj
+	var user_id = I('user_id',0);
+	var to_id = I('to_id',0);
+	var appid = I('appid',0);
+    function onStart(){
+        jsObj.appid=appid;
+        if(muiDataList==null){
+            muiDataList = $('.record-list').MuiDataList({
+                debug:false,
+                mode : 1,
+                api:API.API_LIST.CAR_USER_MSGLIST,
+                api_param:{page:1,appid:appid,userid:user_id,toid:to_id},
+                dot_template:"tmpl-data",
+                dataName:'data.data',
+                pageSize:10,
+                containerIndex:0,
+                dotIndex:0,
+                beforeGet:function(){},
+                afterGet:function(data){
+                },
+                firstGet:function(data){
+                    loadEnd();
+                }
+            });
+        }
+    }
+    $('.record-list').on('tap','.msg-item',function(){
+    	var obj=new Object();
+        if(I('appid','1')=='2'){
+            obj.user_id=$(this).attr('toid');
+            obj.to_id = I('to_id','0');
+        }else{
+            obj.user_id=getUserid();
+            obj.to_id = $(this).attr('toid');
+        }
+		obj.appid = I('appid','1');
+        obj.ak=I('ak','');
+        obj.nickname = $(this).find('.nickname').text();
+		PageJumpTap('gotoChatRoom',obj);
+    });
+</script>
+</html>

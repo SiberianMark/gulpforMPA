@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<!-- 初始化浏览器运行环境↓ -->
+	<script src="/web/assets/js/load.meta.js"></script>
+	<title></title>
+	<!-- 共用库↓ -->
+	 <script src="/web/assets/js/load.head3.js"></script>
+	<!-- 页面样式↓ -->
+	<link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/newsnote.css">
+	<script>
+		loadWxObject();
+	</script>
+</head>
+<body>
+	<!-- 无内容提示内容↓ -->
+	<div class="no-content">
+		<!-- 模板引擎↓ -->
+		<script type="text/template">
+			<div>
+				<div class="noimg">
+					<img src="/web/assets/image/yibeishanchu_ico.png">
+				</div>
+			</div>	
+			{{
+				show='删除';
+				if(it.data.is_del==1){
+					show='删除';
+				}else{
+					show='屏蔽';
+				}
+			}}
+			<p class="p1">内容已经被{{=show}}</p>
+			<p class="p2">您可以直接访问店铺</p>			
+		</script>
+	</div>
+	<!-- 新闻内容↓ -->
+	<div id="data-note" class="data-note">
+		<!-- 样板数据end -->
+		<script type="text/template">
+			<div class="note-main">
+				<h1>{{=it.data.title?it.data.title:''}}</h1>
+				<div class="diray_info">
+					<span id="add_time" class="date">{{=it.data.add_time?it.data.add_time:''}}</span>
+					<a id="auther_wrap" class="for_gaq" href="#">
+						<span class="author" type="{{=it.data.type}}" class="author">{{=it.data.author?it.data.author:''}}</span>
+					</a>
+				</div>
+				<div id="content" class="diray_txt">
+					<div class="article">
+					{{var div=document.createElement('div');div.innerHTML=it.data.content;content=div.innerText || div.textContent;}}
+                {{=content}}
+					</div>
+					<div class="view_num">
+						<span>阅读{{=it.data.read_num?it.data.readnum:0}}</span><span class="click">{{=it.data.click?it.data.click:0}}</span>
+					</div>
+				</div>
+
+			</div>
+		</script>
+	</div>
+	<div class="goto-download">
+		<img id="download-logo" src="/web/assets/image/smdg/logo.png" alt="logo">
+		<div class="brand-info">
+			<p class="brand-title">神马滴滴</p>
+			<p class="brand-detail">人，车，生活，移动互联社区</p>
+		</div>
+		<div class="goto-now">立即使用</div>
+		<img id="close-icon" src="/web/assets/image/smdg/close.png" alt="close">
+	</div>
+</body>
+	<!-- 底部共用↓ -->
+	<script src="/web/assets/js/load.foot.js"></script>
+	<script>
+		// 程序入口
+		// 获取渲染对象
+		//程序入口函数
+		function onStart(){
+			//获取页面相关数据
+			jsonAjax('/gold/home/headdetail',{'article_id':I("article_id",0)},function(data){
+					if(data.status==1){
+						//请求成功
+						//设置微信浏览器头部信息
+						WxShare.title = data.data.share_title;
+						WxShare.desc = data.data.share_content;
+						WxShare.imgUrl = data.data.share_pic;
+						WxShare.link = data.data.share_link;
+						loadWxObject(true);  //加载微信对象
+						//alert("请求成功"+JSON.stringify(data));
+						if(data.data.is_del == "1"){
+							$(".no-content").css({'display': 'block'});
+							doTer(data,$("#shop"));
+        					doTer(data,$(".no-content"));
+        					}else{
+        						doTer(data,$("#data-note"));
+        					};
+        					if(data.data.is_like == "1"){
+        			//已点赞
+        						$(".view_num .click").css({'background-position': '0px -18px'});
+        					}
+
+						};
+			
+			//显示渲染结果
+			loadEnd();			
+			//点击跳转到神马嘀嘀主页面
+			 $(".author").on("click",function(){
+				Interface("gotoMallHome");
+			});
+			//点击跳转到APP下载页
+			$(".goto-now").on("click",function(){
+				InterfaceTap('downApp'); 
+			});
+			$("#close-icon").on("click",function(){
+				$(".goto-download").css("display","none");
+			});
+			$(".view_num .click").on('click',function(){
+				if (isLogin()) {
+					if($(".view_num .click").css('background-position') == '0px -18px'){
+							//取消点赞
+							var clicks = parseInt($(".view_num .click").text());
+							if(clicks <= 0)
+								return false;
+							jsonAjax(API.API_LIST.NOTE_DO_LIKE,{'userid':getUserid(),'id':I('article_id',0),'action':'cancel'},function(data){
+							if(data.status == 1){
+				        		$(".view_num .click").css({'background-position': '0px 0px'});
+				        		$(".view_num .click").text((clicks-1));
+				        	}else{
+				        		inputTipsText(data.info);
+				        	}
+						});
+					}else{
+						//点赞
+						jsonAjax(API.API_LIST.NOTE_DO_LIKE,{'userid':getUserid(),'id':I('article_id',0)},function(data){
+							if(data.status == 1){
+				        		$(".view_num .click").css({'background-position': '0px -18px'});
+				        		var clicks = parseInt($(".view_num .click").text())+1;
+				        		$(".view_num .click").text(clicks);
+				        	}else{
+				        		inputTipsText(data.info);
+				        	}
+						});
+					}
+				};
+			});
+		});
+	}
+</script>
+</html>

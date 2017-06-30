@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>回复评论</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/assets/css/smdg/articals.css">
+</head>
+<body>
+    <div class="articals-wrap reply-wrap">
+
+    </div>
+    <div class="bs-reply" style="">
+        <textarea id="content" class="content-textarea bs-reply-text" rows="5" placeholder="该评论你怎么看?"></textarea>
+        <div class="flex-x-about">
+            <div id="bs-comment-apply" class="bs-comment-apply">提交</div>
+            <div id="bs-comment-close" class="bs-comment-close">取消</div>
+        </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id='datalist'>
+    <div class="main-comment flex">
+        <img class="comment-usrImg" src="{{=it.data.info.photo}}" alt="">
+        <div class="commemt-cons flex-c">
+            <div class="comment-usrName">{{=it.data.info.nickname}}</div>
+            <div class="usr-con">{{=it.data.info.comment}}</div>
+            <div class="comment-other">{{=getFrendlyDate(it.data.info.add_time,true)}}</div>
+        </div>
+        <div class="like-box {{=(it.data.info.is_click=='1')?'':'unlike-box'}} commer" cid="{{=comment_id}}">{{=it.data.info.hits}}</div>
+    </div>
+    <ul class="comment-list" border="top">
+        {{? !$.isEmptyObject(it.data.data)}}
+        <p class="reply-title">全部评论</p>
+        {{~it.data.data:item:index}}
+        <li class="comment-item flex">
+            <img class="comment-usrImg" src="{{=item.photo}}" alt="">
+            <div class="commemt-cons flex-c">
+                <div class="comment-usrName">{{=item.nickname}}
+                  {{?item.car_name!=''}}
+                  <img class="comment_car_logo" src="{{=item.car_logo}}" alt="">
+                  <span class="comment_car_name">{{=item.car_name}}</span>
+                  {{?}}
+                </div>
+                <div class="usr-con">{{=item.comment}}</div>
+                <div class="comment-other">
+                    {{=getFrendlyDate(item.add_time,true)}}
+                </div>
+            </div>
+            <div class="like-box comments {{=(item.is_click=='0')?'unlike-box':''}}" cid="{{=item.id}}">{{=item.hits}}</div>
+        </li>
+        {{~}}
+        {{?}}
+    </ul>
+    <div class="footer flex-y" border="top">
+        <input type="text" placeholder="添加评论..." class="comment-input flex-c flex-x-about" readonly="readonly">
+        <div class="comment-icons">
+            <div class="comment-zan commer {{=(it.data.info.is_click=='1')?'':'no-zan'}}" cid="{{=comment_id}}"></div>
+        </div>
+    </div>
+</script>
+<script>
+    var ar_id=I('artical_id','581');
+    var comment_id=I('comment_id','373');
+    var plant_source=I('source','0'),
+        type_source=I('type','1');
+    var share=I('share');
+    var userid=getUserid();
+    var dataTml=getRender('datalist');
+    var firstClick1=true;
+    var firstClick2=true;
+    function onStart(){
+        getData();
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_NOTE_GETCOMMENT,{nid:ar_id,comment_id:comment_id,userid:getUserid()},function(data){
+            if(data.status==1){
+                $('.reply-wrap').html(dataTml(data));
+            }
+            loadEnd();
+        });
+    }
+    //评论点赞
+    $('.articals-wrap').on('click','.comments',function(){
+        if(!firstClick1){
+            return;
+        }
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                if($this.hasClass('unlike-box')){
+                    comm_zan($this.attr('cid'),type_source,'',$this);
+                }else {
+                    comm_zan($this.attr('cid'),type_source,'cancel',$this);
+                }
+            }
+        });
+        firstClick1=false;
+        setTimeout(function(){
+            firstClick1=true;
+        },300);
+    });
+    function comm_zan(ArId,type,action,ele){
+        console.log(ArId,getUserid(),type,action,111);
+        jsonAjax(API.API_LIST.GOLD_NOTE_DOLIKECOMMENT,{id:ArId,userid:getUserid(),type:type,action:action},function(data){
+            if(data.status==1){
+                ele.toggleClass('unlike-box');
+                console.log(ele.text(),111);
+                if(ele.hasClass('unlike-box')){
+                    ele.text(parseInt(ele.text())-1);
+                }else{
+                    ele.text(parseInt(ele.text())+1);
+                }
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    function comm_zanLike(ArId,type,action,ele){
+        console.log(ArId,getUserid(),type,action,222);
+        jsonAjax(API.API_LIST.GOLD_NOTE_DOLIKECOMMENT,{id:ArId,userid:getUserid(),type:type,action:action},function(data){
+            if(data.status==1){
+                $('.main-comment .commer').toggleClass('unlike-box');
+                $('.footer .commer').toggleClass('no-zan');
+                if($('.main-comment .commer').hasClass('unlike-box')){
+                    $('.main-comment .commer').text(parseInt($('.main-comment .commer').text())-1);
+                }else {
+                    $('.main-comment .commer').text(parseInt($('.main-comment .commer').text())+1);
+                }
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    $('.articals-wrap').on('click','.commer',function(){
+        if(!firstClick2){
+            return;
+        }
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                if($this.hasClass('unlike-box')||$this.hasClass('no-zan')){
+                    comm_zanLike($this.attr('cid'),type_source,'',$this);
+                }else {
+                    comm_zanLike($this.attr('cid'),type_source,'cancel',$this);
+                }
+            }
+        });
+        firstClick2=false;
+        setTimeout(function(){
+            firstClick2=true;
+        },300);
+    });
+    //回复评论
+    $('.articals-wrap').on('click','.comment-input',function(){
+        $(".bs-reply").animate({
+            height:"toggle"
+        },"slow");
+        $(".articals-wrap").hide();
+    });
+    $(".bs-reply").on("click",".bs-comment-close",function () {
+        $(".bs-reply").animate({
+            height:"toggle"
+        },"slow");
+        $(".articals-wrap").show();
+    });
+    $(".bs-reply").on("click",".bs-comment-apply",function () {
+        if($('#content').val() == "" || $.trim($('#content').val()) == "") {
+            inputTipsText("请输入内容！");
+            $('#content').focus();
+            return;
+        }
+        jsonAjax(API.API_LIST.GOLD_NOTE_FEEDCOMMENT,{id:ar_id,userid:getUserid(),comment:$('#content').val(),type:type_source,source:plant_source,comment_id:comment_id},function(data){
+            if(data.status==1){
+                $('#content').val('');
+                $(".bs-reply").animate({
+                    height:"toggle"
+                },"slow");
+                getData();
+                $(".articals-wrap").show();
+            }
+        });
+    });
+</script>
+</html>

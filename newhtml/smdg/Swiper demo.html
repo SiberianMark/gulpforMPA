@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>神马生活轮播示意图</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+</head>
+<style>
+    .swiper-container{
+        margin-top: 1.1rem;
+    }
+
+    .swiper-container {
+        width: 100%;
+        height: 300px;
+        margin: 0 auto;
+    }
+    .swiper-slide{
+        background-color: #f55;
+        width: 82%;
+        padding: 0 2%;
+
+    }
+    .swiper-slide1{
+        background-color: #0000ff;
+    }
+    .swiper-slide2{
+        background-color: #8e8e8e;
+    }
+    .swiper-slide3{
+        background-color: #a0ea3f;
+    }
+</style>
+<body>
+
+<div class="swiper-container">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide1 swiper-slide">slider1</div>
+        <div class="swiper-slide2 swiper-slide">slider2</div>
+        <div class="swiper-slide3 swiper-slide">slider3</div>
+    </div>
+    <div class="swiper-pagination"></div>
+</div>
+
+<script>
+    var swiper = new Swiper ('.swiper-container', {
+        roundLengths : true,
+        initialSlide :1,//设定初始化时slide的索引
+        speed:600,//滑动速度
+        slidesPerView:"auto",//设置slider容器能够同时显示的slides数量
+        centeredSlides : true,//活动块居中
+        followFinger : false,//拖动后释放鼠标或手指时slide滑动
+        spaceBetween : 20,//活动块间隔
+        loop : false,//循环
+        pagination : '.swiper-pagination',
+        paginationType : 'bullets',//分页器样式类型
+
+    })
+</script>
+</body>
+<script>
+    function onStart() {
+        loadEnd();
+    }
+</script>
+</html>

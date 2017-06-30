@@ -1,0 +1,510 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>嘉年华首页</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js"></script>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/home-carnival.css">
+    <script type="text/javascript" src="/web/assets/js/jquery.touchSwipe.min.js"></script>
+    <script>
+        loadWxObject();
+    </script>
+    <style type="text/css">.app-download{bottom:0rem!important;}
+        .personal-jifen{width:9.3rem;height:6.2rem;background: url("/web/assets/image/smdg/personal-points.png") left center no-repeat;background-size:9.3rem auto;}
+        .items-box-con {width: 100%;padding:2rem 0 0 0;position: fixed;top: initial;left: 1rem; right: 1rem;white-space: nowrap;text-align: left;}
+    </style>
+</head>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper" >
+    <div class="mui-scroll">
+        <div class="attention-now"><a href="javascrip:;" style=""></a></div>
+        <div class="carnival-header">
+            <div class="event-standings" border="bottom ccc">
+                <h4>赛事积分榜<span>参赛记录</span></h4>
+                <ul class="items-box clear" style="overflow-x:auto; position: absolute;"></ul>
+            </div>
+            <div class="actives-ad">
+                <div class="actives-ad-img"><img src="/web/assets/image/smdg/f4banner.png"></div>
+                <div class="actives-ad-btn">
+                    <span class="actives-ad01"><img src="/web/assets/image/smdg/jingcaishipin.png"></span>
+                    <span class="actives-ad02"><img src="/web/assets/image/smdg/shishizongbang.png"></span>
+                    <span class="actives-ad03"><img src="/web/assets/image/smdg/zhixiansai.png"></span>
+                </div>
+            </div>
+            <div class="actives-items-box">
+                <h4>积分制赛程</h4>
+                <div class="actives-items"></div>
+            </div>
+            <div class="past-review">
+                <h3>精彩瞬间</h3>
+                <div class="wonderful-moments"></div>
+            </div>
+            <div class="footer"></div>
+        </div>
+    </div>
+</div>
+<div class="vbersky-mask" style="display:none;">
+    <video id="video1" controls="controls autoplay" poster="/web/assets/image/smdg/sp@2x.png">
+        <source src="" type="video/mp4" />
+    </video>
+</div>
+</body><!--
+<script type="text/template" id="trunk-market-banner">
+    {{~it.data:item:index}}
+    <img src="{{=item.image}}" alt="" class="swiper-slide" url="{{=item.url}}">
+    {{~}}
+</script>
+ -->
+<script type="text/template" id="events-standings">
+    {{ var val = it.data; }}
+    {{ for(var i in val){ }}
+    {{?i==0}}
+    <li class="">
+    {{??i>0}}
+    <li class="" border="left ccc">
+    {{?}}
+        {{=val[i].play_name}}
+        <ul class="items-box-con clear" gid="{{=val[i].gid}}">
+            {{ for(var j in val[i].rank){ }}
+            {{
+                var _sex = parseInt(val[i].rank[j].sex);
+                var u_n = val[i].rank[j].nickname;
+                var _uid = parseInt(val[i].rank[j].userid);
+                un = u_n ? u_n : _uid ;
+            }}
+            <li class="clear">
+                <img src="{{=val[i].rank[j].photo}}">
+                <div class="items-box-txt">
+                    <p>
+                        {{=un}}
+                        {{?_sex==1}}
+                        <i class="nan"></i>
+                        {{??_sex==2}}
+                        <i class="nv"></i>
+                        {{?}}
+                    </p>
+                    <p><img src="{{=val[i].rank[j].logo}}">{{=val[i].rank[j].brand}}</p>
+                </div>
+            </li>
+            {{ } }}
+            {{?val[i].rank==0}}
+            <p style="line-height:4rem;color:#999;font-size:1.2rem;text-align:center;">目前暂无该榜单, 期待您的参与!</p>
+            {{?}}
+        </ul>
+    </li>
+    {{ } }}
+</script>
+<script type="text/template" id="actives-list">
+    {{ var val = it.data; }}
+    {{ for(var i in val){ }}
+        {{
+            var _status = parseInt(val[i].status);
+            var _price = parseFloat(val[i].price);
+            var _isshow = parseInt(val[i].is_show);
+            var _ischcek = parseInt(val[i].is_check);
+            var f_t = parseInt(val[i].fare_type);
+            var _jump = parseInt(val[i].jump);
+        }}
+        {{? _ischcek==1 }}
+        {{? i==0 }}
+            <div class="actives-list" aid="{{=val[i].aid}}" index ="{{=val[i].status}}" stat="{{=val[i].stat}}">
+            {{?? i>0}}
+            <div class="actives-list" aid="{{=val[i].aid}}" index ="{{=val[i].status}}" stat="{{=val[i].stat}}" border="top ccc">
+            {{?}}
+                <div class="actives-imgbox"><img class="actives-img" src="{{=val[i].aimage}}"></div>
+                <div class="actives-content">
+                    <h4>{{=val[i].title}}</h4>
+                    <p>时间：{{=val[i].begin_time}}</p>
+                    <p>场馆：{{=val[i].address}}</p>
+                    {{? f_t==1 && _jump==2}}
+                    <p class="actives-price">￥{{=val[i].price}}起</p>
+                    {{?? f_t==1 && _jump==0}}
+                    <p class="actives-price">￥{{=val[i].price}}</p>
+                    {{?? f_t==0}}
+                    <p class="actives-price">免费</p>
+                    {{?}}
+                </div>
+                {{? _status==0 }}
+                    <div class="view-items">
+                        <a class="entry-btn" href="javascript:;" style="background:#F5b617;color:#fff;">报名中</a>
+                        {{?_isshow==1}}
+                        <a class="view-performance" href="javascript:;" link="{{=val[i].other_link}}" aid="{{=val[i].aid}}">查看赛事成绩</a>
+                        {{?}}
+                    </div>
+                {{?? _status==1 }}
+                    <div class="view-items">
+                        <a class="entry-btn" href="javascript:;" style="background:#F5b617;color:#fff;">活动中</a>
+                        {{?_isshow==1}}
+                        <a class="view-performance" href="javascript:;" link="{{=val[i].other_link}}" aid="{{=val[i].aid}}">查看赛事成绩</a>
+                        {{?}}
+                    </div>
+                {{?? _status==2 }}
+                    <div class="view-items">
+                        <a class="entry-btn" href="javascript:;" style="background:#ccc;color:#fff;display:none;">已结束</a>
+                        {{?_isshow==1}}
+                        <a class="view-performance" href="javascript:;" link="{{=val[i].other_link}}" aid="{{=val[i].aid}}">查看赛事成绩</a>
+                        {{?}}
+                    </div>
+                {{?}}
+            </div>
+        {{?}}
+    {{ } }}
+</script>
+<script type="text/template" id="past-review-list">
+    {{ var val = it.data; }}
+    {{ for(var i in val){ }}
+    {{
+        var _len = parseInt(val[i].image.length);
+        var v_num = parseInt(val[i].radio.length);
+        console.log(_len);
+    }}
+
+    {{?_len==1 || v_num==1}}
+    <div class="Wonderful-items clear" link="{{=val[i].link}}" aid="{{=val[i].id}}" uid="{{=val[i].url_id}}" ut="{{=val[i].url_type}}" border="top ccc" style="height:10rem;">
+        <p class="past-review-txt" style="position: absolute;margin-right:13.5rem;">{{=val[i].title}}</p>
+        <ul class="past-review-content clear" style="position: absolute;right: 0;top: 0;">
+    {{??_len>1 || v_num>1}}
+    <div class="Wonderful-items" link="{{=val[i].link}}" aid="{{=val[i].id}}" uid="{{=val[i].url_id}}" ut="{{=val[i].url_type}}" border="top ccc" style="padding-bottom: 2rem;">
+        <p class="past-review-txt">{{=val[i].title}}</p>
+        <ul class="past-review-content clear">
+    {{??_len==0 || v_num==0}}
+        <div class="Wonderful-items" link="{{=val[i].link}}" aid="{{=val[i].id}}" uid="{{=val[i].url_id}}" ut="{{=val[i].url_type}}" border="top ccc" style="padding-bottom: 2rem;">
+        <p class="past-review-txt" style="margin-bottom: 2rem;">{{=val[i].title}}</p>
+    {{?}}
+
+        {{?v_num<=0}}
+            {{?_len>0}}
+            {{ for(var j in val[i].image){ }}
+            {{
+                var aimg = val[i].image[i];
+            }}
+            {{?j==0}}
+            <li class="pastreview" uid="{{=val[i].url_id}}" style="margin-left:0;">
+            {{??j!=0}}
+            <li class="pastreview" uid="{{=val[i].url_id}}">
+            {{?}}
+                <div>
+                    {{?aimg==""}}
+                    <img class="actives-img" style="width:auto;height:100%;" src="/web/assets/image/default_ico.svg">
+                    {{??aimg!=""}}
+                    <img class="actives-img" src="{{=val[i].image[j]}}">
+                    {{?}}
+                </div>
+            </li>
+            {{?}}
+            {{ } }}
+        {{??v_num>0}}
+            {{ for(var k in val[i].radio){ }}
+            <li class="pastreview" uid="{{=val[i].url_id}}">
+                <video class="video-view" controls="controls autoplay" src="{{=val[i].radio[k].radio}}" poster="{{=val[i].radio[k].img}}" style="width: 11.5rem;height: 7.6rem;background: #000;">
+                    <source src="{{=val[i].radio[k]}}" type="video/mp4" />
+                </video>
+            </li>
+            {{ } }}
+        {{?}}
+        </ul>
+        <p><a href="javascript:;">{{=val[i].author}}</a>  {{=val[i].piv}}阅</p>
+    </div>
+    {{ } }}
+</script>
+<script>
+
+   var share=I('share');   //是否为分享,是1;否0;
+   var c_type=I('type',7);
+   var swiper=null;
+   var page = I('page',1);
+   var pull_action = '';
+   var render_events=getRender('events-standings');
+   // var render_mycar=getRender('mycar-info');
+   var render_actives=getRender('actives-list');
+   var render_review=getRender('past-review-list');
+   var standingsIndex=1;
+   var pagejump=1;
+   var _tid = I('tid',34);
+   //var render_banner=getRender('trunk-market-banner');
+   function onStart() {
+        _initMui();
+        activesList();
+        eventsTand();
+        getData();
+        getHomeShare();
+        getBanner();
+        if(!is_weixn(true)){
+            $('.attention-now').addClass('attention-web');
+        }
+        if(share){
+            $('.attention-now').show();
+        }else{
+            $('.attention-now').hide();
+        }
+
+        /*if(share==1){
+            downloadApp('body','float');
+        };*/
+        // Add By MaShaobin 2016/11/18 standing轮播
+        setInterval(function(){
+
+            $('.items-box>li.index'+standingsIndex).addClass('cur').siblings().removeClass('cur');
+            $('.items-box>li.index'+standingsIndex).find('.items-box-con').show();
+            $('.items-box>li.index'+standingsIndex).siblings().find('.items-box-con').hide();
+             if((standingsIndex%6)==0 && standingsIndex<$('.items-box>li').length && pagejump<Math.round($('.items-box>li').length/6)){
+                 var itemsleft="-"+(Math.round(pagejump * 10000)/100).toFixed(2) + '%';
+                 $('.items-box').animate({left: itemsleft});
+                 pagejump+=1;
+             }
+            if(standingsIndex==$('.items-box>li').length){standingsIndex=0;$('.items-box').animate({left: "0"});pagejump=1;}
+            standingsIndex+=1;
+        },3000);
+   }
+   function getBanner() {
+        jsonAjax(API.API_LIST.INDEX_BANLER,{tid : _tid},function(data){
+            if(data.status==1){
+                if (data.data.length > 0){
+                    $('.actives-ad-img img').attr('src',data.data[0].image).attr('link',data.data[0].url);
+                    $('.actives-ad01 img').attr('src',data.data[1].image).attr('link',data.data[1].url);
+                    $('.actives-ad02 img').attr('src',data.data[2].image).attr('link',data.data[2].url);
+                    $('.actives-ad03 img').attr('src',data.data[3].image).attr('link',data.data[3].url);
+                } else{
+                    $('.actives-ad').hide();
+                };
+            }
+        });
+    }
+
+    $(".carnival-header").on('tap', '.actives-ad img[link]', function () {
+        var alink =$(this).attr("link");
+        var aid = $(this).attr('aid');
+        var obj = new Object();
+        obj.link = alink;
+        InterfaceTap('gotoLink', JSON.stringify(obj));
+    });
+
+    $(".past-review").on('tap', '.video-view', function (ev) {
+        var oEvent=ev||event;
+        oEvent.stopPropagation();
+        oEvent.preventDefault();
+        var v_src = $(this).attr('src');
+        var v_pos = $(this).attr('poster');
+        $('.vbersky-mask, #video1').show();
+        $('#video1').attr('src',v_src);
+        $('#video1').attr('poster',v_pos);
+        $(".vbersky-mask").on('touchmove',function(event) { event.preventDefault(); }, false);
+   });
+   $(document).on('tap', '.vbersky-mask', function (ev) {
+        event.preventDefault();
+        $('#video1').trigger('pause');
+        $('#video1').hide();
+        $(this).hide();
+    })
+    $(".vbersky-mask").unbind('touchmove');
+
+   $(".event-standings").on('tap', '.items-box>li', function () {
+        $(this).addClass('cur').siblings().removeClass('cur');
+        $(this).find('.items-box-con').show();
+        $(this).siblings().find('.items-box-con').hide();
+        // Add By MaShaobin 2016/11/18 standing轮播
+        standingsIndex=parseInt($(this).attr('class').replace(/[^0-9]+/g,''));
+   });
+   $(".carnival-header").on('tap', '.items-box-con', function () {
+        var gid = $(this).attr('gid');
+        var obj = new Object();
+        obj.type = gid;
+        isLogin(function(ret) {
+            if (ret){
+                InterfaceTap('gotoCarnivalScore',obj);
+            };
+        })
+
+    });
+   $(".past-review").on('tap', '.Wonderful-items[link]', function () {
+        var alink =$(this).attr("link");
+        var aid = $(this).attr('aid');
+        var obj = new Object();
+        if(alink==''){
+            obj.aid = aid;
+            InterfaceTap('gotoCarnivalRank', JSON.stringify(obj));
+        }else{
+            var alink=$(this).attr("link");
+            if(alink.indexOf('userid')>0){
+                alink=alink.replace(/(\&|\?)(userid\=0)/g,'');
+            }
+            obj.link = alink;
+            InterfaceTap('gotoLink', JSON.stringify(obj));
+        };
+    });
+
+   $(".actives-items-box").on('tap', '.view-items', function (ev) {
+        var ev=ev||event;
+        ev.stopPropagation();
+        ev.preventDefault();
+   });
+   $(".actives-items-box").on('tap', '.view-performance[link]', function (ev) {
+        var ev=ev||event;
+        ev.stopPropagation();
+        ev.preventDefault();
+        var alink =$(this).attr("link");
+        var aid = $(this).attr('aid');
+        var obj = new Object();
+        isLogin(function(ret) {
+            if (ret){
+                if(alink==''){
+                    obj.activityid = aid;
+                    InterfaceTap('gotoCarnivalRank', obj);
+                }else{
+                    obj.link = alink;
+                    InterfaceTap('gotoLink', JSON.stringify(obj));
+                };
+            };
+        })
+
+    });
+
+   /*$(".past-review").on('tap', '.pastreview[link]', function () {
+        var obj = new Object();
+        obj.link = $(this).attr("link");
+        InterfaceTap('gotoLink', JSON.stringify(obj));
+    });*/
+   $(".actives-items").on('tap', '.actives-imgbox,.actives-content', function () {
+        var aid = $(this).parent().attr('aid');
+        var _stat = $(this).parent().attr('stat');
+        var obj = new Object();
+        if(_stat==2){
+            obj.id = aid;
+            InterfaceTap('gotoActivityInform', JSON.stringify(obj));
+        }else{
+            obj.activity_id = aid;
+            InterfaceTap('gotoCarnivalDetail', JSON.stringify(obj));
+        };
+    });
+
+   $(".carnival-header").on('tap', '.entry-record,.event-standings span', function () {
+        var obj = new Object();
+        obj.source = 'home';
+        isLogin(function(ret) {
+            if (ret){
+                InterfaceTap('gotoEntryInfo', JSON.stringify(obj));
+            };
+        })
+    });
+    function eventsTand(){
+        jsonAjax(API.API_LIST.EVENT_STANDING, {}, function (data) {
+            if (data.status == 1) {
+                $('.items-box').html(render_events(data));
+                $('.items-box').find('li:first-child').addClass('cur');
+                // Add By MaShaobin 2016/11/18 standing轮播
+                $('.items-box>li').each(function(i){
+                    $(this).addClass('index'+(i+1));
+                });
+                $('.items-box-con').css('width',document.body.clientWidth);
+            }
+            loadEnd();
+        });
+    }
+
+    function activesList(){
+        jsonAjax(API.API_LIST.ACTIVES_LIST, {'userid': getUserid()}, function (data) {
+            if (data.status == 1) {
+                $('.actives-items').html(render_actives(data));
+            }
+            loadEnd();
+        });
+    }
+
+    function getHomeShare(){
+        jsonAjax(API.API_LIST.CARNIVAL_HOME_SHARE, {'userid': getUserid(),'type':c_type}, function (data) {
+            if (data.status == 1) {
+                WxShare.title = data.data.share_title;
+                WxShare.desc = data.data.share_content;
+                WxShare.imgUrl = data.data.share_img;
+                WxShare.link = data.data.share_link;
+                WxShare.type = 7;
+                loadWxObject(true); //加载微信对象
+            }
+        });
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.PAST_REVIEW, {'mid':('mid'),'userid': getUserid(),'page':page}, function (data) {
+            if(data.status==1){
+                if(data.data.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return;
+                }
+                if (page == 1) {
+                    $('.wonderful-moments').html(render_review(data));
+                }else {
+                    $('.wonderful-moments').append(render_review(data));
+                }
+
+                $('.mui-pull-caption').show();
+                if(data.data.length< 5){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                 setTimeout(function(){
+                        mui('#pullrefresh').pullRefresh().setStopped(false);
+                        },200);
+                        page++;
+                        if(pull_action ==  'up'){
+                            mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                        }
+                        else if(pull_action == 'down'){
+                            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                        }
+            }else{
+                if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(page==1){
+                        $('.mui-pull-caption').hide();
+                        mui('#pullrefresh').pullRefresh().setStopped(true);
+                    }
+            }
+            loadEnd();
+        });
+    }
+
+</script>
+<script>
+    $(function() {
+      $(".event-standings").swipe({
+        //Generic swipe handler for all directions
+        swipe:function(event, direction, distance, duration, fingerCount, fingerData) {
+            if(direction=='left'){
+                if(pagejump<Math.round($('.items-box>li').length/6)){
+                 pagejump+=1;
+                }
+                if(pagejump<=Math.round($('.items-box>li').length/6)){
+                    var itemsleft="-"+(Math.round((pagejump-1) * 10000)/100).toFixed(2) + '%';
+                    $('.items-box').animate({left: itemsleft});
+                }
+            }else if(direction='right'){
+                 if(pagejump>1){
+                    pagejump-=1;
+                 }
+                 if(pagejump>=1){
+                     var itemsleft="-"+(Math.round((pagejump-1) * 10000)/100).toFixed(2) + '%';
+                     $('.items-box').animate({left: itemsleft});
+                 }
+            }
+        }
+      });
+
+      //Set some options later
+      $(".event-standings").swipe( {fingers:1} );
+    });
+</script>

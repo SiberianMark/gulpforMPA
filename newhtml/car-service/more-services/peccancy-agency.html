@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>违章查询</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/exclusive-adviser.css"/>
+    <script>
+        loadWxObject();  //加载微信对象
+    </script>
+</head>
+<body>
+<div class="car-data">
+
+</div>
+<div class="add-peccancy">
+    <div>添加车辆</div>
+</div>
+</body>
+<script type="text/template" id="temp">
+    {{var val=it.data;}}
+    {{for(var i in val){}}
+    {{?val[i].type==0}}
+       <div class="list-box" cid="{{=val[i].cid}}" wid="{{=i}}" type="{{=val[i].type}}" status="" vin="{{=val[i].vin}}" engineno="{{=val[i].engineno}}">
+    {{??}}
+        <div class="list-box" cid="{{=val[i].cid}}" wid="{{=i}}" type="{{=val[i].type}}" status="{{=val[i].status}}" vin="{{=val[i].vin}}" engineno="{{=val[i].engineno}}">
+    {{?}}
+            {{
+            var str=val[i].carnum;
+            var carnum=str.slice(2,str.length);
+            }}
+        <ul class="flex-box flex-box-left-center top" scl-pe="before" addres="{{=val[i].addres}}" carnum="{{=carnum}}">
+            <li scl-pe="before"><img src="{{=val[i].logopath}}" alt=""/></li>
+
+            <li><b>{{=val[i].addres}}</b><b></b><b>{{=carnum}}</b></li>
+            <li><span></span>编辑</li>
+        </ul>
+        <ul class="flex-box flex-box-left-center bottom" scl-pe="before" addres="{{=val[i].addres}}" carnum="{{=carnum}}">
+            <li scl-pe="before">
+                <span>违章</span>
+                <span>{{=val[i].violation.unhandled}}</span>
+            </li>
+            <li scl-pe="before">
+                <span>扣分</span>
+                <span>{{=val[i].violation.unhandled_fen}}</span>
+            </li>
+            <li>
+                <span>罚款</span>
+                <span>￥{{=val[i].violation.unhandled_money}}</span>
+            </li>
+        </ul>
+    </div>
+    {{ }}}
+</script>
+<script type="text/javascript">
+    function onStart(){
+        getData();
+    }
+    $('.add-peccancy').on('click',function(){
+        var obj=M();
+        obj.userid=getUserid();
+        obj.source=1;
+        PageJumpTap('gotoAddCar',obj)
+    });
+    var render=getRender('temp');
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_VIOLATE_GETCARLIST,{'userid':getUserid()},function(data){
+            if(data.status==1){
+                $('.car-data').html(render(data));
+            }
+            loadEnd();
+        })
+    }
+
+    $('.car-data').on('click','.list-box ul',function(){
+        var index=$(this).index();
+        var type=$(this).parent('.list-box').attr('type');
+        var status=$(this).parent('.list-box').attr('status');
+        var wid=$(this).parent('.list-box').attr('wid');//车辆在列表的位置
+        var cid=$(this).parent('.list-box').attr('cid');//车辆id
+        var vin=$(this).parent('.list-box').attr('vin');//车架号
+        var engineno=$(this).parent('.list-box').attr('engineno');//发动机号
+        var obj=M();
+        if(index==1){//跳转到违章列表页面
+            if(type==0){
+                inputTipsText('该地区不支持查询');
+                return false;
+            }
+            if(status==0){
+                obj.userid=getUserid();
+                obj.source=1;
+                obj.source5=1;
+                obj.cid=cid;
+                obj.vin=vin;
+                obj.engineno=engineno;
+                obj.brand=$(this).attr('addres');
+                obj.car_num=$(this).attr('carnum');
+                PageJumpTap('gotoAddCar',obj)
+            }else{
+                var jsObj=M();
+                jsObj.userid=getUserid();
+                jsObj.type=0;
+                jsObj.lastid=0;
+                jsObj.cid=cid;
+                jsonAjax(API.API_LIST.CAR_VIOLATE_GETCARVIOLATION,jsObj,function(data){//判断车牌、发动机号、车身架号是否有效
+                    if(data.status==1){
+                        if(data.data.error==0){
+                            obj.userid=getUserid();
+                            obj.cid=cid;
+                            obj.wid=wid;
+                            obj.type=type;
+                            PageJumpTap('gotoPeccancyList',obj)
+                        }else if(data.data.error==203607){
+                            inputTipsText('信息填写错误')
+                        }else{
+                            inputTipsText(data.data.errormsg);
+                        }
+                    }else{
+                        inputTipsText(data.info);
+                    }
+                });
+
+            }
+        }else if(index==0){//跳转到添加车辆修改信息
+            obj.userid=getUserid();
+            obj.source='modify';
+            obj.source5=1;
+            obj.cid=cid;
+            obj.vin=vin;
+            obj.wid=wid;
+            obj.engineno=engineno;
+            obj.brand=$(this).attr('addres');
+            obj.car_num=$(this).attr('carnum');
+            PageJumpTap('gotoAddCar',obj)
+        }
+
+
+
+    });
+
+</script>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>赛事积分榜</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/carnivav-lists.css"/>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <!--<style type="text/css">-->
+        <!--.mui-pull-bottom-pocket{margin-bottom: 2.4rem;}-->
+    <!--</style>-->
+</head>
+<body>
+         <!--头部-->
+          <header class="header-change" id="header">
+              <div class="groups swiper-container groups-flex" scl-pe="before">
+                  <ul class="swiper-wrapper" >
+                  </ul>
+              </div>
+              <!--赛事说明按钮-->
+              <div class="integral-explain">
+
+              </div>
+              <!--评论进入按钮-->
+              <div class="comment-submit">
+                  <span></span>
+              </div>
+          </header>
+         <!--主体-->
+          <section id="pullrefresh" class="mui-content mui-scroll-wrapper section" style="top:5.2rem;background-color:#fff;margin-bottom: 4.8rem;">
+              <div class="mui-scroll">
+                  <ul class="carnivav-lists see" style="padding:0;">
+                      <div class="no-consultant-prompt">
+                          <div class="carnival-score"></div>
+                          <span>目前暂无该榜单，期待您的参与！</span>
+                      </div>
+                  </ul>
+              </div>
+          </section>
+         <!--悬浮栏-->
+         <div class="footer">
+             <ul class="carnivav-lists">
+                 <li class="login-btn"><span></span>请登录</li>
+             </ul>
+         </div>
+</body>
+<!--组别名模板-->
+<script type="text/template" id="groups">
+    {{var val=it;}}
+    {{for(var i=0,l=val.length;i<l;i++){}}
+    <li class="swiper-slide" groups-id="{{=val[i].id}}" scl-pe="before"><span >{{=val[i].name}}</span></li>
+    {{}}}
+</script>
+<!--前三名排名模板-->
+<!--<script type="text/template" id="first-three">-->
+    <!--{{var str=it;}}-->
+    <!--{{for(var j=0;j<3;j++){}}-->
+        <!--{{?str[j]!=undefined}}-->
+        <!--<li class="flex-box-top flex-left-center" name-id="{{=str[j].userid}}" ev="ev">-->
+            <!--<p><span></span>{{=str[j].total}}</p>-->
+            <!--<div><div scl-pe="before"><img class="smUsrImg" src="{{=str[j].photo}}" alt="" /></div></div>-->
+            <!--{{-->
+              <!--var sex=str[j].sex;-->
+            <!--}}-->
+           <!--/* {{?sex==='0'}}*/-->
+            <!--<p>{{=str[j].nickname?str[j].nickname:''}}</p>-->
+           <!--/* {{??sex==='1'}}-->
+            <!--<p>{{=str[j].nickname?str[j].nickname:''}}<span></span></p>-->
+            <!--{{??sex==='2'}}-->
+            <!--<p>{{=str[j].nickname?str[j].nickname:''}}<span class="woman"></span></p>-->
+             <!--{{?}}*/-->
+            <!--<p><img src="{{=str[j].logo}}" alt=""/>{{=str[j].model}}</p>-->
+        <!--</li>-->
+        <!--{{??}}-->
+         <!--<li class="flex-box-top flex-left-center"></li>-->
+         <!--{{?}}-->
+    <!--{{}}}-->
+<!--</script>-->
+<!--其它排名-->
+<script type="text/template" id="carnivav-lists">
+    {{var arr=it;}}
+    {{for(var z=0;z<arr.length;z++){}}
+    <li class="flex-box flex-left-center" name-id="{{=arr[z].userid}}">
+        {{
+          var _rank=parseInt(arr[z].rank),sex=arr[z].sex;
+        }}
+        {{?z===0&&page==1}}
+        <div class="one"></div>
+        {{??z===1&&page==1}}
+        <div class="two"></div>
+        {{??z===2&&page==1}}
+        <div class="three"></div>
+        {{??}}
+        <div>{{=_rank}}</div>
+        {{?}}
+        <div><img src="{{=arr[z].logo?arr[z].logo:''}}" alt=""/>{{=arr[z].model}}</div>
+        {{?sex==='0'}}
+        <div><img class="smUsrImg" src="{{=arr[z].photo?arr[z].photo:'/web/assets/image/default_ico.svg'}}" alt=""/> <strong>{{=arr[z].nickname?arr[z].nickname:''}}</strong></div>
+       {{??sex==='1'}}
+        <div><img class="smUsrImg" src="{{=arr[z].photo?arr[z].photo:'/web/assets/image/default_ico.svg'}}" alt=""/><strong>{{=arr[z].nickname?arr[z].nickname:''}}</strong><span></span></div>
+        {{??sex==='2'}}
+        <div><img class="smUsrImg" src="{{=arr[z].photo?arr[z].photo:'/web/assets/image/default_ico.svg'}}" alt=""/><strong>{{=arr[z].nickname?arr[z].nickname:''}}</strong><span class="woman"></span></div>
+        {{?}}
+        <div>{{=arr[z].total}}</div>
+    </li>
+    {{}}}
+</script>
+<!--个人信息模板-->
+<script type="text/template" id="footer">
+    {{var arr=it;}}
+    <li class="flex-box flex-left-center" name-id="{{=getUserid()}}">
+        {{
+        var _rank=arr.rank?parseInt(arr.rank):'',sex=arr.sex;
+        }}
+        {{?_rank===0}}
+        <div class="one"></div>
+        {{??_rank===1}}
+        <div class="two"></div>
+        {{??_rank===2}}
+        <div class="three"></div>
+        {{??}}
+        <div>{{=_rank}}</div>
+        {{?}}
+        <div><img src="{{=arr.logo}}" alt=""/>{{=arr.model}}</div>
+        {{?sex==='0'}}
+        <div><img class="smUsrImg" src="{{=arr.photo?arr.photo:'/web/assets/image/default_ico.svg'}}" alt=""/> <strong>{{=arr.nickname?arr.nickname:''}}</strong></div>
+        {{??sex==='1'}}
+        <div><img class="smUsrImg" src="{{=arr.photo?arr.photo:'/web/assets/image/default_ico.svg'}}" alt=""/><strong>{{=arr.nickname?arr.nickname:''}}</strong><span></span></div>
+        {{??sex==='2'}}
+        <div><img class="smUsrImg" src="{{=arr.photo?arr.photo:'/web/assets/image/default_ico.svg'}}" alt=""/><strong>{{=arr.nickname?arr.nickname:''}}</strong><span class="woman"></span></div>
+        {{?}}
+        <div>{{=arr.total}}</div>
+    </li>
+</script>
+<script type="text/javascript">
+    function onStart(){
+        _initMui();
+        getData();
+        getShare();
+    }
+    //活动数据
+    var page= 1,//分页
+        u_id=I('type',0),
+        is_load=true,//是否为加载----第一次才加载分组信息
+            http,
+            cook_usr='0',
+            render1=getRender('groups'),
+            render3=getRender('carnivav-lists'),
+            render4=getRender('footer');//说明文档
+
+    function getData(){
+        var obj={userid:getUserid(),groupid:u_id,page:page},
+                doc=document,
+                footer_li=$('.footer .carnivav-lists')[0],
+                list=$('section .carnivav-lists')[0],
+                len,len1;
+        myFunction().changeUrl(u_id);
+        jsonAjax(API.API_LIST.CARNIVAL_HOME_SCORELOST,obj,function(data){
+            if (data.status == 1) {
+                var _data=data.data,
+                        _rank=_data.rank,
+                        _person_rank=_data.person_rank;
+                if(_data.is_hot==='0'){
+                    $('.comment-submit>span').addClass('hide');
+                }
+                len=_rank.length;
+                len1=_data.group.length;
+                http=_data.help;
+                if(len1<7){
+                    $('header')[0].className='header';
+                }else{
+                    $('header')[0].className='header-change';
+                }
+                if(len<= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(page==1){
+                      list.innerHTML='<div class="no-consultant-prompt"><div class="carnival-score"></div><span>目前暂无该榜单，期待您的参与！</span></div>';
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(page==1){
+                        list.innerHTML=render3(_rank);
+                }else{
+                    $('section .carnivav-lists').append(render3(_rank));
+                }
+                $('.mui-pull-caption').show();
+                if(len< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                isLogin(function(ret){
+                    if(ret){
+                        if(_person_rank.length!==0){
+                            footer_li.innerHTML=render4(_person_rank);
+                        }else{
+                            footer_li.innerHTML='';
+                            $('.section').css('margin-bottom','0').css('top','5.2rem').css('background-color','#fff');
+                            $('.section .carnivav-lists').css('padding-bottom','4.8rem');
+                            if(page>1){
+                                $('.section .carnivav-lists').css('padding-bottom','0');
+                            }
+                        }
+                        cook_usr=1
+                    }
+                });
+            }else{
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(page==1){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+            }
+            loadEnd();
+        })
+    }
+    //分享函数
+    function getShare(){
+        var obj={userid:getUserid(),groupid:u_id,page:1},doc=document;
+        jsonAjax(API.API_LIST.CARNIVAL_HOME_SCORELOST,obj,function(data){
+            if(data.status==1){
+                    WxShare.title = data.data.share.title;
+                    WxShare.desc = data.data.share.desc;
+                    WxShare.imgUrl = data.data.share.img_link;
+                    WxShare.link = data.data.share.share_link;
+                    loadWxObject(true); //获取微信分享对象
+                    doc.querySelector('header ul').innerHTML=render1(data.data.group);
+                var swiper = new Swiper('#header .groups', {
+                    loop : false,
+                    observer: true,
+                    slidesPerView: 'auto',
+                    paginationClickable: true,
+                    freeMode: true
+                });
+                    var li_width= 0,div_width= $('.groups').width();
+                    $('.swiper-wrapper>li').each(function(i,item){
+                        li_width+=1*$(item).width();
+                    });
+                    if(li_width<div_width){
+                        $('.groups').css('width',li_width+'px');
+                    }
+                    var li_lists= doc.querySelectorAll('header ul li'),li,type=I('type');
+                    for(var i= 0,l=li_lists.length;i<l;i++){
+                        switch(true){
+                            case li_lists[i].getAttribute('groups-id')===type:
+                                li=li_lists[i];
+                                break;
+                            case type==='':
+                                li=li_lists[0];
+                                break;
+
+                        }
+                    }
+                    li.className=li.getAttribute('class')+' change';
+            }
+        });
+    }
+    //事件函数
+    (function(){
+        var doc=document,
+            e,//事件源
+            header=doc.querySelector('header'),
+            see_info=doc.querySelectorAll('.three-data-box,.carnivav-lists');
+        //切换选项卡
+        header.addEventListener('click',function(event){
+            page=1;
+            e=event||window.event;
+            var _name=e.target,
+                _liElement=header.querySelectorAll('li'),
+                len=_liElement.length,id=_name.getAttribute('groups-id');
+            if(_name.nodeName==='LI'){
+                while(len--){
+                    _liElement[len].className='swiper-slide';
+                }
+                _name.className=_name.getAttribute('class')+' change';
+                u_id=id;
+                getData();
+                myFunction().changeUrl(id);
+            }
+        },false);
+        //查看车手信息
+        for(var i= 0,l=see_info.length;i<l;i++){
+            see_info[i].addEventListener('tap',function(event){
+                if(cook_usr!=='0'){
+                    e=event||window.event;
+                    myFunction().gotoSeeDetails(e.target.getAttribute('name-id'));
+                }else{
+                    isLogin();
+                }
+            },false);
+        }
+        //积分说明
+        doc.querySelector('.integral-explain').addEventListener('click',function(){
+            var obj={
+                link:http
+            };
+            Interface('gotoLink',JSON.stringify(obj));
+        },false);
+        //进入评论页面
+        $('.comment-submit').on('click',function(){
+            var obj={
+                type_id:I('type'),
+                rid:0,
+                form_page:'score'
+            };
+            Interface('gotoCarnivalComment',JSON.stringify(obj));
+        });
+        //选项卡滑动
+          /* header.addEventListener('touchstart',function(event){
+                e=event||window.event;
+                var target= e.target.parentNode.nodeName;
+                if(target==='UL'&&width>6){
+                    startx= e.touches[0].pageX;
+                }
+            },false);
+            header.addEventListener('touchmove',function(event){
+                e=event||window.event;
+                var ulElement=e.target.parentNode,
+                        target= ulElement.nodeName;
+                if(target==='UL'&&width>6){
+                    endx= e.touches[0].pageX;
+                    changex=endx-startx;
+                    startx=endx;
+                    ulElement.style='transform:translate3d('+num+'px,0px,0px);width:'+width*6+'rem;';
+                    if(changex>0){
+                        num+=4;
+                    }else{
+                        num-=4;
+                    }
+                }
+            },false);
+            header.addEventListener('touchend',function(event){
+            e=event||window.event;
+            var ulElement=e.target.parentNode,target= e.target.parentNode.nodeName;
+            if(target==='UL'&&width>6){
+                if(num>=0){
+                    ulElement.style='transform:translate3d(0px,0px,0px);width:'+width*6+'rem;transition:transform 0.3 linear';
+                    num=0;
+                }else{
+                    if(num>(-(width-6)*px)){
+
+                    }else{
+                        num=-(width-6)*px;
+                        ulElement.style='transform:translate3d('+(-(width-6)*px)+'px,0px,0px);width:'+width*6+'rem;transition:transform 0.3 linear';
+                    }
+
+                }
+            }
+        },false);*/
+    })();
+
+    //应用函数
+    myFunction=function(){
+        var obj={};
+        //查看车手详细信息
+        function gotoSeeDetails(id){
+            obj={
+                uid:id,
+                source:'score'
+            };
+            if(id==getUserid()){
+                obj.source='home';
+            }
+            Interface('gotoPersonInfo',JSON.stringify(obj));
+        }
+        function changeUrl(id){
+            obj.type = id;
+            changeBackUrlL("smdg/carnivav-score",obj);
+        }
+        return{
+            gotoSeeDetails:gotoSeeDetails,
+            changeUrl:changeUrl
+        }
+    };
+</script>
+</html>

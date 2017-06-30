@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>报名信息</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+</head>
+<body>
+     <form id="enroll_form" action="" method="get">
+        <ul class="enroll-list clear">
+            <li  border="bottom">
+                <label class="textfl">姓名</label>
+                <input id="name" type="text" class="fr" placeholder="请输入用户名" >
+            </li>
+            <li border="bottom">
+                <label class="textfl">性别</label>
+                <div class="fr">
+                    <a class="radio" href="javaScript:" sex='1'>男</a>
+                    <a class="radio" href="javaScript:" sex='2'>女</a>
+                </div>
+            </li>
+            <li border="bottom">
+                <label class="textfl">电话</label>
+                <input type="text" id="mobile" class="fr" maxlength="11" placeholder="请输入电话号码">
+            </li>
+            <!-- <li class="readd"  border="bottom">
+                <label class="textfl">车型</label>
+                <span id="car" class="fr">请选择你的爱车车型</span>
+            </li> -->
+            <li class="readd" style="height:9rem;position: relative;" border="bottom">
+                <label class="textfl" height>活动留言<span style="font-size: 1.2rem;color: #999;">（选填）</span></label>
+                <textarea id="at-message" class="fr"  maxlength="200" placeholder="请输入活动留言"></textarea>
+                <p class="texttip"><strong id="length">0</strong>/<b>200</b></p>
+            </li>
+        </ul>
+    </form>
+
+    <a id="btnok" class="btn" href="javascript:;" >确认报名</a>
+    <a id="btnback" class="btn" href="javascript:;" >返回活动页</a>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id="templist">
+{{?it.data.show_car == 1}}
+<li style="min-height: 3.2rem;line-height: 3.2rem;" border="bottom">
+    <label class="textfl">您的车型</label>
+</li>
+<li  style="line-height:5rem" border="bottom">
+    <span id="car">请选择你的爱车车型</span>
+</li>
+{{?}}
+{{ var val = it.data; }}
+{{~val:i:index }}
+   <li class="add clear" border="bottom">
+        <label class="textfl" option-id="option[{{=i.option_id}}]">{{=i.name}}</label>
+        {{?i.type == 'checkbox'}}
+        <div class="fr">
+            {{for (var j in i.value_list){ }}
+            <label><input  name="box" type="checkbox" form-name="option[{{=i.option_id}}]" option-value-id="{{=i.value_list[j].option_value_id}}" />{{=i.value_list[j].name}}</label>
+            {{}}}
+        </div>
+        {{??i.type == 'radio'}}
+        <div class="fr">
+            {{for (var j in i.value_list){ }}
+            <label class="radiosex" name="tsex"><input type="radio" name="tsex" form-name="option[{{=i.option_id}}]" option-value-id="{{=i.value_list[j].option_value_id}}"/>{{=i.value_list[j].name}}</label>
+            {{}}}
+        </div>
+        {{??i.type == 'text'}}
+            {{?i.name == '身份证号码'}}
+            <input type="text" id='idCard'  class="fr" placeholder="请输入{{=i.name}}" maxlength="18" form-name="option[{{=i.option_id}}]">
+            {{??i.name == '电子邮箱'||i.name == '邮箱'}}
+            <input type="text" id='email'  class="fr" placeholder="请输入{{=i.name}}" form-name="option[{{=i.option_id}}]">
+            {{??}}
+            <input type="text" class="fr" placeholder="请输入{{=i.name}}"  form-name="option[{{=i.option_id}}]">
+            {{?}}
+        {{??i.type == 'textarea'}}
+                <textarea id="at-message1" class="test fr"  maxlength="200" form-name="option[{{=i.option_id}}]"></textarea>
+                <p class="texttip"><strong id="length1">0</strong>/<b>200</b></p>
+        {{??i.type == 'select'}}
+          {{?i.value_list.length > 0}}
+        <div class="fr">
+            <select name="" id="area" form-name="option[{{=i.option_id}}]">
+            {{for (var j in i.value_list){ }}
+                <option  option-value-id="{{=i.value_list[j].option_value_id}}" >{{=i.value_list[j].name}}</option>
+            {{}}}
+            </select>
+            <!-- <a class="area" href="javaScript:">{{=i.value_list[j].name}}</a> -->
+        </div>
+          {{?}}
+        {{?}}
+    </li>
+{{~}}
+</script>
+<script>
+    var id = I('id',0),
+        email = decodeURIComponent(I('email')),
+        idCard = I('idCard'),
+        userid = getUserid(),
+        render=getRender('templist');
+    function onStart(){
+        getData();//渲染数据
+
+       getparam();//接收返回参数
+
+       $(document).on('click','.radio',function function_name () {
+            $(this).find('span').remove();//清除样式
+           $(this).addClass('check').append("<span class='select'></span>").siblings().removeClass('check').find('span').remove();
+       })
+
+        loadEnd();
+    }
+    //获取数据并渲染
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_HOME_SIGNUPFROM,{userid:userid,id:id},function(data){
+            if(data.status==1){
+                $('.readd').before(render(data));
+                //给选择大区添加高度只适应
+                $('.test').parent('li').addClass('addarea');
+                //判断选中状态
+                 /*(function(){
+                   var check = function() {
+
+                        $('input[name="sex"]').each(function(){
+                            if( $(this).is(':checked') ) {
+                                $(this).parent('a').addClass('check').append("<span></span>").find('span').addClass('select');
+                            }else {
+                                $(this).parent('a').removeClass('check').find('span').remove();
+
+                            }
+                        });
+                    }*/
+                    //点击事件
+                    // $('.radio').on('click',function(){
+                    //     var input = $(this).children('input');
+                    //     if( input.is(':checked') ) {
+                    //         input.prop('checked',false);
+                    //     }else {
+                    //         input.prop('checked',true);
+                    //     }
+                    //     //check();
+                    // });
+                // })();
+                 WxShare.title=data.data.share_title;
+                WxShare.imgUrl=data.data.share_pic;
+                WxShare.link=data.data.share_link;
+                WxShare.desc=data.data.share_content;
+                loadWxObject(true); //获取微信分享对象
+                loadEnd();
+            }
+        });
+    }
+    //获取返回参数
+    function getparam(){
+        var source = I('source');
+        var name = decodeURIComponent(I('name1'));
+        var mobile = I('mobile');
+        var car = decodeURIComponent(I('car')).replace(/=/g," ");
+        var sexLength = $('.radio').length;
+        var sex = I('sex');
+        id = I('id');
+        var remark = decodeURIComponent(I('remark'));
+        if(source== 2){
+            $('#name').val(name);
+            for(var i = 0; i < sexLength;i++){
+                var olSex = $(".radio:eq("+i+")").attr('sex');
+                    if(olSex == sex){
+                        //找到sex = 返回参数sex值的checkbox 添加选中样式
+                        $($('.radio[sex$='+sex+']').addClass('check').append("<span></span>").find('span')).addClass('select');
+                    }
+                }
+            $('#mobile').val(mobile);
+            $('#car').html(car);
+            $('#at-message').val(remark);
+            $("#length").html(remark.length);
+        }
+    }
+    //跳转到选择车款页面
+    $('#car').on('click',function(){
+        var param= M();
+        param.source='smdg';
+        param.name1=$('#name').val();
+        param.sex=$('.check').attr('sex');
+        param.mobile=$('#mobile').val();
+        param.id = id;
+        param.remark =$('#at-message').val();
+        InterfaceTap('gotoCarLists',param);
+    });
+    //返回活动页
+    $('#btnback').on('click',function(){
+        var param= M();
+        param.activity_id =id;
+        InterfaceTap('gotosmdgActivityDetail',param);
+    });
+    //跳转到报名成功页面
+    $('#btnok').on('click',function(){
+        var name = $('#name').val();
+        var sex =  $('.check').attr('sex');
+        var phone = $('#mobile').val();
+        var phoneNum = /^1[34578]\d{9}$/;
+        //车品牌id
+        var brand_id = I('brand_id');
+        //车型类型
+        var model_id = I('model_id');
+        //车系ID
+        var detail_id = I('detail_id');
+        //留言信息
+        var car = $("#car").html();
+        var remark = $("#at-message").val();
+        var qqname =$('#qqname').val();
+        var idCard =$('#idCard').val();
+        var email =$('#email').val();
+        //验证qq号[1-9][0-9]{4,}
+        var area = $('#area  option:selected').attr("option-value-id");
+        var radio1 = $('.radiosex input[name="tsex"]');
+        var sextest = $('.radiosex input[name="tsex"]:checked').attr("option-value-id");
+        var remark1 = $('#at-message1').val();
+        var chk_value = [];
+        var option =[];
+        //邮箱、身份证正则
+        var emailRegex =/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+        var idCardRegex =/^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x))$/;
+        isLogin(function(ret){
+            if(ret){
+
+                $("input[name='box']:checked").each(function(){
+                    chk_value.push($(this).attr("option-value-id"));
+                });
+                $(".enroll-list .add>label").each(function(){
+                    option.push($(this).attr("option-id"));
+                });
+                //判断
+                if(name == "" || sex == undefined || car == "请选择你的爱车车型"){
+                    inputTipsText('请补全信息');
+                    return false;
+                }
+                // var qq = /^\d{4,11}$/;
+                if(!phoneNum.test(phone)){
+                    inputTipsText('请输入正确的手机号');
+                    return false;
+                }
+                if($('#idCard').length>0 && !idCardRegex.test(idCard)){
+                    inputTipsText('请输入正确身份证号');
+                    return false;
+                }
+                if($('#email').length>0 && !emailRegex.test(email)){
+                    inputTipsText('请输入正确邮箱');
+                    return false;
+                }
+                if($('input[name=tsex]').length>0 &&!radio1.is(':checked') ){
+                        inputTipsText('请选择radio');
+                        return false;
+                }
+                if(!chk_value){
+                    if(chk_value.length == 0){
+                        inputTipsText('请选择大区');
+                        return false;
+                    }
+                }
+                if(!remark1){
+                    if(remark1 == ""){
+                        inputTipsText('请输入备注');
+                        return false;
+                    }
+                }
+            }
+            var param=M();
+            param={
+                id:id,
+                userid:userid,
+                name:name,
+                sex:sex,
+                mobile:phone,
+                remark:remark,
+                brand_id:brand_id,
+                model_id:model_id,
+                detail_id:detail_id
+            };
+            var f=false;
+            $.each($('[form-name]'),function(n,o){
+                f=true;
+                console.log($(o).attr('type'),$(o).attr('form-name'));
+                if(o.tagName=='INPUT'){
+                    if($(o).attr('type')=='text'){
+                        param[$(o).attr('form-name')]=$(o).val();
+                    }else if($(o).attr('type')=='radio'&&$(o).is(':checked')){
+                        param[$(o).attr('form-name')]=$('.radiosex input[name="tsex"]:checked').attr("option-value-id");
+                    }else if($(o).attr('type')=='checkbox'&&$(o).is(':checked')){
+                        param[$(o).attr('form-name')]=chk_value;
+                    }
+                }else if(o.tagName=='TEXTAREA'){
+                    param[$(o).attr('form-name')]=$(o).val();
+                }else if(o.tagName=='SELECT'){
+                    param[$(o).attr('form-name')]=$('#area option:selected').attr("option-value-id");
+                }
+            });
+            //判断是否调支付接口
+             jsonAjax(API.API_LIST.GOLD_HOME_SIGNUP,param,function(data){
+                    if(data.status==1){
+                        jsonAjax(API.API_LIST.GOLD_HOME_NEEDPAY,{id:id},function(data){
+                            if(data.status==1){//需要支付
+                                inputTipsText('正在生成订单，请稍后...',-1);
+                                jsonAjax(API.API_LIST.GOLD_HOME_ACTIVITYORDER,{id:id,userid:getUserid(),sync:0},function(data){
+                                    if(data.status==1){//需要支付 同步处理
+                                        $('.inputTipsText').addClass('hide');
+                                        var orderid=data.data.orderid;
+                                        var obj = M();
+                                        var go_param = M();
+                                        obj.id=id;
+                                        obj.orderid = orderid;
+                                        obj.merge_no = '';
+                                        obj.go_action="gotoEnrollok";
+                                        go_param.orderid=orderid;
+                                        go_param.merge_no='';
+                                        go_param.source='smdg';
+                                        go_param.id=id;
+                                        obj.go_param=go_param;
+                                        obj.from_page='smholiday';
+                                        obj.source='smdg';
+                                        Interface('gotoCashier',obj);
+                                    }else if(data.status==2){//异步处理
+                                        getOrderNo(data.data);
+                                    }
+                                });
+                            }else if(data.status==2){//不需要支付
+                                var obj = M();
+                                obj.id=id;
+                                //增加跳转来源，全网通
+                                obj.from_page='smholiday';
+                                Interface('gotoEnrollok',obj);
+                            }
+                        });
+                    }else{
+                        inputTipsText(data.info);
+                    }
+            });
+
+        });
+    });
+    /***确认报名 end***/
+
+    //获取订单号
+    function getOrderNo(token) {
+        var t = setInterval(function () {
+            jsonAjax(API.API_LIST.ORDER_GETORDERNO, {id:id,userid:getUserid(),'token': token}, function (data) {
+                if (data.status == 1) {
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad('订单生成成功正在进行跳转...');
+                    $('.inputTipsText').addClass('hide');
+                    var orderid=data.data.orderid;
+                    var obj = M();
+                    var go_param = M();
+                    obj.id=id;
+                    obj.orderid = orderid;
+                    obj.merge_no = '';
+                    obj.go_action="gotoEnrollok";
+                    go_param.orderid=orderid;
+                    go_param.merge_no='';
+                    go_param.source='smdg';
+                    go_param.id=id;
+                    obj.go_param=go_param;
+                    obj.from_page='smholiday';
+                    obj.source='smdg';
+                    Interface('gotoCashier',obj);
+                } else if(data.status == 0){
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad(data.info);
+                }else{
+                    showLoad(data.info);
+                }
+            });
+        }, 2000);
+    }
+
+    //显示输入字符长度
+    $("#at-message").on('keyup',function(event){
+        setlenght($(this),'length');
+    });
+    $(".enroll-list").on('keyup','#at-message1',function(event){
+        setlenght($(this),'length1');
+    });
+    function setlenght(_this,abc){
+        var length = _this.val().length;
+        $("#"+abc).html(length);
+    }
+</script>
+</html>

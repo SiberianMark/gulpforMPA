@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="/web/car-service/assets/css/use-packageCard.css">
+	<script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+	<title>使用套餐卡</title>
+	<script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+	<script>
+		loadWxObject();
+	</script>
+	<style>
+		.list-head p{font-weight: bold;}
+		.list-head p:nth-child(1){width:23.33333%;}
+		.list-head p:nth-child(2){width:53.33333%;text-align: center;}
+		.list-head p:nth-child(3){width:23.33333%;text-align: right;}
+		.pakagedetail li {font-size:1.2rem;}
+	</style>
+</head>
+
+<body>
+	<div id="content">
+		<script type="text/template" id="card-detail">
+			{{var val=it.data;}}
+			<div class="modal">
+				<div class="content">
+					<b class="title">{{=val.title}}</b>
+					<p class="info"><span>本次使用将扣除:</span></br>
+					<span class="itemsInfo">
+					</p>
+					<div class="btn">
+						<div class="cancel">取消</div>
+						<div class="confirm">确定</div>
+					</div>
+				</div>
+			</div>
+			<div class="packages-info" id="{{=val.id}}" >
+				<div>
+					<div class="left">
+						<b>{{=val.title}}</b>
+					</div>
+					<div class="right">￥<span>{{=val.price}}</span></div>
+					<div class="right"></div>
+				</div>
+			</div>
+			<div class="pakagedetail">
+				<ul>
+				<li class="list-head"><p>项目</p><p>剩余/总次数</p><p>核销次数</p></li>
+				{{~val.item:item:index}}
+					<li class="list-data" i_id={{=item.i_id}}>
+					<p>{{=item.name}}</p><p>{{=item.remain_quantity}}/{{=item.quantity}}</p>
+					<div class="count" quantity={{=item.quantity}}><input type="text" remain_quantity="{{=item.remain_quantity}}" class="num" value="0"/><span class="cutnum" remain_quantity="{{=item.remain_quantity}}"></span></div></li>
+				{{~}}
+				</ul>
+			</div>
+		</script>
+	</div>
+	<div class="submit">提交</div>
+	<div class="wutaocanka">
+		<img src="/web/car-service/assets/image/mall/ico_wutaocangka@2x.png" alt="">
+		<p>暂无套餐卡~</p>
+	</div>
+</body>
+<script>
+	var card_id=I('u_p_id');
+	var type=1;//套餐卡ID类型 1用户使用 2商家表示商家分享，用于区别是否为商家分享
+	var render=getRender('card-detail');
+	var currentnum,quantity,remain_quantity;
+	var fetchinfo='';//核销项目
+	function onStart(){
+		getShare();
+		getcardDetail();
+		loadEnd();
+	}
+	function getShare(){
+		var obj=M();
+		obj.userid=getUserid();
+		obj.package_card_id=card_id;
+		jsonAjax(API.API_LIST.CAR_CARD_SHARE,obj,function(data){
+			if(data.status==1){
+				WxShare.title=data.data.title;
+				WxShare.imgUrl=data.data.images;
+				WxShare.desc=data.data.content;
+				WxShare.link=data.data.url;
+				//WxShare.linkUrl=data.data.share_url;//分享到其他平台时可用
+				loadWxObject(true);  //加载微信对象
+				console.log(WxShare);
+			}
+		});
+	}
+	function JumpAfterSharing(){//微信分享回调函数
+		var obj=M();
+		obj.userid=getUserid();
+		obj.rid=card_id;
+		obj.source=4;
+		jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,obj,function(data){
+			if(data.status==1){	
+				console.log(data);
+			}else{
+				inputTipsText(data.info);
+			}
+		});
+	}
+	function getcardDetail(){
+		var obj=M();
+		obj.card_id=card_id;
+		obj.type=type;
+		obj.userid=getUserid();
+		console.log(obj);
+		jsonAjax(API.API_LIST.CAR_CARD_CARDDETAILED,obj,function(data){
+			if(data.status==1){
+				$('#content').html(render(data));
+				quantity=data;
+			}else{
+				$('.wutaocanka').css('display','block');
+				$('.submit').css('display','none');
+			}
+		});
+	}
+	function useCard(){
+		var obj=M();
+		obj.card_id=card_id;
+
+		obj.items=JSON.stringify(fetchinfo);
+		obj.user_id=getUserid();
+		jsonAjax(API.API_LIST.CAR_CARD_USECARD,obj,function(data){
+			if(data.status==1){
+				console.log(data);
+				inputTipsText(data.info);
+				$('.modal').hide();
+				var obj=M();
+				PageJump('gotoMyPackageCard',obj);	
+			}else{
+				inputTipsText(data.info);
+			}
+		});
+	}
+	$('.submit').on('click',function(){
+		var items=$('.pakagedetail ul li');
+		var total=0;
+		var fetcharr=[];
+		var modalcontentitem='';
+		$('.num').each(function(){   
+			total+=parseInt($(this).val());
+		});
+		if(total<1){
+			inputTipsText('至少使用一个项目');
+		}else{
+			for(var i=0;i<items.length;i++){
+				if($(items[i]).find('.num').val()>0){
+					fetcharr.push({
+						item_id:$(items[i]).attr('i_id'),
+						name:$(items[i]).find('p').html(),
+						num:$(items[i]).find('.num').val()
+					})
+				}
+			}	
+			for(var j=0;j<fetcharr.length;j++){
+				modalcontentitem+='<span class="pro-items">'
+				+'<span>'+fetcharr[j].num+'</span>次'
+				+'<span>'+fetcharr[j].name+'</span>'
+				
+			}
+			fetchinfo=fetcharr;
+			$('#content .modal .content p .itemsInfo').html(modalcontentitem);		
+			$('.modal').show();
+		}
+
+		
+	});
+	$('#content').on('click','.modal .cancel',function(){
+		$('.modal').hide();
+	});
+	$('#content').on('click','.modal .confirm',function(){
+		useCard();
+	});
+	$('#content').on('click','.cutnum',function(e){
+		var src = e.srcElement || e.target; // 获取触发事件的源对象
+		console.log($(src));
+	    currentnum=$(src).prev().val();
+		remain_quantity=parseInt($(src).attr('remain_quantity'));
+		if(currentnum>remain_quantity-1){
+			inputTipsText('不能超过最大剩余次数'+remain_quantity);
+		}else{
+			$(src).prev().val(parseInt($(src).prev().val())+1);
+		}
+	});
+	$('#content').on('change','.num',function(e){
+		var src = e.srcElement || e.target; // 获取触发事件的源对象
+		if(! /^d+$/.test($(src).val())){
+			$(src).val(parseInt($(src).val()));
+		}
+	    currentnum=$(src).val();
+	    $(src).attr('value',currentnum);
+		remain_quantity=parseInt($(src).attr('remain_quantity'));
+		var name=$(src).parent().prev().html();
+		if(currentnum>remain_quantity){
+			inputTipsText('超过'+name+'可使用数量'+remain_quantity+'，请重新输入!');
+		}
+		if($(src).val()=='NaN' || $(src).val()==null || $(src).val()==undefined){
+			$(src).val(0);
+		}
+	});
+</script>
+</html>

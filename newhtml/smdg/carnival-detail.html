@@ -1,0 +1,662 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>嘉年华报名</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script type="text/javascript" src="http://map.qq.com/api/js?v=2.exp&key=3TPBZ-G53RP-TDODZ-V2CMG-PP556-DKBNL"></script>
+    <script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&libraries=convertor"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/pub-acct/assets/css/weui.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/details.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/selectBox.css">
+</head>
+<body>
+    <div class="map" id="allmap"></div>
+    <div class="ordersbox" border="bottom">
+        <div class="tabs-box">
+            <div class="shop-order border">
+                <ul class="shop-order-nav" border='bottom'>
+                    <li index='0' class="cur"><span border="right">报名</span></li>
+                    <li index='1'><span border="right">活动</span></li>
+                    <li index='2'><span border="right">晒图</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="activity-wrap carnival-wrap" style="margin-top:4.4rem;">
+    </div>
+    <div class="attention-now"><a href="javascrip:;"></a></div>
+    <div class="modal tel-modal">
+        <div class="modal-content ol-content">
+            <div class="ol-pn">
+                <div><span class="ol-pn-text"></span><span class="ol-cover-bname"></span></div>
+                <div class="ol-pn-number"></div>
+            </div>
+            <div class="ol-cover-btn" border="top"><a class="hv" id="btn-cancel">取消</a><a class="hv" border="left" href="tel:" id="btn-confirm">确定</a></div>
+        </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id='datalist'>
+    <div class="active-detail">
+        <div class="activity-sub ovh">
+            <div class="pic-wrap">
+                <img class="ac-pic" src="{{=it.data.image}}" alt="">
+                <!-- /*<img class="ac-official" src="/web/assets/image/smdg/gfwy.png" alt="">*/ -->
+            </div>
+            <div class="ac-sub">
+                <p class="ac-title">{{=it.data.title}}</p>
+                <div class="ac-tags">
+                    {{?it.data.feature}}
+                        {{var feacher=(it.data.feature).split(',');}}
+                        {{~it.data.features:item:index}}
+                            {{?index < 5}}
+                                <span class="tagItem" featureid="{{=feacher[index]}}">{{=item}}</span>
+                            {{?}}
+                        {{~}}
+                    {{?}}
+                </div>
+                <p class="ac-time">时间：{{=it.data.begin_time}}</p>
+                {{?it.data.fare_type==0}}
+                    <p class="ac-fee">免费</p>
+                {{??}}
+                    {{?it.data.jump==1}}
+                    <p class="ac-fee">￥{{=parseFloat(it.data.price).toFixed(2)}}</p>
+                    {{??it.data.jump==2}}
+                    <p class="ac-fee">￥{{=parseFloat(it.data.price).toFixed(2)}}起</p>
+                    {{?}}
+                    <!-- {{?it.data.price=='0.00'}}
+                    <p class="ac-fee">免费</p>
+                    {{??}}
+                    {{?}} -->
+                {{?}}
+                {{?it.data.activity_status==1}}
+                <div class="btn btn-status">报名中</div>
+                {{??it.data.activity_status==2}}
+                <div class="btn btn-status">活动中</div>
+                {{?}}
+            </div>
+        </div>
+    </div>
+        {{?it.data.is_support==1}}
+            <div class="ac-locate" lat="{{=it.data.latitude}}" lng="{{=it.data.longitude}}" addr="{{=it.data.address}}" >
+                <p class="locate-title" border="bottom">活动地点</p>
+                <div class="locate-con flex-y" border="bottom">
+                    {{?it.data.venue}}
+                    <img src="{{=it.data.place_img}}" alt="">
+                    {{?}}
+                    <div class="flex-c">
+                        <p class="ac-venue">{{=it.data.venue?it.data.venue:'暂无场馆'}}</p>
+                        <p class="locate-detail">{{=it.data.address}}</p>
+                    </div>
+                </div>
+            </div>
+            {{? !$.isEmptyObject(it.data.play_user)}}
+                <div class="ac-builder">
+                    <p class="ac-sponser" border="bottom">活动发起方</p>
+                    <div class="club-con" uid="{{=it.data.play_user.userid}}">
+                        <img src="{{=it.data.play_user.photo}}" alt="">
+                        <p class="ac-cluber"><span>{{=it.data.play_user.name}}
+                            {{?it.data.play_user.sex!=0}}
+                            <span class="clubsex {{=(it.data.play_user.sex==1)?'male':(it.data.play_user.sex==2)?'female':''}}"></span>
+                            {{?}}
+                        </span> </p>
+                        <p class="ac-club">{{=(it.data.play_user.introduce)?it.data.play_user.introduce:''}}</p>
+                    </div>
+                </div>
+            {{?}}
+            <div class="vote" style="height:10rem;overflow:hidden;">
+              <!-- <div class="text">赶快去支持你喜欢的他们吧</div> -->
+              <img src="{{=it.data.vote_img?it.data.vote_img:'/web/assets/image/smdg/bg_activity_750.png'}}" alt="">
+            </div>
+            <div class="apply-list bgwh">
+                {{?it.data.signnum>0}}
+                    <div class="apply-head apply_btn" articleid="{{=it.data.article_id}}">
+                        {{?it.data.limit>0}}
+                            <!-- <div class="list-nums"> -->
+                            <!-- </div> -->
+                            <div class="list-title">
+                                已有{{=it.data.signnum}}报名/限制{{=it.data.limit}}名额
+                            </div>
+                        {{??it.data.limit==0}}
+                            <div class="list-title">
+                                不限名额
+                            </div>
+                        {{?}}
+                    </div>
+                    <ul class="apply-item ovh flex" border="bottom">
+                        {{~it.data.sign_list:item:index}}
+                            <li class="pr tc">
+                                <img class="smUsrImg" src="{{=item.photo}}" alt="">
+                                {{?item.nickname!=null}}
+                                    <p class="usr_name single-line">{{=item.nickname}}</p>
+                                {{?}}
+                            </li>
+                        {{~}}
+                    </ul>
+                {{??}}
+                    <div class="apply-head noapply_link" articleid="{{=it.data.article_id}}" status="{{=it.data.status}}" toURL="enrollinfo">
+                        <div class="list-title">
+                            已有{{=it.data.signnum}}报名
+                            {{?it.data.limit>0}}/
+                            限制{{=it.data.limit}}名额
+                            {{??it.data.limit==0}}
+                            不限名额
+                            {{?}}
+                        </div>
+                    </div>
+                {{?}}
+            </div>
+        {{?}}
+        <div class="ac-intro">
+            <!-- <span class="intro-til"><span class="intro-icon"></span> -->
+            活动介绍
+        </span></div>
+    <div class="active-content">
+        {{var div=document.createElement('div');div.innerHTML=it.data.content;var con=div.innerText || div.textContent;}}
+							{{=con}}
+    </div>
+    <div class="bgwh comment-list">
+        {{?it.data.comment_num>0}}
+            <div class="comment-head comment_btn" activity="{{=it.data.id}}">
+                <div class="list-nums">{{=it.data.comment_num}}条</div>
+                <div class="list-title">评论</div>
+            </div>
+            <ul class="comment-item" border="top bottom">
+                {{~it.data.comment_list:list:$index}}
+                    <li class="ovh pr">
+                        <img class="smUsrImg" src="{{=list.photo}}" alt="">
+                        {{?$index==it.data.comment_list.length-1}}
+                        <div class="usr_detail" style="height:5.5rem;">
+                            <p class="usr_name" style="height:1.5rem;">{{=list.nickname?list.nickname:''}}</p>
+                            <p class="usr_comment single-line">{{=list.contents.decodeHtml()}}</p>
+                        </div>
+                        {{??}}
+                        <div class="usr_detail" border="bottom" style="height:5.5rem;">
+                            <p class="usr_name" style="height:1.5rem;">{{=list.nickname?list.nickname:''}}</p>
+                            <p class="usr_comment single-line">{{=list.contents.decodeHtml()}}</p>
+                        </div>
+                        {{?}}
+                        <div class="pa comment-date">{{=list.comment_time}}</div>
+                    </li>
+                {{~}}
+            </ul>
+            {{?it.data.comment_num>=3}}
+                <div class="apply-foot tc" border="top"><div class="more_btn comment dib" activity="{{=it.data.id}}" articleid="{{=it.data.article_id}}">查看全部评论</div></div>
+            {{?}}
+        {{??}}
+            <div class="comment-head bg-no comment" activity="{{=it.data.id}}" articleid="{{=it.data.article_id}}">
+                <div class="list-title">评论</div>
+            </div>
+            <div class="no-apply-item" border="top">还没有评论</div>
+        {{?}}
+    </div>
+    <div class="page-footer  ovh bgwh">
+        <div class=" tc comment" activity="{{=it.data.id}}" articleid="{{=it.data.article_id}}">
+            <span class="img"></span>
+            <p>评论(<i class="nums">{{=it.data.comment_num}}</i>)</p>
+        </div>
+        <!-- {{?it.data.is_click==0}}
+            <div class=" tc like" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">点赞</i>(<i class="nums">{{=it.data.click}}</i>)</p>
+            </div>
+        {{??}}
+            <div class=" tc like cur" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">已点赞</i>(<i class="nums">{{=it.data.click}}</i>)</p>
+            </div>
+        {{?}} -->
+        <div class="connect tc contacts" phone="{{=it.data.telphone}}" contactname="{{=it.data.unit}}">
+            <span class="img"></span>
+            <p>咨询</p>
+        </div>
+        {{?it.data.is_support==1}}
+        {{?it.data.status==0}}
+            <div class="jump_btn fr">
+                活动已取消
+            </div>
+        {{??it.data.status==1}}
+        {{
+            var fare_list;
+            if(it.data.jump==0 ||it.data.jump==1){
+                if($.isEmptyObject(it.data.fare_list.see)){
+                    fare_list=it.data.fare_list.match[0].id;
+                }else if($.isEmptyObject(it.data.fare_list.match)){
+                    fare_list=it.data.fare_list.see[0].id;
+                }
+            }
+        }}
+            {{?it.data.is_signup==0}}
+                <div class="jump_btn fr"  status="{{=it.data.status}}" tourl="carnival-enrollinfo" isbind="{{=it.data.is_register}}" jumptype="{{=it.data.jump}}" faretype='{{=it.data.fare_type}}' fareid='{{=fare_list}}' couponsid="{{=(it.data.show_discount==1)?'it.data.privilege.p_id':'0'}}">
+                    立即报名
+                </div>
+            {{??it.data.is_signup==1}}
+                <div class="jump_btn fr enrolled">
+                    已报名
+                </div>
+            {{?}}
+        {{??it.data.status==2}}
+            {{?it.data.is_signup==0}}
+                <div class="jump_btn fr">
+                    报名结束
+                </div>
+            {{??it.data.is_signup==1}}
+                <div class="jump_btn fr enrolled">
+                    已报名
+                </div>
+            {{?}}
+        {{??it.data.status==3}}
+            <div class="jump_btn fr" status="{{=it.data.status}}" tourl="carnival">
+                活动晒图
+            </div>
+        {{?}}
+        {{??}}
+            <div class="jump_btn fr to_more" status="{{=it.data.status}}" tourl="smholiday">
+                查看更多
+            </div>
+        {{?}}
+    </div>
+    <div id="actionSheet_wrap">
+        <div id="mask" class="weui_mask_transition" style="display: none;z-index:101"></div>
+        <div id="weui_actionsheet" class="weui_actionsheet" style="height: 50rem;z-index:9998">
+            <i class="close" style="z-index:9999"></i>
+            <div class="select-box">
+                <div class="pic" border="bottom" style="width:100%;">
+                    <img style="display:none" class="product-img" src="{{=it.data.image}}">
+                    <p>￥<span>{{=it.data.price}}元起</span></p>
+                    <span>选择类型</span>
+                </div>
+                <div class="detail-cons">
+                    <div class="sort" border="bottom">
+                        {{? it.data.fare_list}}
+                            <div class="tit" border="top">参赛</div>
+                            {{?(it.data.fare_list.match).length>0}}
+                            <ul class="norms">
+                                {{~it.data.fare_list.match:item:index}}
+                                <li class="" type="{{=item.type}}" desc="{{=item.description}}" id="{{=item.id}}" price="{{=item.price}}">{{=item.name}}</li>
+                                {{~}}
+                            </ul>
+                            {{?}}
+                            <div class="tit" border="top">观众</div>
+                            {{?(it.data.fare_list.match).length>0}}
+                            <ul class="norms">
+                                {{~it.data.fare_list.see:item:index}}
+                                <li class="" type="{{=item.type}}" desc="{{=item.description}}" id="{{=item.id}}" price="{{=item.price}}">{{=item.name}}</li>
+                                {{~}}
+                            </ul>
+                            {{?}}
+                        {{?}}
+                    </div>
+                </div>
+                <div class="box-foot">
+                    <div class="button send-btn" price="" typeid="" type="">确定</div>
+                </div>
+            </div>
+            <!-- <div class="choose-specification">
+                <div class="choose-img"></div>
+                <div class="specification-tip">请选择规格</div>
+            </div> -->
+        </div>
+    </div>
+    {{?it.data.show_discount!=0}}
+        <div class="modal coupon-modal fade">
+            <div class="cut-modal">
+                <div class="cut-cons">
+                    <div class="close"></div>
+                    <div class="cut-item">
+                        <div class="cut-doller" style="left:50%;transform:translateX(-50%);width:100%;text-align:center;">
+                            {{=it.data.privilege.ticket_much}}元
+                        </div>
+                        <div class="cut-text">体验券</div>
+                    </div>
+                </div>
+                <p>优惠券已经放入你的账户中，可在“<span style="color:rgb(255,225,101)">我的>优惠券</span>”中查看</p>
+                <div class="cut-btn">ok</div>
+            </div>
+        </div>
+    {{?}}
+</script>
+<script>
+    var ac_id=I('activity_id','0');
+    var sm_type=I('type');
+    var share=I('share');
+    var $div_li=$("ul.shop-order-nav > li");
+    var name = '';//活动场馆名称
+    var address = '';//活动地址
+    var lng = 0.0;//经度
+    var lat = 0.0;//纬度
+    // var is_bind=0;
+    var dataTml=getRender('datalist');
+    var userid=getUserid();
+    function onStart(){
+        // if(share){
+        $('.attention-now').css({
+          'position':'fixed',
+          'width':'100%',
+          'bottom':'4.4rem'
+        });
+        if(!is_weixn(true)){
+            $('.attention-now').addClass('attention-web');
+        }
+        if(share){
+          $('.attention-now').show();
+        }else {
+          $('.attention-now').hide();
+        }
+            // if(is_weixn(true)&&share_ornot==0){
+            //     $('.activity-wrap').css("margin-bottom","9.2rem");
+            //     downloadApp('body','float');
+            // }
+        // }
+        getData();
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_HOME_HOLIDAYDETAIL, {id:ac_id,userid:userid,code:decodeURIComponent(I('code','0'))}, function (data) {
+            if(data.status==1){
+                console.log(data);
+                $(".activity-wrap").html(dataTml(data));
+                if(data.data.signnum<=0){
+                    if(data.data.status>2){
+                        $('.apply-head').addClass('apply_link');
+                    }
+                }
+                if(data.data.is_support==1){
+                    // TitleReSet("活动详情");
+                }else{
+                    TitleReSet("资讯详情");
+                }
+                name = data.data.venue;
+                address = data.data.address;
+                lat = parseFloat(data.data.latitude);
+                lng = parseFloat(data.data.longitude);
+                WxShare.title=data.data.share_title;
+                WxShare.imgUrl=data.data.share_pic;
+                WxShare.link=data.data.share_link;
+                WxShare.desc=data.data.share_content;
+                loadWxObject(true); //获取微信分享对象
+                // WxShare(obj);	//微信分享
+                // goods_info(data);
+                loadEnd();
+            }else {
+                console.log(data.info);
+            }
+        });
+    }
+    $(".activity-wrap").delegate('.like','click',function(){
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                var artical_id=$this.attr('artical');
+                $this.toggleClass('cur');
+                if($this.hasClass('cur')){
+                    zan(artical_id,1,'');
+                    $this.find('i.acs').text('已点赞');
+                    $this.find('i.nums').text(parseInt($this.find('i.nums').text())+1);
+                }else {
+                    zan(artical_id,1,'cancel');
+                    $this.find('i.acs').text('点赞');
+                    $this.find('i.nums').text(parseInt($this.find('i.nums').text())-1);
+                }
+            }
+        });
+    });
+    //评论
+    $(".activity-wrap").delegate('.comment','click',function(){
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                var activity_id=$this.attr('activity');
+                var article_id=$this.attr('articleid');
+                var obj = new Object();
+                obj.id=activity_id;
+                // obj.artivity_id=ac_id;
+                obj.article_id=article_id;
+                obj.type=0;
+                Interface('gotoCommenLists',JSON.stringify(obj));
+            }
+        });
+    });
+    //活动发起人个人中心
+    $(".activity-wrap").delegate('.club-con','click',function(){
+        var $this=$(this);
+        var uid=$this.attr('uid');
+        var obj = {
+            uid:uid
+        };
+        Interface('gotoPersonInfo',obj);
+    });
+    //vote
+    $(".activity-wrap").delegate('.vote','click',function(){
+        var $this=$(this);
+        var obj={aid:ac_id};
+        Interface('gotoVoting',obj);
+    });
+
+    // 点赞
+    function zan(artical_id,type,action){
+        jsonAjax(API.API_LIST.GOLD_HOME_DOLIKEARTICAL, {id:artical_id,userid:userid,type:type,action:action}, function (data) {
+            if(data.status==1){
+                inputTipsText(data.info);
+                loadEnd();
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    // $('.activity-wrap').delegate('.noapply_link','click',function(){
+    //     if($(this).attr('tourl')=='undefined' ||$(this).attr('tourl')==''){
+    //         return false;
+    //     }
+    //     var url=$(this).attr('tourl');
+    //     var status=$(this).attr('status');
+    //     var obj = new Object();
+    //     obj.id=ac_id;
+    //     if(status!=3){
+    //         if(isLogin()){
+    //             Interface('gotoEnrollinfo',JSON.stringify(obj));
+    //         }
+    //     }else {
+    //         inputTipsText('活动报名结束');
+    //     }
+    // })
+    //更多报名
+    $(".activity-wrap").delegate('.apply-list','click',function(){
+        var at_id=$(this).attr('articleid');
+        var obj = new Object();
+        obj.activity_id=ac_id;
+        obj.article_id=at_id;
+        Interface('gotoEnrolLists',JSON.stringify(obj));
+    });
+    //已报名
+    $(".activity-wrap").delegate('.enrolled','click',function(){
+        var obj = new Object();
+        obj.id=ac_id;
+        obj.from_page='smcarnival';
+        obj.isshare=1;
+        obj.source=1;
+        Interface('gotoVoucher',obj);
+    });
+    //更多评论
+    $(".activity-wrap").delegate('.comment_btn','click',function(){
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                var activity_id=$this.attr('activity');
+                var obj = new Object();
+                obj.id=activity_id;
+                obj.type=0;
+                Interface('gotoCommenLists',JSON.stringify(obj));
+            }
+        });
+    });
+    //查看更多
+    $(".activity-wrap").delegate('.to_more','click',function(){
+        Interface('gotoSMholiday','');
+    });
+    $(".activity-wrap").delegate('.jump_btn','click',function(){
+        var $this=$(this);
+        if($(this).attr('tourl')=='undefined' ||$(this).attr('tourl')==''){
+            return false;
+        }
+        var url=$this.attr('tourl');
+        var isbind=$this.attr('isbind');
+        var jumpType=$this.attr('jumptype');
+        var faretype=$this.attr('faretype');
+        var couponsid=$this.attr('couponid');
+        var obj = new Object();
+        obj.id=ac_id;
+        obj.source='carnival';
+        obj.title=$this.text();
+        if(url=='carnival'){
+            Interface('gotoCarnival',JSON.stringify(obj));
+        }else if(url=='carnival-enrollinfo') {
+            if(is_weixn(true)){
+                if($(this).attr('isbind')==1){
+                    if(faretype!=0){
+                        if(jumpType==0){
+                            obj.price_id=$this.attr('fareid');
+                            obj.type_id=$this.attr('couponsid');
+                            Interface('gotoCarnivalEnrollinfo',JSON.stringify(obj));
+                        }else if (jumpType==1) {
+                            obj.priceid=$this.attr('fareid');
+                            Interface('gotoCarnivalDeterOrder',obj);
+                        }else {
+                            $('#mask').addClass('weui_fade_toggle').show();
+                            $('#weui_actionsheet').addClass('weui_actionsheet_toggle');
+                            $('.select-box .pic img,.goods-foot').show();
+                        }
+                    }else {
+                        obj.price_id=$this.attr('fareid');
+                        obj.type_id=$this.attr('couponsid');
+                        Interface('gotoCarnivalEnrollinfo',JSON.stringify(obj));
+                    }
+                }else {
+                    Interface('gotoBindMobile',JSON.stringify(obj));
+                }
+            }else {
+                isLogin(function(ret){
+                    if(ret){
+                        if(faretype!=0){
+                            if(jumpType==0){
+                                obj.price_id=$this.attr('fareid');
+                                obj.type_id=$this.attr('couponsid');
+                                Interface('gotoCarnivalEnrollinfo',JSON.stringify(obj));
+                            }else if (jumpType==1) {
+                                obj.priceid=$this.attr('fareid');
+                                Interface('gotoCarnivalDeterOrder',obj);
+                            }else {
+                                $('#mask').addClass('weui_fade_toggle').show();
+                                $('#weui_actionsheet').addClass('weui_actionsheet_toggle');
+                                $('.select-box .pic img,.goods-foot').show();
+                            }
+                        }else {
+                            obj.price_id=$this.attr('fareid');
+                            obj.type_id=$this.attr('couponsid');
+                            Interface('gotoCarnivalEnrollinfo',JSON.stringify(obj));
+                        }
+                    }
+                });
+            }
+        }
+    });
+    $(document).on('click','.app-download .close',function(){
+        $('.activity-wrap').css("margin-bottom","4.8rem");
+    });
+    //咨询
+    $('.activity-wrap').on('click','.contacts',function(){
+        $('.ol-pn-number').text($(this).attr('phone'));
+        $(".ol-pn-text").html('联系主办方');
+        $('#btn-confirm').attr('href','tel:'+$(this).attr('phone'));
+        $(".ol-cover-bname").show();
+        $(".tel-modal").addClass('fade');
+    });
+    $('#btn-cancel,#btn-confirm').on('click', function () {
+        $(".modal").removeClass('fade');
+    });
+    // 地址
+    $('.activity-wrap').on('click','.ac-locate',function(){
+        if (!is_weixn(true)){
+            var obj = {};
+            obj.lat = $(this).attr('lat');
+            obj.lng = $(this).attr('lng');
+            obj.addr = $(this).attr('addr');
+            InterfaceTap('gotoAddMap',JSON.stringify(obj));
+        }else{
+            wx.openLocation({
+                 latitude: lat,
+                 longitude: lng,
+                 name: name,
+                 address: address,
+                 scale: 14,
+                 infoUrl: ''
+           });
+       };
+    });
+    $('#weui_actionsheet').on('touchmove', function (event) {
+            event.preventDefault();
+    },false);
+    //切换列表
+    $div_li.on('click',function () {
+        _index = parseInt($(this).attr('index'));
+        $(this).addClass("cur").siblings().removeClass("cur");
+        var obj = new Object();
+        obj.id=I("activity_id");
+        if(_index=="1"){
+            Interface('gotoActivityInform',JSON.stringify(obj));
+        }else if(_index=="2"){
+            Interface('gotoCarnival',JSON.stringify(obj));
+        }
+    });
+    // 关闭弹窗
+    $('.carnival-wrap').on('click','#weui_actionsheet i',function () {
+        $('#mask').removeClass('weui_fade_toggle').hide();
+        $('#weui_actionsheet').removeClass('weui_actionsheet_toggle');
+        $('.select-box .pic img').hide();
+        $('body').css("overflow-y","scroll");
+    });
+    // 关闭优惠券弹窗
+    $('.carnival-wrap').on('click','.coupon-modal .close',function () {
+        $('.coupon-modal').removeClass('fade');
+    });
+    $('.carnival-wrap').on('click','.coupon-modal .cut-btn',function () {
+        $('.coupon-modal').removeClass('fade');
+        //do something...
+    });
+    // 选择类型跳转到提交订单
+    $('.carnival-wrap').on('click','.send-btn',function(e){
+        var typeId=$(this).attr('typeid'),
+            acPrice=$(this).attr('price'),
+            acType=$(this).attr('type');
+            isLogin(function(ret){
+                if(ret){
+                    if(acPrice=='' && acType=='' && typeId==''){
+                        inputTipsText('请选择报名类型');
+                        return;
+                    }
+                    console.log(acPrice,acType,typeId);
+                    var obj={
+                        id:I('activity_id'),
+                        priceid:typeId  //票id
+                        // acType:acType   //票类型
+                    };
+                    Interface('gotoCarnivalDeterOrder',obj);
+                }
+            });
+    });
+    $('.carnival-wrap').on('click','.norms li',function(e){
+        $(this).parents('.sort').find('.norms li').removeClass('cur');
+        $(this).addClass('cur');
+        $('.select-box .send-btn').attr('price',$(this).attr('price'));
+        $('.select-box .send-btn').attr('type',$(this).attr('type'));
+        $('.select-box .send-btn').attr('typeid',$(this).attr('id'));
+        $('.select-box .pic p span').text($(this).attr('price'));
+        $('.select-box .pic>span').text($(this).attr('desc'));
+        $('.send-btn').text('选好了');
+    });
+
+</script>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title></title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <link rel="stylesheet" href="/web/assets/css/wechat/live.css">
+</head>
+<body>
+<div class="live-rule"></div>
+<div style="height: 4.4rem;"></div>
+<!-- <div class="foot-buy">
+    <div class="now-in-progress" style="margin-right: 0; width: 94%;" id="buy" >立即参与</div>
+</div> -->
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var code = I('code','VOTE_DOC');
+    function onStart(){
+        getShare();
+        jsonAjax(API.API_LIST.GOLD_EXPRESSION_NOTICE, {'code':code}, function (data) {
+            if(data.status == 1){
+                $('.live-rule').html(data.data.content);
+                TitleReSet(data.data.title);
+            }
+            loadEnd();
+        });
+
+    }
+    function getShare(){
+        jsonAjax(API.API_LIST.GOLD_EXPRESSION_SHARE, {'userid': getUserid()}, function (data) {
+            if(data.status == 1){
+                WxShare.title = data.data.share.title;
+                WxShare.desc = data.data.share.content;
+                WxShare.imgUrl = data.data.share.image;
+                WxShare.link = data.data.share.link;
+                loadWxObject(true); //获取微信分享对象
+            }
+        });
+    }
+    $('#buy').on('click',function(){
+        Interface('gotoExpsIndex');
+    })
+</script>
+</html>

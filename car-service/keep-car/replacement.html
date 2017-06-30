@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>评估置换</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css" rel="stylesheet" type="text/css"/>
+    <script src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js" type="text/javascript"></script>
+</head>
+<body >
+    <div style="margin-top: 1rem;">
+        <div class="input-box" id="choseCar">
+            <label>选择车款</label>
+            <span id="res">选择车款</span>
+            <input type="hidden" name="carid"/>
+            <span class="arrow"></span>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>上牌时间</label>
+            <input type="text" class="time" placeholder="请输入上牌时间" name="time"/>
+        </div>
+        <div class="input-box" style="clear: both;padding-right:1rem;color:#999;">
+            <label>行驶里程</label>
+            <input type="text" value="" placeholder="请输入行驶里程" name="mileage"/>公里
+        </div>
+        <div class="input-box" id="choseCity">
+            <label>选择城市</label>
+            <span id="res2" >请选择城市</span>
+            <input type="hidden" name="cityid"/>
+            <span class="arrow"></span>
+        </div>
+        <div class="btn-box">
+            <a class="btn">开始估价</a>
+        </div>
+    </div>
+    <!--选择城市菜单-->
+    <div class="city-box">
+        <ul class="provincial">
+
+        </ul>
+        <ul class="city">
+
+        </ul>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="temp1">
+    {{var val=it;}}
+    {{for(var i in val){}}
+    <li  scl-pe="before">{{=val[i]}}</li>
+    {{}}}
+</script>
+<script type="text/template" id="temp2">
+    {{var val=it;}}
+    {{for(var i in val){}}
+    <li aid="{{=val[i]}}"  scl-pe="before">{{=i}}</li>
+    {{}}}
+</script>
+<script>
+    var render1=getRender('temp1');
+    var render2=getRender('temp2');
+    var city_id=0;
+    function onStart(){
+        //Interface('gotoIndex');
+        if(I('source')=='pgzh'){
+            $('#res').text(decodeURIComponent(I('car_name'))).css('color','#333333');
+        }
+       /* if(I('carid')){
+            var datas = {
+                userid:getUserid(),
+                carid:I('carid','0')
+            };
+            jsonAjax(API.API_LIST.CAR_CARINFO_GETONECARINFO,datas,function (res) {
+                if(res.status == 1){
+                    $("input[name='carid']").val(I('carid'));
+                    $("input[name='mileage']").val(res.data.mileage);
+                    $('#res').css('color','#333333');
+                    loadEnd();
+                }else {
+                    inputTipsText(res.info);
+
+                }
+            });
+
+        }else{
+            getDefaultCar();
+        }*/
+        loadEnd();
+    }
+
+    function getDefaultCar(){
+        var datas = {
+            userid:getUserid()
+        };
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETCARINFO,datas,function (res) {
+            if(res.status == 1){
+                $.each(res.data, function(index,item){
+                    if(item.is_default==1){
+                        $("input[name='carid']").val(item.carid);
+                        $("input[name='mileage']").val(item.mileage);
+                        $('#res').css('color','#333333');
+                    }
+                });
+                loadEnd();
+            }else{
+                inputTipsText(res.info);
+                loadEnd();
+            }
+        });
+    }
+
+    var now = new Date();
+    $('input.time').mobiscroll().date({
+        theme: 'android-holo-light',
+        lang: 'zh',
+        display: 'bottom',
+        mode: 'scroller',
+        min: new Date(2000, 0, 1),
+        max:new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+        /*invalid: ['w0', 'w6', '5/1', '12/24', '12/25'],*/
+        dateFormat: 'yy-mm', // 日期格式
+        rows:3
+    });
+
+    $('#choseCar').on('click',function(){
+        var param = M();
+        param.source = 'pgzh';
+        PageJump('gotoCarEstimateLists',param);
+    });
+    //限制只能输入整数跟小数
+    $('input[name="mileage"]').on('input',function(){
+//        var paat=/^[1-9]{1}[0-9]*$/g;
+        var pattern6=/^[1-9]{1}[0-9]*$/g;
+        var value=$(this).val();
+        if(!pattern6.test(value)){
+            $(this).val(value.slice(0,(value.length-1)));
+        }
+    });
+    $(".btn").on("click",function(){
+        var data = M();
+        data.userid = getUserid();
+        data.carid = I('detailid');
+        data.getcardtime = $("input[name='time']").val();
+        data.mileage = $("input[name='mileage']").val();
+        data.city_id = city_id;
+        console.log(data);
+        if(data.carid==""){
+            inputTipsText("请选择您的爱车");
+        }else if(data.getcardtime==""){
+            inputTipsText("请选择上牌时间");
+        }else if(data.mileage==""){
+            inputTipsText("请输入行驶里程");
+        }else{
+            jsonAjax(API.API_LIST.CAR_ASSESS_INDEX,data,function(res){
+               /* if(res.status==1){*/
+                    data.price = res.data.price?res.data.price:0;
+                    data.model=$('#res2').text();
+                    data.car_name=decodeURIComponent(I('car_name'));
+                    PageJump('gotoEvaluation',data);
+               /* }else{
+                    data.price = res.data.price?res.data.price:0;
+                    data.model=$('#res2').text();
+                    data.car_name=decodeURIComponent(I('car_name'));
+                    PageJump('gotoEvaluation',data);
+//                    inputTipsText(res.info);
+                    //PageJump('gotoEvaluation',data);
+                }*/
+            });
+        }
+    });
+    //选择省份
+    $('#choseCity').on('click',function(){
+        setHistory('#a');
+        getProvincial();
+        $('.city-box').show();
+        setTimeout(function(){
+            $('.city-box').css('height','100%').css('background-color','#eee');
+            $('.provincial,.city').addClass('city-transition');
+            $('.provincial').addClass('city-middle');
+        },200);
+    });
+    //选择城市
+    $('.city-box').on('click','li',function(){
+        var index=$(this).parent('ul').index();
+        if(index==0){
+            setHistory('#b');
+            var province=$(this).text();
+            getCity(province);
+            $('.provincial').addClass('city-left').removeClass('city-middle');
+            $('.city').addClass('city-middle');
+        }else{
+            setHistory(' ');
+            $('.city-box').css('height','0').css('background-color','rgba(0,0,0,0)');
+            $('.provincial').hide();
+            $('.city').removeClass('city-middle');
+            $('.city-box').hide();
+            setTimeout(function(){
+                $('.provincial').removeClass('city-left').show();
+            },500);
+            $('#res2').text($(this).text()).css('color','#333');
+            city_id=$(this).attr('aid');
+        }
+    });
+    //获取省份
+    function getProvincial(){
+        jsonAjax(API.API_LIST.CAR_ASSESS_PROVINCE,{},function(data){
+            if(data.status==1){
+                $('.provincial').html(render1(data.data))
+            }else{
+                inputTipsText(data.info);
+            }
+        })
+    }
+    //获取城市
+    function getCity(province){
+        jsonAjax(API.API_LIST.CAR_ASSESS_CITY,{province:province},function(data){
+            if(data.status==1){
+                $('.city').html(render2(data.data[0]))
+            }else{
+                inputTipsText(data.info);
+            }
+        })
+    }
+    //后退调回车品牌页面
+    window.addEventListener('hashchange',function(){
+        var href=window.location.hash;
+        if(href==''){
+            $('.city-box').css('height','').css('background-color','');
+            $('.provincial').removeClass('city-middle');
+        }else if(href=='#a'){
+            $('.provincial').removeClass('city-left').addClass('city-middle');
+            $('.city').removeClass('city-middle');
+        }
+    });
+    //增加url历史记录且不刷新页面
+    function setHistory(parameter){
+        var url=window.location.href;
+        var stateObj={'url':url};
+        history.pushState(stateObj, " ", parameter);
+    }
+</script>
+</html>

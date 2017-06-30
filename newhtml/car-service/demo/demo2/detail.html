@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>保养</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/maintenance.css">
+</head>
+<body>
+<div class="maintenance-wrap">
+    <ul class="list">
+        <li class="item">
+            <div class="item-head">
+                <span class="car-name">CRV</span>
+                <span>粤B2X4L3</span>
+                <span class="edit"></span>
+            </div>
+            <div class="item-data">
+                <div class="mileage">
+                    <span class="circle"><i class="db" id="sylc">10000</i>km</span>
+                    <p>剩余保养里程</p>
+                </div>
+                <div class="days">
+                    <span class="circle"><i class="db" id="syts">36</i>天</span>
+                    <p>剩余保养天数</p>
+                </div>
+            </div>
+            <div class="item-bottom">
+                <div>上次保养里程:<span id="km">6000</span>km</div>
+                <div>上次保养日期:<span id="ts">2016/06/10<span></div>
+            </div>
+        </li>
+    </ul>
+    <div class="history-record" border="top">
+        <div class="title">历史保养记录</div>
+        <ul class="list" border="top">
+            <li>
+                <div class="time"><span></span>2016/08/12</div>
+                <div class="service">
+                    <div><i>●</i> 小洁保养服务</div>
+                    <div><i>●</i> 内饰清洁</div>
+                </div>
+                <div class="upkeep" scl-pe="before">
+                    <div>保养里程</div>
+                    <div>175000km</div>
+                </div>
+            </li>
+            <li>
+                <div class="time"><span></span>2016/08/12</div>
+                <div class="service">
+                    <div><i>●</i> 空调制冷器</div>
+                </div>
+                <div class="upkeep" scl-pe="before">
+                    <div>保养里程</div>
+                    <div>175000km</div>
+                </div>
+            </li>
+            <li>
+                <div class="time"><span></span>2016/08/12</div>
+                <div class="service">
+                    <div><i>●</i> 发动机清洗</div>
+                </div>
+                <div class="upkeep" scl-pe="before">
+                    <div>保养里程</div>
+                    <div>175000km</div>
+                </div>
+            </li>
+            <li>
+                <div class="time"><span></span>2016/08/12</div>
+                <div class="service">
+                    <div><i>●</i> 发动机清洗</div>
+                </div>
+                <div class="upkeep" scl-pe="before">
+                    <div>保养里程</div>
+                    <div>175000km</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="mask"></div>
+<div class="alert-box">
+    <div class="main">
+        <h3>保养校准</h3>
+        <div class="input-box">
+            <input type="text" placeholder="请输入上次保养里程" name="lc">
+            <span>Km</span>
+        </div>
+        <div class="tips">请输入整数值，且不得大于当前行驶里程</div>
+        <div class="input-box">
+            <input type="text" placeholder="请输入上次保养日期" name="ts">
+        </div>
+        <div class="tips">输入如例：2016/08/20</div>
+    </div>
+    <div class="btn-box" border="top">
+        <div class="cancel" border="right">取消</div>
+        <div class="confirm">确定</div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+
+    function onStart(){
+        var mileage=I('mileage',1000);
+        var sylc = I('sylc','1000');
+        var syts = I('syts','36');
+        $(".mileage i").html(mileage==''?1000:mileage);
+        $("#syts").html(syts==''?36:syts);
+        $("#sylc").html(sylc==''?1000:sylc);
+        loadEnd();
+    }
+
+    $(".edit").on('click',function(){
+        $(".mask,.alert-box").fadeIn();
+    })
+
+    $(".mask,.cancel").on('click',function(){
+        $(".mask,.alert-box").fadeOut();
+    })
+
+    $(".confirm").on('click',function(){
+        var lc = $("input[name='lc']").val();
+        var ts = $("input[name='ts']").val();
+        $("#lc").text(lc);
+        $("#ts").text(ts);
+        $(".mask,.alert-box").fadeOut();
+    });
+</script>
+</html>

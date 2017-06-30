@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>填写好友信息</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+<div style="margin-top: 1rem;">
+    <div class="input-box" id="choseCar">
+        <label>选择车款</label>
+        <span id="res">请选择车款</span>
+        <input type="hidden" name="detailid" placeholder="请选择车款" verify/>
+        <span class="arrow"></span>
+    </div>
+    <div class="flex-box">
+        <div class="input-box box-item">
+            <label>联&nbsp;系&nbsp;人&nbsp;</label>
+            <input type="text" placeholder="请输入联系人" name="contacts" verify/>
+        </div>
+        <div class="chose-sex box-auto">
+            <label>男</label>
+            <span class="no_select" style="margin-right: 1rem;" rel="1"></span>
+            <label>女</label>
+            <span class="no_select" rel="0"></span>
+        </div>
+    </div>
+    <div class="input-box" style="clear: both;">
+        <label>手机号码</label>
+        <input type="text" placeholder="请输入手机号码" name="phone" verify/>
+    </div>
+    <div class="btn-box">
+        <a class="btn" href="javascript:;" onclick="submit();">提交好友信息</a>
+    </div>
+    <div class="guwen" style="margin-top: 3rem;">
+        <!--tmp1-->
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var dataLoad = false;
+    var empLoad = false;
+
+    function onStart(){
+        if(UserInfo){
+            if(UserInfo.sex=='1'){
+                $('.chose-sex span:first').removeClass('no_select').addClass('selected');
+            }else if(UserInfo.sex=='2'){
+                $('.chose-sex span:last').removeClass('no_select').addClass('selected');
+            }
+        }
+        //Interface('gotoIndex');
+        getEmployee(API.API_LIST.CAR_REFERRAL_PAL_INFO,$(".guwen"));
+        getData();
+    }
+
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected').addClass('no_select');
+        $(this).removeClass('no_select').addClass('selected');
+    });
+
+    function getData(){
+        if(I('detailid')){
+            $("input[name='detailid']").val(I('detailid'));
+            $('#res').html(decodeURIComponent(I('detailname'))).css("color","#333333");
+            $('#res').css('color','#333')
+        }
+        dataLoad = true;
+        allLoadEnd();
+    }
+    //选择爱车
+    $("#choseCar").on('click', function(){
+        var param = M();
+        param.source = 'ff';
+        PageJump('gotoBuyCarIndex',param);
+    });
+
+    function submit(){
+        var contacts = $("input[name='contacts']").val();
+        var sex = $(".selected").attr("rel");
+        var phone = $("input[name='phone']").val();
+        var detailid = $("input[name='detailid']").val();
+        //判断非空
+        for(var i=0;i<$("input[verify]").length;i++){
+            if(empty($("input[verify]").eq(i).val())){
+                inputTipsText($("input[verify]").eq(i).attr("placeholder"));
+                return;
+            }
+        }
+        //验证手机号码
+        if(!phone.isMobile()){
+            inputTipsText('请输入正确的手机号码');
+            return;
+        }
+        if(!contacts.isContacts()){
+            inputTipsText('联系人不能输入特殊字符且中文不能超过16个，字符不能超过32个!');
+            return ;
+        }
+        var datas = {
+            userid:getUserid(),
+            name:contacts,
+            sex:sex,
+            phone:phone,
+            id:detailid,
+            advisorid:$(".guwen .info").attr('aid')
+        }
+        //提交
+        jsonAjax(API.API_LIST.CAR_REFERRAL_ADD_FRIEND,datas,function (res) {
+            if(res.status == 1){
+                PageJump('gotoKeepIndex');
+            }else {
+                inputTipsText(res.info);
+                BackKeepIndex();
+            }
+        });
+    }
+
+    function allLoadEnd(){
+        console.log(dataLoad,empLoad);
+        if(dataLoad&&empLoad){
+            loadEnd();
+        }
+    }
+</script>
+</html>

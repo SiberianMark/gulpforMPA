@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<script src="/web/assets/js/load.meta.js"></script>
+	<title>神马明星</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/smholiday.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js"></script>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+</head>
+<style type="text/css">
+.smdd-tip{width:100%;height:5rem;background:#d8d8d8;position:fixed;bottom:0;z-index:1000;display:none; }
+.smdd-tip img{width:5rem;height:5rem;position:absolute;top:-1.3rem;left:1.3rem; }
+.smdd-tip-con{position:absolute;left:7.2rem;top:1rem;right:3.7rem;}
+.smdd-tip-con p{height:1.5rem;text-align:left;color:#333;font-size:1.1rem; }
+
+.user-now{width:6.2rem;height:2.5rem;line-height:2.5rem;background:#f55;text-align:center;color:#fff;position:absolute;top:.3rem;right:0.3rem;border-radius:.3rem; }
+.smdd-close{width:1.2rem;height:1.2rem;position:absolute;top:2rem;right:1.4rem;background: url(/web/assets/image/close.png) no-repeat center center;background-size:1.1rem;}
+</style>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="margin-bottom:0;">
+	<div class="mui-scroll">
+	<!-- 顶部公用 -->
+		<div class="headlines clear">
+		    <div class="headlines-img clear">
+		        <div></div>
+		    </div>
+		    <div class="headlines-pro clear">
+		        <div class="swiper-header">
+		            <div class="swiper-wrapper swiper-index"></div>
+		        </div>
+		    </div>
+		</div>
+	<!-- 顶部公用 end -->
+		<div class="starshow"></div>
+		<!-- 明星信息展示 end -->
+	</div>
+</div>
+<div class="smdd-tip" >
+    <img src="/web/assets/image/smdd_ico.png">
+    <div class="smdd-tip-con">
+        <p>神马嘀嘀</p>
+        <p>人.车.生活移动互联社区</p>
+        <a class="user-now" href="javascript:;">立即使用</a>
+    </div>
+    <a class="smdd-close" href="javascript:;"></a>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="templist">
+{{ var val = it.data.star; }}
+{{ for(var i in val){ }}
+<div class="starlist clear">
+	<!-- <div class="listtop">
+		<p class="topinfo"><strong>毛婷新</strong><b>首席设计师</b></p>
+		<p class="infotype">旅游中国资深设计师</p>
+	</div>
+	<div class="listmain clear">
+		<img src="{{=i.img}}" alt="" border="all">
+		<div class="details">{{=i.article_id}}</div>
+	</div> -->
+	<div class="detail">
+		<img class="link" src="{{=val[i].img}}" title-id ="{{=val[i].title_id}}" article-id="{{=val[i].article_id}}" link="{{=val[i].link}}">
+	</div>
+	<div class="swiper-container postar-{{=i}}">
+        <div class="swiper-wrapper" style="margin:2rem 0">
+			{{ for(var j in val[i].shop){ }}
+			<div class="swiper-slide" >
+			   <img style="width:9rem;height:9rem;" src="{{=val[i].shop[j].logo}}">
+			</div>
+			{{ } }}
+			<div class="listshow swiper-slide" tid ="{{=val[i].title_id}}">
+				<img style="width:9rem;height:9rem;"  src="/web/assets/image/smdg/mingx_gengduo.png">
+			</div>
+		</div>
+	</div>
+</div>
+{{ } }}
+</script>
+<script type="text/template" id="headlines-index">
+    {{?it.status==1}}
+        {{~it.data:item:index}}
+            <div class="swiper-slide smdg" article_id="{{=item.article_id}}" link="{{=item.link}}">
+                <div class="pro-name">{{=item.laber}}</div>
+                <div class="pro-msg">{{=item.description}}</div>
+            </div>
+        {{~}}
+    {{?}}
+</script>
+<script>
+	var pull_action='';
+	var page =I('page',1);
+    var render=getRender('templist');
+    var headlines_index = getRender('headlines-index');
+    var swiper_postar_list = new Array();
+    var jsonEnd_postar;
+    var swiper=null;
+    var share=I('share');
+    function onStart(){
+        _initMui();
+        getData();
+        postarList();
+        jsonEnd_postar = false;
+        if (share){
+            $('.smdd-tip').show();
+        }else{
+            $('.smdd-tip').hide();
+        }
+        loadEnd();
+    }
+    
+    //图片分屏延迟加载
+    function LazyLoad(){
+        $("img.lazy").lazyload({
+            effect : "fadeIn",
+            threshold : 10,
+            placeholder:"/web/assets/image/default_ico.svg"
+        });
+    }
+    /*加载完毕*/
+    function jsonAllEnd(){
+        if (jsonEnd_postar) {
+            LazyLoad();
+            loadEnd();
+        }
+    }
+
+    function postarList(){
+        jsonAjax(API.API_LIST.GOLD_STAR_STARLIST,{page:page},function(data){
+            jsonEnd_postar=true;
+            if (data.status == 1) {
+                for (var i=0;i<swiper_postar_list.length;i++) {
+                    if (swiper_postar_list[i] != null) {
+                        swiper_postar_list[i].destroy();
+                        swiper_postar_list[i] = null;
+                    }
+                }
+                $('.starshow').html(render(data));
+                for (var i=0;i<data.data.star.length;i++) {
+                    var swiper_postar = new Swiper('.postar-'+i, {
+                        slidesPerView:2.6,
+                        loop : false,
+                        paginationClickable: true,
+                        observer: true,
+                        preloadImages: false,
+                        lazyLoading : true,
+                    });
+                    swiper_postar_list[i]=swiper_postar;
+                }
+            }
+            
+        $('.user-now').on('tap',function(){
+            InterfaceTap('downApp');
+        });
+        $('.smdd-close').on('tap',function(){
+            $('.smdd-tip').remove();
+        });
+            jsonAllEnd();
+        });
+    }
+     $('.user-now').on('tap',function(){
+        InterfaceTap('downApp');
+    });
+    $('.smdd-close').on('tap',function(){
+        $('.smdd-tip').remove();
+    });
+
+    $('.starshow').on('tap', '.listshow', function () {    //到商品详情
+        var obj = new Object();
+        obj.title_id = $(this).attr('tid');
+        Interface('gotoStarBrand', JSON.stringify(obj));
+    });
+    //跳转页面
+    $('.starshow').on("tap",".link",function(){
+    	var article_id = $(this).attr("article-id");
+    	var title_id = $(this).attr("title-id");
+    	var link = $(this).attr("link");
+    	if(link == ''){
+    		var obj = new Object();
+            obj.article_id=article_id;
+            Interface('gotoCarDetail',JSON.stringify(obj));
+    	}else{
+    		 redirect(link,obj);
+    	}
+	});
+    //头条文章
+    $("#pullrefresh").on("tap",".swiper-index .smdg",function(){
+        var article_id= $(this).attr("article_id");
+        var link= $(this).attr("link");
+        if(link==''){
+            var obj = new Object();
+            obj.article_id=article_id;
+            Interface('gotosmdgHeadlines',JSON.stringify(obj));
+        }else{
+        	redirect(link, obj);
+        }
+    });
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_STAR_STARLIST,{page:page},function(data){
+            if(data.status==1){
+                 if(data.data.star.length <= 0){
+	                if(pull_action ==  'up'){
+	                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+	                }
+	                else if(pull_action == 'down'){
+	                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+	                }
+	                loadEnd();
+	                return;
+	            }
+	            if(page==1){
+	                $('.starshow').html(render(data));
+	            }else{
+	                $('.starshow').append(render(data));
+	            }
+	            $('.mui-pull-caption').show();
+	            if(data.data.star.length< 10){
+	                $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+	            }
+	             setTimeout(function(){
+	                    mui('#pullrefresh').pullRefresh().setStopped(false);
+				 },200);
+				page++;
+				if(pull_action ==  'up'){
+					mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+				}
+				else if(pull_action == 'down'){
+	                       mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+				}
+                
+	        }else{
+	            if(pull_action == 'up'){
+	                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+	                }
+	                else if(pull_action == 'down'){
+	                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+	                }
+	                if(page==1){
+	                	//$('.lottery-cvx').show().parents('.buy-records').css('background','none');
+	                	$('.mui-pull-caption').hide();
+	                    mui('#pullrefresh').pullRefresh().setStopped(true);
+	                }
+            }
+
+            loadEnd();
+        });
+
+		}
+	        jsonAjax('/gold/home/headtitle',{},function(data){
+		        if(data.status==1){
+		            $('.swiper-index').html(headlines_index(data));
+		             var swiper_header = new Swiper ('.swiper-header', {
+		                roundLengths : true,
+		                initialSlide : 0,//设定初始化时slide的索引
+		                slidesPerView:"auto",//设置slider容器能够同时显示的slides数量
+		                autoplay : 3000,
+		                autoplayDisableOnInteraction : false,
+		                spaceBetween : 16,//活动块间隔
+		                speed:300,
+		                loop : true//循环
+		            });
+		        }
+	    	});
+</script>
+</html>

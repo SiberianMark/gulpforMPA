@@ -1,0 +1,278 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>评论</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/assets/css/smdg/demon.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+</head>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+  <div class="mui-scroll" style="padding-bottom:4.6rem;">
+      <div>
+
+      </div>
+      <ul class="comment-list">
+        <!-- <li border="bottom">
+            <img src="">
+            <div>
+               <p class="clear">
+                 <span>紫苑</span>
+                 <i>2016-07-15 16:35:30</i>
+               </p>
+               <span><i class="recall">回复 紫苑：</i>我也想问</span>
+            </div>
+        </li> -->
+    </ul>
+    </div>
+  </div>
+    <footer class="comment-words">
+        <input class="inpt1" type="text" placeholder="添加评论..." />
+        <div class="send1">发送</div>
+    </footer>
+    <footer class="recall-words" style="z-index:2">
+        <input class="inpt2" type="text" placeholder="" />
+        <div class="send2">发送</div>
+    </footer>
+
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="temp">
+  {{~it.data:val:index}}
+    <li border="bottom">
+        <img class="smUsrImg" src="{{=val.photo}}">
+        <div class="wrap">
+           <p class="clear">
+             <span class="usr_name">{{=val.nickname?val.nickname:''}}</span>
+             <i>{{=val.comment_time}}</i>
+           </p>
+           <span>{{=val.contents.decodeHtml()}}</span>
+        </div>
+    </li>
+  {{~}}
+</script>
+<script>
+    //var id='17';
+    var page = I('page',1);
+    var render = getRender('temp');
+    var id = I('id',0);
+    var userid = getUserid();
+    var type = I('type');
+    var article_id = I('article_id',0);
+    var userData='';
+    var dataId = M();
+    var didinumber=I("didinumber");
+    //var id = I('artivity_id');
+    var pull_action='';
+    function onStart(){
+      if(type == 0){
+         dataId={
+          userid:userid,
+          article_id:article_id,
+          type:type
+         };
+      }
+      else{
+        dataId={
+          userid:userid,
+          article_id:id,
+          type:type
+         };
+      }
+      _initMui();
+      getData();
+      if(is_login()){
+          getInfo();
+      };
+    }
+    // 获取用户信息
+    function getInfo(){
+      jsonAjax(API.API_LIST.PACKAGE_MYPAGE, {'userid': userid}, function (data)  {
+            if (data.status == 1) {
+              userData= data.data;
+            };
+      });
+    };
+    $('.comment-words').on('focus',function(){
+      $(this).css('position','absolute');
+    });
+    $('.comment-words').on('blur',function(){
+      $(this).css('position','fixed');
+    });
+
+    //添加评论
+    $('.send1').on('click',function(){
+      var value_comment = $('.inpt1').val().utf16toEntities();
+      $(this).removeClass('color');
+        isLogin(function(ret){
+          if(ret){
+            if(value_comment!=''){
+                dataId.content = value_comment;
+                jsonAjax(API.API_LIST.GOLD_HOME_SENDCOMMENT,dataId,function(data){
+                      if(data.status==1){
+                        var add_comment='';
+                        var comment_time=new Date(parseInt(data.now)*1000).format('yyyy-MM-dd h:m:s');
+                        if(userData.nickname!=undefined){
+                            add_comment = '<li border="bottom">'
+                            +'<img src="'+userData.photo+'">'
+                            +'<div class="wrap">'
+                            +'<p class="clear">'
+                            +'<span class="usr_name">'+userData.nickname+'</span>'
+                            +'<i>'+comment_time+'</i>'
+                            +'</p>'
+                            +'<span>'+value_comment+'</span>'
+                            +'</div>'
+                            +'</li>';
+                        }
+                      if($('.comment-list li').length==0){
+                         $('.comment-list').html(add_comment);
+                      }else{
+                         $('ul li:first-child').before(add_comment);
+                      }
+                        $('.inpt1').val('');
+                        value_comment='';
+                      }
+                  });
+            }else{
+              inputTipsText('请输入评论！');
+            }
+          }else{
+            $('.inpt1').val('');
+          };
+        });
+    });
+    //回复评论
+    var self;
+    $('.comment-list').on('tap','.wrap',function () {
+      self = this;
+      $('.comment-words').hide();
+      $('.recall-words').show();
+      $('.inpt2').attr('placeholder','回复 '+$(self).find('.usr_name').text()+':');
+      // $(this).parent('li').addClass('cur');
+    });
+
+      $('.send2').on('click',function(){
+      $(this).removeClass('color');
+      var value_recall = '回复 '+$(self).find('.usr_name').text()+''+':'+$('.inpt2').val().utf16toEntities();
+          // var com_content='回复'+userData.nickname+value_recall;
+        isLogin(function(ret){
+            if(ret){
+              if($('.inpt2').val().utf16toEntities()!=''){
+                  dataId.content = value_recall;
+                    jsonAjax(API.API_LIST.GOLD_HOME_SENDCOMMENT,dataId,function(data){
+                        if(data.status==1){
+                            var add_recall='';
+                          var comment_time=new Date(parseInt(data.now)*1000).format('yyyy-MM-dd h:m:s');
+                          if(userData.nickname!=undefined){
+                            add_recall = '<li border="bottom">'
+                                                +'<img src="'+userData.photo+'">'
+                                                +'<div class="wrap">'
+                                                   +'<p class="clear">'
+                                                     +'<span class="usr_name">'+userData.nickname+'</span>'
+                                                     +'<i>'+comment_time+'</i>'
+                                                   +'</p>'
+                                                   +'<span>'+value_recall+'</span>'
+                                                +'</div>'
+                                        +'</li>';
+                            $(self).parents('li').after(add_recall);
+                            $('.inpt2').val('');
+                          };
+                        }
+                    });
+              }else{
+                  inputTipsText('请输入评论！');
+              };
+            }else{
+              $('.inpt2').val('');
+            };
+        });
+      });
+
+      //输入内容,按钮变色
+      $('.inpt1,.inpt2').on('input',function(){
+        if($(this).val()==''){
+          $(this).siblings('div').removeClass('color');
+        }else{
+          $(this).siblings('div').addClass('color');
+        };
+      });
+
+    Date.prototype.format = function(format) {
+       var date = {
+              "M+": this.getMonth() + 1,
+              "d+": this.getDate(),
+              "h+": this.getHours(),
+              "m+": this.getMinutes(),
+              "s+": this.getSeconds(),
+              "q+": Math.floor((this.getMonth() + 3) / 3),
+              "S+": this.getMilliseconds()
+       };
+       if (/(y+)/i.test(format)) {
+              format = format.replace(RegExp.$1, (this.getFullYear() + '').substr(4 - RegExp.$1.length));
+       }
+       for (var k in date) {
+              if (new RegExp("(" + k + ")").test(format)) {
+                     format = format.replace(RegExp.$1, RegExp.$1.length == 1
+                            ? date[k] : ("00" + date[k]).substr(("" + date[k]).length));
+              }
+       }
+       return format;
+    }
+
+    function getData () {
+      jsonAjax(API.API_LIST.GOLD_HOME_COMMENTLIST, {'id':id,'page':page,'type':type},function(data){
+            if (data.status == 1) {
+                if(data.data.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(page==1){
+                    $('.comment-list').html(render(data));
+                }else{
+                    $('.comment-list').append(render(data));
+                }
+
+                $('.mui-pull-caption').show();
+
+                if(data.data.length< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                 setTimeout(function(){
+                        mui('#pullrefresh').pullRefresh().setStopped(false);
+                        },200);
+                        page++;
+                        if(pull_action ==  'up'){
+                            mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                        }
+                        else if(pull_action == 'down'){
+                            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                        }
+            }else{
+                if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(page==1){
+                      $('.lottery-empty').show().parents('.buy-records').css('background','none');
+                      $('.mui-pull-caption').hide();
+                        mui('#pullrefresh').pullRefresh().setStopped(true);
+                    }
+            }
+        });
+      loadEnd();
+    }
+</script>
+</html>

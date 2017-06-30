@@ -1,0 +1,123 @@
+	body {
+		font-size: 1.4rem;
+	}
+
+	#Order_box {
+		padding: 0 1rem;
+		background-color: #fff;
+	}
+
+	#Order_box>div {
+		display: flex;
+		/*height: 89px;*/
+		padding: 1rem 0;
+		justify-content: space-between;
+		line-height: 1.4rem;
+	}
+
+	.ord-notes {
+		border-left: 4px solid #f55;
+		padding-left: 0.5rem;
+	}
+
+	.ord-price {
+		color: #999;
+	}
+
+	.ord-price:before {
+		content: "￥";
+	}
+
+	#Order_box>div:nth-of-type(3) {
+		/*border-top: 1px solid #ddd;*/
+		padding-left: 0.5rem;
+	}
+
+	#Order_box>div:nth-of-type(3):before {
+
+		border-width: 1px 0 0 0;
+
+	}
+	#Order_box>div:nth-of-type(4):before {
+
+		border-width: 1px 0 0 0;
+
+	}
+
+	.ord-buy {
+		display: flex;
+		border: 1px solid #ccc;
+		border-radius: 0.5rem;
+		text-align: center;
+		/*height: 44px;*/
+		line-height: 2.2rem;
+		vertical-align: middle;
+		overflow: hidden;
+		margin: -0.2rem 0;
+	}
+
+	.buy-add {
+		border-left: 1px solid #ccc;
+		width: 2.2rem;
+		/*background-color: #f8f8f8;*/
+		/*color: #999;*/
+		background: url(/web/assets/image/jiahao_btn.png);
+		background-size: 100% 100%;
+	}
+
+	.buy-num {
+		min-width: 3.65rem;
+		padding: 0 0.5rem;
+	}
+
+	.buy-remove {
+		border-right: 1px solid #ccc;
+		width: 2.2rem;
+		/*background-color: #f8f8f8;*/
+		/*color: #999;*/
+		background: url(/web/assets/image/jianhao_btn.png);
+		background-size: 100% 100%;
+	}
+
+	#Order_box>div:nth-of-type(4) {
+		/*border-top: 1px solid #ddd;*/
+		padding-left: 0.5rem;
+	}
+
+	.ord-total {
+		color: #f55;
+	}
+
+	.ord-total:before {
+		content: "￥";
+	}
+
+	.ord-determine {
+		position: fixed;
+		display: flex;
+		width: 100%;
+		/*height: 96px;*/
+		line-height: 4.8rem;
+		bottom: 0;
+	}
+
+	.ord-txt {
+		flex-grow: 1;
+		background-color: #fff;
+		padding-left: 1rem;
+	}
+
+	.ord-txt>span {
+		color: #f55;
+	}
+
+	.ord-txt>span:before {
+		content: "￥";
+	}
+
+	.ord-sub {
+		background-color: #f55;
+		width: 13rem;
+		text-align: center;
+		color: white;
+	}

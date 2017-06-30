@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>本店地址</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script type="text/javascript" src="http://map.qq.com/api/js?v=2.exp&key=3TPBZ-G53RP-TDODZ-V2CMG-PP556-DKBNL"></script>
+    <script charset="utf-8" src="http://map.qq.com/api/js?v=2.exp&libraries=convertor"></script>
+    <style>
+        img[src="http://open.map.qq.com/apifiles/2/4/18/theme/logo_hd.png"]{display: none;}
+        span[style="font-family: Arial, sans-serif; white-space: nowrap; font-size: 10px; color: rgb(34, 34, 34); line-height: 16px; direction: ltr; text-align: right; font-weight: normal; font-style: normal; background-color: transparent;"]{display: none;}
+    </style>
+</head>
+<body style="background: #ffffff; ">
+    <div class="map" id="allmap"></div>
+    <div class="main">
+
+    </div>
+    <div class="btn-box">
+        <a class="btn" id="startLead" href="javascript:;">开始导航</a>
+    </div>
+</body>
+<script type="text/x-dot-template" id="temp1">
+    <div class="title">
+        <span id="name">{{=it.storename}}</span>
+    </div>
+    <div class="detail">地址：{{=it.address}}</div>
+    <div class="detail">电话：{{=it.phone}}</div>
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var name = '';//店铺名称
+    var address = '';//店铺地址
+    var lng = 0.0;//经度
+    var lat = 0.0;//纬度
+    var render = getRender('temp1');
+    var dataLoad = false;
+    var mapLoad = false;
+
+    function onStart(){
+        getData();
+        loadEnd();
+    }
+
+    $('#startLead').on('click',function() {
+        wx.openLocation({
+            latitude: lat, // 纬度，浮点数，范围为90 ~ -90
+            longitude: lng, // 经度，浮点数，范围为180 ~ -180。
+            name: name, // 位置名
+            address: address, // 地址详情说明
+            scale: 14, // 地图缩放级别,整形值,范围从1~28。默认为最大
+            infoUrl: '' // 在查看位置界面底部显示的超链接,可点击跳转
+        });
+    });
+
+    function getData() {
+        var datas = {};
+        jsonAjax(API.API_LIST.CAR_BUYCAR_LOCATION,datas,function (res) {
+            if(res.status == 1){
+
+                name = res.data.storename;
+                address = res.data.address;
+                //转换百度坐标为腾讯坐标
+                qq.maps.convertor.translate(new qq.maps.LatLng(res.data.lat,res.data.lng), 3, function(res){
+                    latlng = res[0];
+                    lng = res[0].lng;
+                    lat = res[0].lat;
+                    theLocation(lng,lat);
+                });
+
+                $(".main").html(render(res.data));
+                dataLoad = true;
+                allLoadEnd();
+            }else{
+                alert(res.info);
+            }
+        })
+    }
+
+    // 用经纬度设置地图中心点
+    function theLocation(lng,lat){
+
+        var center = new qq.maps.LatLng(lat,lng);
+        var map = new qq.maps.Map(document.getElementById('allmap'),{
+            center: center,
+            zoom: 14,
+            panControl: false,          //平移控件的初始启用/停用状态。
+            zoomControl: false,         //缩放控件的初始启用/停用状态。
+            scaleControl: false,        //滚动控件的初始启用/停用状态。
+            mapTypeControl:false        //地图类型控件的初始启用/停用状态。
+        });
+
+        var marker = new qq.maps.Marker({
+            position: center,
+            map: map
+        });
+
+        var label = new qq.maps.Label({
+            position: center ,
+            map: map,
+            content:address
+        });
+
+        var cssP={
+            color:"#FFFFFF",
+            fontSize:"12px",
+            backgroundColor:'#000000',
+            borderRadius:'1rem',
+            padding:'0 0.5rem',
+            marginTop:'-55px',
+            marginLeft:'-50px',
+            opacity:'0.6'
+        };
+        label.setStyle(cssP);
+
+        qq.maps.event.addListener(map,'zoom_changed',function() {
+            map.setCenter(center);
+        });
+
+        mapLoad = true;
+        allLoadEnd();
+    }
+
+    function allLoadEnd(){
+        console.log(dataLoad,mapLoad);
+        if(dataLoad&&mapLoad){
+            loadEnd();
+        }
+    }
+</script>
+</html>

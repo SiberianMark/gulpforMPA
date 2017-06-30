@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>预约详情</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/swipebox.min.css"/>
+    <script src="/web/assets/js/jquery.swipebox.min.js"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+<div id="detBox">
+    <script type="text/template" id="tmpList">
+        <div class="keep-item">
+            <div class="title">保养项目</div>
+            <ul>
+                <li>
+                    预约编号<i>{{=it.car_info.code_num}}</i>
+                </li>
+                {{?I('type')!=1}}
+                <li>
+                    车型<i>{{=it.car_info.brand_name+' '+it.car_info.model_name+' '+it.car_info.detail_name}}</i>
+                </li>
+                <li>
+                    预约时间<i>{{=it.car_info.reservation_time}}</i>
+                </li>
+                {{?}}
+                {{~it.info:val:index}}
+                <li aid="{{=val.id}}">
+                    {{=val.content}}
+                    <i>{{=val.child_content}}</i>
+                </li>
+                {{~}}
+                <!--<li>咚咚16项免费检测<span class="ganth"></span></li>-->
+            </ul>
+            <div class="all-item" style="display:none;">全部项目<i></i></div>
+        </div>
+        {{?I('type')!=6}}
+        <div class="item-prograss">
+            <div class="title">最新进度</div>
+            <ul style="border-top:1px solid #dddddd;">
+                {{?it.progress.length>0}}
+                {{~it.progress:val:index}}
+                    {{
+                        var time = val.addtime.split(' ');
+                        console.log(time);
+                    }}
+                    <li class="{{?index==0}}cur{{?}}">
+                        <div class="time">{{=time[0]}}<br>{{=time[1]}}</div>
+                        <div class="line"><span></span></div>
+                        <div class="prograss">{{=val.content}}</div>
+                    </li>
+                {{~}}
+                {{??}}
+                <p style="padding: 1rem 0; text-align: center; font-size: 1.2rem; color: #999;">暂无进度!</p>
+                {{?}}
+            </ul>
+        </div>
+        {{?}}
+    </script>
+
+    <script type="text/template" id="tmpList2">
+        <div class="keep-item">
+            <div class="title">{{=title[_type]}}项目</div>
+            <ul {{?_type==2}} class="box all" {{?}} >
+                <li>
+                    <span class="key">预约编号&nbsp;:&nbsp;</span>
+                    <span class="val">{{=it.code_num}}</span>
+                </li>
+                <li>
+                    <span class="key">车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;型&nbsp;:&nbsp;</span>
+                    <span class="val">
+                        {{?_type==2||_type==3}}
+                            {{=it.carinfo?it.carinfo:''}}
+                        {{?}}
+                        {{?_type==4||_type==5||_type==6}}
+                            {{=it.model?it.model:''}}
+                        {{?}}
+                    </span>
+                </li>
+                <li>
+                    <span class="key">预约时间&nbsp;:&nbsp;</span>
+                    <span class="val">
+                        {{?_type==2||_type==3}}
+                            {{=it.addtime}}
+                        {{?}}
+                        {{?_type==4||_type==5||_type==6}}
+                            {{=it.reservation_time}}
+                        {{?}}
+                    </span>
+                </li>
+                {{?_type==6}}
+                <li>
+                    <span class="key">喷漆颜色&nbsp;:&nbsp;</span>
+                    <span class="val">{{=it.content}}</span>
+                </li>
+                {{?}}
+                {{?_type==2}}
+                <li>
+                    <span class="key">具体描述&nbsp;:&nbsp;</span>
+                    <span class="val">{{=it.content}}</span>
+                </li>
+                <li>
+                    <span class="key">&nbsp;</span>
+                    <span class="val clear">
+                        <p class="content-img" id="swipebox-of-0">
+                        {{~it.image:item:i}}
+                            <a href="{{=item.image}}" class="swipebox"><img src="{{=item.image}}"></a>
+                        {{~}}
+                        </p>
+                    </span>
+                </li>
+                {{?}}
+            </ul>
+            <div class="all-item" style="display:none;">全部项目<i></i></div>
+        </div>
+    </script>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var _type = parseInt(I('type',0));
+    var title = ['','保养','维修','保险理赔','评估置换','试驾','喷漆'];
+    // var date = [];
+    // date[1] =  {"info": [{"id": "68","content": "机油","child_content": "道达尔4000 8W-30SN级全合成"},{"id": "73","content": "汽油格","child_content": "国产件"}],"progress": [{"content": "您已经成功预约了套餐一的保养服务.","addtime": "2016-07-30 11:07:57"}],"car_info": {"logo": "http://srctest.didi365.com/didi365/Upload/logo/m_97_100.png","model_name": "Q5","detail_name": "2014款 Sportback 35TFSI 时尚型","code_num": "579C53A0F10EF","reservation_time": "2016-07-31 12:13:38"}};
+    // date[2] = {"code_num": "2016073000002","content": "我要维修我要维修我要维修我要维修我要维修我要维修我要维修我要维修我要维修我要维修我要维修我要维修我要维修我要维修","addtime": "2016-07-30 20:05:43","carinfo": "本田 雅阁 1.8L 2015款舒适版","repairid": "5","img":[{"image": "http://srctest.didi365.com/didi365/Upload/logo/m_26_100.png"},{"image": "http://srctest.didi365.com/didi365/Upload/logo/m_26_100.png"}]};
+    // date[3] = {"code_num": "2016081000012","addtime": "2016-08-10 11:28:47","carinfo": "阿斯顿·马丁 Rapide 6.0L 2010款 基本型"};
+    // date[4] = {"code_num": "2016073100020","reservation_time": "2016-07-31 15:55:54","model": null};
+    // date[5] = {"code_num": "2016080900014","reservation_time": "2016-08-10 00:00:00","model": null};
+    // date[6] = {"code_num": "2016081000007","reservation_time": "2016-08-10 10:14:00","model": "2015款 A 180","content": null};
+    var render = getRender('tmpList');
+    var render2 = getRender('tmpList2');
+
+    function onStart(){
+        if(empty(_type)||_type<1||_type>6){
+            return;
+        }
+        console.log(title[_type]);
+        getData();
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_UPKEEP_RESERVATIONINFO,{'id':I('id'),'type':_type},function (res) {
+            if(res.status == 1){
+                if(_type==1){
+                    $('#detBox').html(render(res.data));
+                    if($('.keep-item > ul li').length>4){
+
+                        $('.keep-item ul').addClass('box');
+                        $('.all-item').show();
+                    }
+                }else{
+                    $('#detBox').html(render2(res.data));
+                }
+                //$('#detBox').html(render(date[_type]));
+                $('.swipebox').swipebox({clickEventType:'click'});
+                $('.all-item').on('click',function(){
+                    $(this).toggleClass('cur');
+                    $('.keep-item ul').toggleClass('all');
+                });
+                loadEnd();
+            }else {
+                inputTipsText(res.data.info);
+            }
+        });
+    }
+
+
+
+</script>
+</html>

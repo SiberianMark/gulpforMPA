@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>车型报价</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js?v=5c01d7aff0"></script>
+    <style>
+        .banner-top .guwen>img{height:5.5rem;}
+        .guwen div{text-align: left;}
+        .baojia-detail .btn-group .reserve-drive{color: #333333;background: #ffffff;}
+    </style>
+</head>
+<body>
+	<div id="" class="baojia-wrap">
+            <div class="banner-top bgwh tc ovh">
+                <div class="no-record"><span>暂无车型报价</span></div>
+                <!--<div class="guwen"></div>-->
+            </div>
+            <div class="baojia-detail">
+                <h3><span>详细报价</span></h3>
+                <ul class="baojia-list">
+
+                </ul>
+            </div>
+	</div>
+</body>
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id="tmpl-data-car">
+    {{var val=it.model;}}
+    <img class="img-responsive" src="{{=val.img}}">
+    <div class="car-detail">
+        <h3 class="car-name">{{=val.carmodel}}</h3>
+        {{?(val.price_min==null&&val.price_max==null)||(val.price_min==''&&val.price_max=='')}}
+        <div class="price-range"><span>0.00</span>万-<span>0.00</span>万</div>
+        {{??}}
+        <div class="price-range"><span>{{=val.price_min}}</span>万-<span>{{=val.price_max}}</span>万</div>
+        {{?}}
+        <div class="db tdline zhidao-range tc pr">厂家指导报价:<span>{{=val.guide}}</span><img src="/web/car-service/assets/image/jisuanqi2x.png"></div>
+    </div>
+</script>
+<script type="text/template" id="tmpl-data-list">
+    {{var val=it.detail;}}
+    {{for(var i in val){}}
+    <li class="ovh bgwh bdb">
+        <div class="fl baojia-con" >
+            <p class="title">{{=val[i].model}}</p>
+            <div class="prices">
+                {{?val[i].price=='暂无报价'}}
+                <span class="baojia-price">暂无报价</span>
+                {{??}}
+                <span class="baojia-price">{{=val[i].price}}万</span>
+                {{?}}
+                {{?val[i].reference=='暂无参考价'}}
+                <span class="zhidao-price tdline">指导价:暂无参考价</span>
+                {{??}}
+                <span class="zhidao-price tdline">指导价：{{=val[i].reference.replace("元","")}}</span>
+                {{?}}
+            </div>
+        </div>
+        <div class="fr btn-group tc">
+            <div class="btn ask-price" detailId="{{=val[i].id}}">询底价</div>
+            <div class="btn reserve-drive" detailId="{{=val[i].id}}" scl-pe='before'>试驾</div>
+        </div>
+    </li>
+    {{}}}
+</script>
+<script>
+//    var car_id=I('car_id');
+    var render_carInfo=getRender('tmpl-data-car');
+    var render_carList=getRender('tmpl-data-list');
+    var obj = new Object();
+//    console.log(car_id);
+	function onStart(){
+        getDate();
+//        getEmployee(API.API_LIST.CAR_BUYCAR_PRICECOUNSELOR,$(".guwen"));
+	}
+
+    function getDate(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_CARDETAIL, {modelid:I('car_id')}, function (data) {
+            if (data.status == 1) {
+                if(data.data.detail.length>0){
+                    $('.baojia-list').html(render_carList(data.data));
+                }else {
+                    $('.baojia-detail').remove();
+                }
+                $('.banner-top').html(render_carInfo(data.data));
+                $('.img-responsive').attr('src',data.data.model.img);
+                console.log(data.data.model.img);
+                LazyLoad();
+            }else{
+                $('.baojia-detail>h3').hide();
+            }
+            loadEnd();
+        });
+    }
+    function LazyLoad(){
+        $("img.lazy").lazyload({
+            effect : "fadeIn",
+            threshold : 10,
+            placeholder:"/web/assets/image/default_ico.svg"
+        });
+    }
+    //分享
+    function onWxReady(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_BUYCARSHARE,{'userid':getUserid(),'modelid':I('car_id')},function(data){
+            if(data.status==1){
+                WxShare.title = data.data.title;
+                WxShare.desc = data.data.content;
+                WxShare.imgUrl = data.data.img;
+                WxShare.link = data.data.linkurl;
+                onWxShare();
+            }
+        });
+    }
+    //询底价
+    $(".baojia-list").on('click','.ask-price',function(){
+        console.log(111);
+        var detail_id = $(this).attr("detailId");
+        var car_name = $(this).parent().siblings().find('.title').text();
+        obj.detail_id=detail_id;
+        obj.car_name=car_name;
+        PageJump('gotoAdvisoryPrice', JSON.stringify(obj));
+    });
+    //试驾
+    $(".baojia-list").on('click','.reserve-drive',function(){
+        var detail_id = $(this).attr("detailId");
+        var car_name = $(this).parent().siblings().find('.title').text();
+        obj.detail_id=detail_id;
+        obj.car_name=car_name;
+        PageJump('gotoReserveDrivr', JSON.stringify(obj));
+    });
+    $('.banner-top').on('click','.zhidao-range img',function(){
+        PageJump('gotoCalculator');
+    });
+</script>
+</html>

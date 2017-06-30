@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>维修</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <script src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js"></script>
+    <script src="/web/assets/js/imageUpdate.js"></script>
+    <link rel="stylesheet" href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css" />
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+
+</head>
+<body>
+    <div class="consult">
+        <textarea name="" id="info-content" cols="30" rows="10" placeholder="只要你问，我们就一定会回答!
+请问您的车是什么年款，里程？神马问题？问题是偶发还是持续出现？最好能提供拍照。
+
+您的描述的越清楚，我们就能更快的找到并解决问题。"></textarea>
+        <div class="publish-btn clear">
+            <span class="pub-btn spec"></span>
+        </div>
+    </div>
+    <div style="margin-top: 1rem;" id='info'>
+    </div>
+
+    <div class="guwen" style="margin-top: 1.5rem;">
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script type="text/template" id="tmpl-info">
+        <div class="input-box" id='info-carid' carid="{{=it.carid}}">
+            <label>选择车款</label>
+            <span style="color: #333;">
+                {{?it.carid==0}}
+                请选择你爱车的车型
+                {{??}}
+                {{console.log(it);}}
+                {{=it.brand?it.brand:''}}
+                {{=it.model?it.model:''}}
+                {{=it.detail?it.detail:''}}
+                {{?}}
+            </span>
+            <span class="arrow"></span>
+        </div>
+        <div class="flex-box">
+            <div class="input-box box-item">
+                <label>联&nbsp;系&nbsp;人&nbsp;</label>
+                <input type="text" id="info-name"  value="{{=it.nickname?it.nickname:''}}" placeholder="请输入联系人"/>
+            </div>
+            <div class="chose-sex box-auto">
+                <input type='hidden' id="info-sex" value ="{{=it.sex}}" />
+                <label>男</label>
+                <span class="{{?it.sex=='1'}}selected{{??}}no_select{{?}}" sex='1'  style="margin-right: 1rem;"></span>
+                <label>女</label>
+                <span class="{{?it.sex=='2'}}selected{{??}}no_select{{?}}" sex='0'></span>
+            </div>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>手机号码</label>
+            <input type="text" id="info-phone" value="{{=it.mobile?it.mobile:''}}" placeholder="请输入手机号码"/>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>预约时间</label>
+            <input isdate='1' id="info-data" type='text' value='{{=it.data}}' readonly/>
+        </div>
+        <div class="btn-box">
+            <div class="btn">预约到店</div>
+        </div>
+</script>
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+$("#info").on('click','.chose-sex span',function(){//选择性别
+    $(".chose-sex span").removeClass('selected').addClass('no_select');
+    $(this).removeClass('no_select').addClass('selected');
+    $("#info-sex").val($(this).attr('sex'));
+});
+
+$("#info").on('click','#info-carid',function() {//选择车系.
+    var obj = M();
+    obj.source = 'repair';
+    PageJump('gotoMyCar',obj);
+    // body...
+})
+$("#info").on('click','.btn',function() {
+    var sub = M();
+    //var _s = 'img:'
+    sub.images = new Array();
+    $('.publish-btn .pub-img img').each(function (i) {
+        sub.images[i]=$(this).attr('src');
+        //_s +='['+i+']'+sub.images[i];
+    })
+    sub.userid = getUserid();
+    sub.contacts = $("#info-name").val();
+    sub.sex = $("#info-sex").val();
+    sub.phone = $("#info-phone").val();
+    sub.carid = $("#info-carid").attr('carid');
+    sub.addtime = StrToDate($("#info-data").val());
+    sub.advisorid = $(".guwen .info").attr('aid');
+    sub.advisorid = sub.advisorid?sub.advisorid:0;
+    sub.content = $("#info-content").val();
+    if(empty(sub.content)){
+        inputTipsText('请描述下您遇到的具体问题,越详细越好!');
+        return ;
+    }
+    if(sub.content.gblen()>=320){
+        $("#info-content").val($("#info-content").val().setgblen(320));
+    }
+    if(empty(sub.carid)){
+        inputTipsText('请选择你爱车的车型!');
+        return ;
+    }
+    if(empty(sub.contacts)){
+        inputTipsText('请填写您的姓名!');
+        return ;
+    }
+    if(empty(sub.phone)){
+        inputTipsText('请填写您的联系方式!');
+        return ;
+    }
+    if(empty(sub.sex)){
+        inputTipsText('请选择性别');
+        return ;
+    }
+    if(empty(sub.addtime)){
+        inputTipsText('请填写您的预约时间!');
+        return ;
+    }
+    if(empty(sub.advisorid)){
+        inputTipsText('没有顾问!');
+        return ;
+    }
+    //_s +=  ;
+    //$("#info-content").val('[SUB:]'+JSON.stringify(sub)+'[END]');
+    //return;
+    //console.log('JSON-Read',JSON.stringify(sub),-1);
+    //inputTipsText('接口请求中... 请稍后....提交数据[用户ID:'+sub.userid+';留言:'+sub.content+';上传图片数量:'+sub.images.length+';车型id:'+sub.carid+';联系人:'+sub.contacts+';性别:'+sub.sex+';联系:'+sub.phone+';预约时间:'+sub.addtime+';预约顾问ID:'+sub.advisorid+';] 提交接口:'+API.API_LIST.CAR_REPAIR_ORDER+';',-1);
+    jsonAjax(API.API_LIST.CAR_REPAIR_ORDER,sub,function (res) {
+        //$("#info-content").val('[SUB:]'+JSON.stringify(sub)+'[END][RES:]'+JSON.stringify(res)+'[END]');
+        if (res.status == 1) {
+            var obj = M();
+            obj = res.data;
+            PageJump('gotoKeepCarRS',obj);
+        }else{
+            inputTipsText(res.info);
+            BackKeepIndex();
+        };
+        // body...
+    })
+})
+
+var dataLoad = false , empLoad = false;
+
+
+function onStart(){
+    imageUpdate();
+    getEmployee(API.API_LIST.CAR_REPAIR_EMPLOYEE,$('.guwen'));
+    infoLoad();
+}
+
+function allLoadEnd(){
+    console.log(dataLoad,empLoad);
+    if(dataLoad&&empLoad){
+        loadEnd();
+    }
+}
+
+
+function infoLoad () {
+    var render_info = getRender('tmpl-info');
+    var info = UserInfo;
+    info.carid = I('carid',0);
+    info.detail = '';
+    var now = new Date();
+    info.data = now.getFullYear() +'-'+ (now.getMonth()<9?'0':'')+ (now.getMonth()+1) +'-'+ (now.getDate()<10?'0':'')+ now.getDate()  +' '+ (now.getHours()<10?'0':'')+now.getHours() +':'+ (now.getMinutes()<10?'0':'')+ now.getMinutes();
+    //console.log('info',info,info.carid!=0);
+    //if(info.carid!=0){
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETONECARINFO,{'userid':getUserid(),'carid':info.carid,source:1},function (res) {
+            if (res.status==1) {
+                info.carid = res.data.carid;
+                info.brand = res.data.brand;
+                info.model = res.data.model;
+                info.detail = res.data.detail;
+            }
+            $("#info").html(render_info(info));
+            $('input[isdate=1]').mobiscroll().date({
+                theme: 'android-holo-light',
+                lang: 'zh',
+                display: 'bottom',
+                mode: 'scroller',
+                min: new Date(now.getFullYear(), now.getMonth(), now.getDate(),now.getHours(),now.getMinutes()),
+                max:new Date(now.getFullYear(), now.getMonth(), now.getDate()+30),
+                /*invalid: ['w0', 'w6', '5/1', '12/24', '12/25'],*/
+                dateOrder: 'Mddyy',
+                timeWheels: 'HHii',
+                rows:3,
+            });
+            dataLoad = true;
+            allLoadEnd();
+        });
+    //}else{
+        //$("#info").html(render_info(info));
+    //}
+
+}
+
+function StrToDate (str) {
+    var d = str ;
+    d = d.replace(/-/g,'/');
+    d = new Date(d).getTime();
+    d = d.toString().substr(0,10);
+    return d;
+}
+
+$('.consult').on('propertychange input change focusout blur','#info-content',  function (e) { //输入是判断
+    var val = $(this).val();
+    if(val.gblen()>=320){
+        val = val.setgblen(320);
+        $(this).val(val);
+        inputTipsText('您输入的内容过多,请限制在160字以内!');
+    }
+});
+</script>
+</html>

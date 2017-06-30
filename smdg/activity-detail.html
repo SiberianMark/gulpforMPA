@@ -1,0 +1,551 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>活动详情</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/assets/css/smdg/details.css">
+    <link rel="stylesheet" href="/web/pub-acct/assets/css/weui.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/selectBox.css">
+</head>
+<body>
+    <div class="activity-wrap">
+    </div>
+    <a href="#top" class="top" style="bottom:10rem;"></a>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id='datalist'>
+    {{var pub_time=getLocalTime(it.data.add_time);var start_time=it.data.begin_time;var end_time=it.data.end_time;}}
+    <div class="active-detail">
+        <div class="active-sub" border="bottom">
+            <div class="active-name">{{=it.data.title}}</div>
+            <span class="platform dib">{{=it.data.unit}}</span><span class="pub-time dib">{{=pub_time}}&nbsp;发布</span>
+            <div class="active-views">{{=it.data.views}}</div>
+        </div>
+        {{?it.data.is_support==1}}
+            <div class="active-date">{{=formate(start_time)}} 至 {{=formate(end_time)}}</div>
+            <div class="active-locate" border="top">{{=it.data.address}}</div>
+            <div class="apply-fei" border="top bottom">
+                <p>
+                    {{?it.data.price>0}}
+                    ￥{{=parseFloat(it.data.price).toFixed(2)}}
+                    {{??}}
+                    免费
+                    {{?}}
+                </p>
+            </div>
+            /*<div class="apply-nums" border="top">
+                <p class="in-nums" style="display:inline-block">已有{{=it.data.signnum}}人报名</p>
+                <p class="apply-type" style="display:inline-block">
+                </p>
+            </div>*/
+            <div class="apply-list bgwh">
+                {{?it.data.signnum>0}}
+                    <div class="apply-head apply_btn" articleid="{{=it.data.article_id}}">
+                        <div class="list-nums">已有{{=it.data.signnum}}人报名</div>
+                        <div class="list-title">
+                            {{?it.data.limit>0}}
+                            (限{{=it.data.limit}}名额)
+                            {{??it.data.limit==0}}
+                            (不限名额)
+                            {{?}}
+                        </div>
+                    </div>
+                    <ul class="apply-item ovh flex">
+                        {{~it.data.sign_list:item:index}}
+                            <li class="pr tc">
+                                <img class="smUsrImg" src="{{=item.photo}}" alt="">
+                                {{?item.nickname!=null}}
+                                    <p class="usr_name single-line">{{=item.nickname}}</p>
+                                {{?}}
+                            </li>
+                        {{~}}
+                    </ul>
+                    /*<div class="apply-foot tc" border="top"><div class="more_btn apply_btn dib" articleid="{{=it.data.article_id}}">查看更多报名</div></div>*/
+                {{??}}
+                    /*<div class="apply-head bg-no noapply_link" status="{{=it.data.status}}" toURL="enrollinfo">
+                        <div class="list-title">报名</div>
+                    </div>
+                    <div class="no-apply-item" border="top">快报名参加吧</div>*/
+                    <div class="apply-head noapply_link" articleid="{{=it.data.article_id}}" status="{{=it.data.status}}" toURL="enrollinfo">
+                        <div class="list-nums">已有{{=it.data.signnum}}人报名</div>
+                        <div class="list-title">
+                            {{?it.data.limit>0}}
+                            (限{{=it.data.limit}}名额)
+                            {{??it.data.limit==0}}
+                            (不限名额)
+                            {{?}}
+                        </div>
+                    </div>
+                {{?}}
+            </div>
+        {{?}}
+    </div>
+    <div class="active-content">
+        {{var div=document.createElement('div');div.innerHTML=it.data.content;var con=div.innerText || div.textContent;}}
+							{{=con}}
+    </div>
+    {{?it.data.is_support==1}}
+
+    {{?}}
+    <div class="bgwh comment-list">
+        {{?it.data.comment_num>0}}
+            <div class="comment-head comment_btn" activity="{{=it.data.id}}">
+                <div class="list-nums">{{=it.data.comment_num}}条</div>
+                <div class="list-title">评论</div>
+            </div>
+            <ul class="comment-item">
+                {{~it.data.comment_list:list:$index}}
+                    <li class="ovh pr" border="top">
+                        <img class="smUsrImg" src="{{=list.photo}}" alt="">
+                        <div class="usr_detail">
+                            <p class="usr_name" style="height:1.5rem;">{{=list.nickname?list.nickname:''}}</p>
+                            <p class="usr_comment single-line">{{=list.contents.decodeHtml()}}</p>
+                        </div>
+                        <div class="pa comment-date">{{=list.comment_time}}</div>
+                    </li>
+                {{~}}
+            </ul>
+            {{?it.data.comment_num>=3}}
+                <div class="apply-foot tc" border="top"><div class="more_btn comment dib" activity="{{=it.data.id}}" articleid="{{=it.data.article_id}}">查看全部评论</div></div>
+            {{?}}
+        {{??}}
+            <div class="comment-head bg-no comment" activity="{{=it.data.id}}" articleid="{{=it.data.article_id}}">
+                <div class="list-title">评论</div>
+            </div>
+            <div class="no-apply-item" border="top">还没有评论</div>
+        {{?}}
+    </div>
+    <div class="page-footer  ovh bgwh">
+        <div class=" tc comment" activity="{{=it.data.id}}" articleid="{{=it.data.article_id}}">
+            <span class="img"></span>
+            <p>评论(<i class="nums">{{=it.data.comment_num}}</i>)</p>
+        </div>
+        {{?it.data.is_collections==0}}
+            <div class=" tc collect" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">收藏</i>(<i class="nums">{{=it.data.collections}}</i>)</p>
+            </div>
+        {{??}}
+            <div class=" tc collect cur" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">已收藏</i>(<i class="nums">{{=it.data.collections}}</i>)</p>
+            </div>
+        {{?}}
+        {{?it.data.is_click==0}}
+            <div class=" tc like" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">点赞</i>(<i class="nums">{{=it.data.click}}</i>)</p>
+            </div>
+        {{??}}
+            <div class=" tc like cur" artical="{{=it.data.article_id}}">
+                <span class="img"></span>
+                <p><i class="acs">已点赞</i>(<i class="nums">{{=it.data.click}}</i>)</p>
+            </div>
+        {{?}}
+        {{?it.data.is_support==1}}
+        {{?it.data.status==0}}
+            <div class="jump_btn fr">
+                活动已取消
+            </div>
+        {{??it.data.status==1}}
+            {{?it.data.is_signup==0}}
+                <div class="jump_btn fr color_yellow"  status="{{=it.data.status}}" tourl="enrollinfo" isbind="{{=it.data.is_register}}">
+                    立即报名
+                </div>
+            {{??it.data.is_signup==1}}
+                <div class="jump_btn fr enrolled">
+                    已报名
+                </div>
+            {{??it.data.is_signup==2}}
+                <div class="jump_btn fr">
+                    已取消报名
+                </div>
+            {{?}}
+        {{??it.data.status==2}}
+            {{?it.data.is_signup==0}}
+                <div class="jump_btn fr">
+                    报名结束
+                </div>
+            {{??it.data.is_signup==1}}
+                <div class="jump_btn fr enrolled">
+                    已报名
+                </div>
+            {{??it.data.is_signup==2}}
+                <div class="jump_btn fr">
+                    已取消报名
+                </div>
+            {{?}}
+        {{??it.data.status==3}}
+            <div class="jump_btn fr" status="{{=it.data.status}}" tourl="interactive">
+                活动晒图
+            </div>
+        {{?}}
+        {{??}}
+            <div class="jump_btn fr to_more" status="{{=it.data.status}}" tourl="smholiday">
+                查看更多
+            </div>
+        {{?}}
+    </div>
+    <div id="actionSheet_wrap">
+        <div id="mask" class="weui_mask_transition" style="z-index:101"></div>
+        <div id="weui_actionsheet" class="weui_actionsheet" style="height: 50rem;z-index:9998">
+            <i class="close" style="z-index:9999"></i>
+            <div class="select-box">
+                <div class="pic" border="bottom" style="width:100%;">
+                    <img style="display:none" class="product-img" src="{{=it.data.image}}">
+                    <p>￥<span>11元起</span></p>
+                    <span>选择类型</span>
+                </div>
+                <div class="detail-cons">
+                    <div class="sort" border="bottom">
+                      <div class="tit" border="top">参赛</div>
+                      <ul class="norms">
+                        <li class="" type="{{=item.type}}" desc="{{=item.description}}" id="{{=item.id}}" price="{{=item.price}}">sss</li>
+                        <li class="" type="{{=item.type}}" desc="{{=item.description}}" id="{{=item.id}}" price="{{=item.price}}">sss</li>
+                        <li class="" type="{{=item.type}}" desc="{{=item.description}}" id="{{=item.id}}" price="{{=item.price}}">sss</li>
+                      </ul>
+                        <!-- {{? it.data.fare_list}} -->
+                            <!-- {{?(it.data.fare_list.match).length>0}} -->
+                                <!-- {{~it.data.fare_list.match:item:index}} -->
+                                <!-- {{~}} -->
+                            <!-- {{?}} -->
+                            <div class="tit" border="top">观众</div>
+                            <!-- {{?(it.data.fare_list.match).length>0}} -->
+                            <ul class="norms">
+                                <!-- {{~it.data.fare_list.see:item:index}} -->
+                                <li class="" type="{{=item.type}}" desc="{{=item.description}}" id="{{=item.id}}" price="{{=item.price}}">ddd</li>
+                                <!-- {{~}} -->
+                            </ul>
+                            <!-- {{?}} -->
+                        <!-- {{?}} -->
+                    </div>
+                    <div class="buy-num" border="bottom"> 购买数量 <div class="item-amount "> <a href="#" class="minus">-</a> <input type="text" placeholder="1" class="text-amount"> <a href="#" class="plus">+</a> </div> </div>
+                </div>
+                <div class="box-foot">
+                    <div class="button send-btn" price="" typeid="" type="">下一步</div>
+                </div>
+            </div>
+            <div class="choose-specification">
+                <div class="choose-img"></div>
+                <div class="specification-tip">请选择规格</div>
+            </div>
+        </div>
+    </div>
+</script>
+<script>
+    var ac_id=I('activity_id','19');
+    var sm_type=I('type');
+    var share=I('share');
+    // var is_bind=0;
+    var dataTml=getRender('datalist');
+    var userid=getUserid();
+    var a_id=null;
+    function onStart(){
+        window.onscroll = function () {
+            var top = document.documentElement.scrollTop || document.body.scrollTop;
+            if(top>1000){
+                $("a[href='#top']").show();
+            }else {
+                $("a[href='#top']").hide();
+            }
+        }
+        // if(share){
+            if(is_weixn(true)&&share_ornot==0){
+                $('.activity-wrap').css("margin-bottom","9.2rem");
+                downloadApp('body','float');
+            }
+        // }
+        getData();
+    }
+    function formate(str){
+        var d=new Date(str.replace(/-/g,'/'));
+        var month=d.getMonth()+1;
+        var date=d.getDate();
+        var hour=d.getHours();
+        var minute=d.getMinutes();
+        month=month>9?month:'0'+month;
+        date=date>9?date:'0'+date;
+        hour=hour>9?hour:'0'+hour;
+        minute=minute>9?minute:'0'+minute;
+        return month+'-'+date+' '+hour+':'+minute;
+    }
+    function getLocalTime(str) {
+        var d=new Date(str.replace(/-/g,'/'));
+        var year=d.getFullYear();
+        var month=d.getMonth()+1;
+        var date=d.getDate();
+        var hour=d.getHours();
+        var minute=d.getMinutes();
+        var second=d.getSeconds();
+        month=month>9?month:'0'+month;
+        date=date>9?date:'0'+date;
+        return month+"月"+date+"日";
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_HOME_HOLIDAYDETAIL, {id:ac_id,userid:userid}, function (data) {
+            if(data.status==1){
+                console.log(data);
+                $(".activity-wrap").html(dataTml(data));
+                if(data.data.signnum<=0){
+                    if(data.data.status>2){
+                        $('.apply-head').addClass('apply_link');
+                    }
+                }
+                if(data.data.is_support==1){
+                    TitleReSet("活动详情");
+                }else{
+                    TitleReSet("资讯详情");
+                }
+                WxShare.title=data.data.share_title;
+                WxShare.imgUrl=data.data.share_pic;
+                WxShare.link=data.data.share_link;
+                WxShare.desc=data.data.share_content;
+                loadWxObject(true); //获取微信分享对象
+                // WxShare(obj);	//微信分享
+                loadEnd();
+            }else {
+                console.log(data.info);
+            }
+        });
+    }
+    $(".activity-wrap").delegate('.collect','click',function(){
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                var artical_id=$this.attr('artical');
+                $this.toggleClass('cur');
+                if($this.hasClass('cur')){
+                    collect(artical_id,1,'');
+                    $this.find('i.acs').text('已收藏');
+                    $this.find('i.nums').text(parseInt($this.find('i.nums').text())+1);
+                }else {
+                    collect(artical_id,1,'cancel');
+                    $this.find('i.acs').text('收藏');
+                    $this.find('i.nums').text(parseInt($this.find('i.nums').text())-1);
+                }
+            }
+        });
+    });
+    $(".activity-wrap").delegate('.like','click',function(){
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                var artical_id=$this.attr('artical');
+                $this.toggleClass('cur');
+                if($this.hasClass('cur')){
+                    zan(artical_id,1,'');
+                    $this.find('i.acs').text('已点赞');
+                    $this.find('i.nums').text(parseInt($this.find('i.nums').text())+1);
+                }else {
+                    zan(artical_id,1,'cancel');
+                    $this.find('i.acs').text('点赞');
+                    $this.find('i.nums').text(parseInt($this.find('i.nums').text())-1);
+                }
+            }
+        });
+    });
+    //评论
+    $(".activity-wrap").delegate('.comment','click',function(){
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                var activity_id=$this.attr('activity');
+                var article_id=$this.attr('articleid');
+                var obj = new Object();
+                obj.id=activity_id;
+                // obj.artivity_id=ac_id;
+                obj.article_id=article_id;
+                obj.type=0;
+                Interface('gotoCommenLists',JSON.stringify(obj));
+            }
+        });
+    });
+
+    // 点赞
+    function zan(artical_id,type,action){
+        jsonAjax(API.API_LIST.GOLD_HOME_DOLIKEARTICAL, {id:artical_id,userid:userid,type:type,action:action}, function (data) {
+            if(data.status==1){
+                inputTipsText(data.info);
+                loadEnd();
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    // 收藏
+    function collect(artical_id,type,action){
+        jsonAjax(API.API_LIST.GOLD_HOME_DOCOLLECTARTICAL, {id:artical_id,userid:userid,type:type,action:action}, function (data) {
+            if(data.status==1){
+                inputTipsText(data.info);
+                loadEnd();
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    // $('.activity-wrap').delegate('.noapply_link','click',function(){
+    //     if($(this).attr('tourl')=='undefined' ||$(this).attr('tourl')==''){
+    //         return false;
+    //     }
+    //     var url=$(this).attr('tourl');
+    //     var status=$(this).attr('status');
+    //     var obj = new Object();
+    //     obj.id=ac_id;
+    //     if(status!=3){
+    //         if(isLogin()){
+    //             Interface('gotoEnrollinfo',JSON.stringify(obj));
+    //         }
+    //     }else {
+    //         inputTipsText('活动报名已结束!');
+    //     }
+    // })
+    //更多报名
+    $(".activity-wrap").delegate('.apply_btn','click',function(){
+        var at_id=$(this).attr('articleid');
+        var obj = new Object();
+        obj.activity_id=ac_id;
+        obj.article_id=at_id;
+        Interface('gotoEnrolLists',JSON.stringify(obj));
+    });
+    //已报名查看凭证
+    $(".activity-wrap").delegate('.enrolled','click',function(){
+        isLogin(function(ret){
+            if(ret){
+                var obj = new Object();
+                obj.id=ac_id;
+                obj.from_page='smholiday';
+                obj.isshare=1;
+                Interface('gotoVoucher',obj);
+            }
+        });
+    });
+    //更多评论
+    $(".activity-wrap").delegate('.comment_btn','click',function(){
+        isLogin(function(ret){
+            if(ret){
+                var activity_id=$(this).attr('activity');
+                var obj = new Object();
+                obj.id=activity_id;
+                obj.type=0;
+                Interface('gotoCommenLists',JSON.stringify(obj));
+            }
+        });
+    });
+    //查看更多
+    $(".activity-wrap").delegate('.to_more','click',function(){
+        Interface('gotoSMholiday','');
+    });
+    $(".activity-wrap").delegate('.jump_btn','click',function(){
+        if($(this).attr('tourl')=='undefined' ||$(this).attr('tourl')==''){
+            return false;
+        }
+        var url=$(this).attr('tourl');
+        var obj = new Object();
+        obj.id=ac_id;
+        obj.source='holiday';
+        obj.redirect='holiday';
+        obj.title=$(this).text();
+        if(url=='interactive'){
+            Interface('gotoLiveInteractive',JSON.stringify(obj));
+        }else if(url=='enrollinfo') {
+            if(is_weixn(true)){
+                if($(this).attr('isbind')==1){
+                    Interface('gotoEnrollinfo',JSON.stringify(obj));
+                }else {
+                    Interface('gotoBindMobile',JSON.stringify(obj));
+                    // bind-phone
+                }
+            }else {
+                isLogin(function(ret){
+                    if(ret){
+                        Interface('gotoEnrollinfo',JSON.stringify(obj));
+                    }
+                });
+            }
+        }
+    });
+    $(document).on('click','.app-download .close',function(){
+        $('.activity-wrap').css("margin-bottom","4.8rem");
+    });
+    function specificationTip() {
+        $(".choose-specification").show();
+        setTimeout(function(){
+            $(".choose-specification").hide();
+        },2000);
+    }
+    $('.activity-wrap').on('click','.norms li',function(e){
+        $(this).parents('.sort').find('.norms li').removeClass('cur');
+        $(this).addClass('cur');
+        // $('.select-box .send-btn').attr('price',$(this).attr('price'));
+        // $('.select-box .send-btn').attr('type',$(this).attr('type'));
+        // $('.select-box .send-btn').attr('typeid',$(this).attr('id'));
+        // $('.select-box .pic p span').text($(this).attr('price'));
+        // $('.select-box .pic>span').text($(this).attr('desc'));
+        // $('.send-btn').text('选好了');
+    });
+    //减
+    $(document).on('tap','.minus',function(){
+        if(a_id == null){
+//            inputTipsText('请选择商品规格');
+            specificationTip();
+        }else {
+            var num = parseInt($('.text-amount').val()==''?num_step:$('.text-amount').val());
+            num-=num_step;
+            if(num < num_step){
+                $('.text-amount').val(num_step);
+                return;
+            }else{
+                $('.text-amount').val(num);
+            }
+            applyCount =  num;
+        }
+    });
+    //加
+    $(document).on('tap','.plus',function(){
+        if(a_id == null){
+//            inputTipsText('请选择商品规格');
+            specificationTip();
+        }else {
+            var num = parseInt($('.text-amount').val() == '' ? num_step : $('.text-amount').val());
+            num += num_step;
+            if(num > MAX_COUNT){
+                return;
+            }else{
+                if(num%num_step != 0){
+                    num = Math.floor(num/num_step)*num_step;
+                }
+                $('.text-amount').val(num);
+            }
+            applyCount = num;
+        }
+    });
+    //输入购买数量
+    $(document).on('keyup','.text-amount',function(){
+        if(a_id == null){
+//            inputTipsText('请选择商品规格');
+            specificationTip();
+            $('.text-amount').val(num_step);
+        }else {
+            $(this).val($(this).val().replace(/\D/g,''));
+            //$(this).val(($(this).val()==0)?1:$(this).val());
+            var num = parseInt($('.text-amount').val());
+            applyCount = num;
+            if(num >= MAX_COUNT){
+                $('.text-amount').val(MAX_COUNT);
+                applyCount = MAX_COUNT;
+            }
+        }
+    });
+    // 关闭弹窗
+    $('.activity-wrap').on('click','#weui_actionsheet i',function () {
+        $('#mask').removeClass('weui_fade_toggle').hide();
+        $('#weui_actionsheet').removeClass('weui_actionsheet_toggle');
+        $('.select-box .pic img').hide();
+        $('body').css("overflow-y","scroll");
+    });
+</script>
+</html>

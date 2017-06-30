@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>领取优惠券</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/coupon.css"/>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+</head>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll">
+        <div class="dm-list-box"></div>
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="tmpl-data-list">
+    {{~it.data:item:index}}
+    <div class="dm-list {{=item.status==0?'':'lose'}}">
+        {{?item.status!=0}}
+            <em class="lq"></em>
+        {{?}}
+        <span>{{?item.click_status==0}}￥{{?}}<i>{{=item.ticket_much}}</i>{{?item.click_status==2}}折{{?}}</span>
+        <div class="tit">{{=item.activity_name}}</div>
+        <div class="time">有效期至{{=item.maxtime.split(' ')[0]}}</div>
+        <div class="handle flex-y">
+            <div class="name flex-c">{{=item.name}}</div>
+            <div class="bot {{=item.status==0?'':'close'}}" id="{{=item.id}}">立即领取</div>
+        </div>
+    </div>
+    {{~}}
+</script>
+<script>
+    var render_list = getRender('tmpl-data-list');
+    var page = 1;
+    var oClick = true;
+    var hasMobile = 0;
+
+    function onStart(){
+        _initMui();
+        getData();
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_PRIVILEGE_USERPRIVILEGELIST,{'goodsid':I('goodsid',''),'is_goods':I('is_goods',''),'userid':getUserid(),'page':page},function(data){
+            if (data.status == 1) {
+                hasMobile = data.data[0].is_bind;
+                if (data.data.length <= 0) {
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return false;
+                }
+                if (page == 1) {
+                    $('.dm-list-box').html(render_list(data));
+
+                }else {
+                    $('.dm-list-box').append(render_list(data));
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+
+            }else{
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(page==1){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+            }
+            loadEnd();
+        })
+    }
+
+    $('.dm-list-box').on('tap','.bot',function(){
+        console.log(hasMobile);
+        if(hasMobile==1){
+            console.log(222);
+            if(!$(this).hasClass('close')){
+                if(oClick){
+                    oClick = false;
+                    var pid = $(this).attr('id');
+                    jsonAjax(API.API_LIST.GOLD_PRIVILEGE_GETPRIVILEGE,{'pid':pid,'userid':getUserid(),'code':I('code',''),'giveperson':I('giveperson','')},function(data){
+                        oClick = true;
+                        if(data.status==1){
+                            inputTipsText(data.data);
+                            page = 1;
+                            getData();
+                        }else {
+                            inputTipsText(data.info);
+                        }
+                    })
+                }
+            }else {
+                inputTipsText('你已经领过了哦~');
+            }
+        }else {
+            var obj = M();
+            obj.redirect = 'pubBidPhone';
+            PageJumpTap('gotoBindMobile',obj);
+        }
+
+    });
+
+    function JumpAfterSharing(){
+        jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,{'rid':I('pid',''),'source':3,'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+            }
+        })
+    }
+
+</script>
+</html>

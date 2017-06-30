@@ -1,0 +1,604 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+  <title>人气选手排行榜</title>
+  <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+  <!-- ↑ 顶部共用 ↑ -->
+  <!-- <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css"> -->
+  <link rel="stylesheet" href="/web/pub-acct/assets/css/weui.css">
+  <link rel="stylesheet" href="/web/assets/css/smdg/weui-refresh.css">
+  <link rel="stylesheet" href="/web/assets/css/smdg/carnival-vote.css">
+  <!-- <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script> -->
+  <script src="/web/assets/js/smdg/uploadsth.js"></script>
+  <style media="screen">
+    /*html,body{height: 100%;}*/
+
+    .weui-pull-to-refresh__layer {
+      height: auto;
+      color: #fff;
+    }
+
+    .pop-cover {
+      width: 25.3rem;
+      background-color: #fff;
+      transform: translate(-50%, -50%);
+      top: 48%;
+      left: 50%;
+      position: absolute;
+      border-radius: 10px;
+      /* line-height: 8rem; */
+      font-size: 1.4rem;
+      text-align: center;
+    }
+
+    .pop-close {
+      background: url(/web/assets/image/c-btn-td.png) no-repeat center;
+      background-size: cover;
+      width: 3rem;
+      height: 3rem;
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    .pop-header {
+      height: 7rem;
+      text-align: center;
+      padding: 1rem 0 0;
+    }
+
+    .car-img {
+      width: 24rem;
+      margin: 1rem auto;
+      margin-bottom: 0;
+    }
+
+    .pop-header img {
+      width: 3.2rem;
+      height: 3.2rem;
+    }
+
+    .pop-header p {
+      /*color: #f55;*/
+      font-size: 1.4rem;
+      margin-top: 0.5rem;
+    }
+
+    .code-img {
+      width: 16rem;
+      height: 16rem;
+      margin: 0 auto;
+    }
+
+    .car-tel {
+      color: #6a7fa6;
+      font-size: 1rem;
+      height: 3.6rem;
+      line-height: 3.6rem;
+    }
+
+    .code-img img {
+      width: 16rem;
+      height: 16rem;
+    }
+
+    .car-tel a {
+      color: #999;
+      font-size: 1.1rem;
+    }
+
+    .sharepic-right>img {
+      width: 74%;
+      height: auto;
+      margin-right: 8%;
+      position: absolute;
+      right: 0;
+    }
+
+    .pub-btn {
+      display: block;
+      height: 100%;
+    }
+
+    #cameraInput {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      -moz-opacity: 0;
+      filter: alpha(opacity=0);
+    }
+
+    .pub-img {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="fresh-body">
+  <div class="vote-wrap">
+    <div class="weui-pull-to-refresh__layer">
+      <div class='weui-pull-to-refresh__arrow'></div>
+      <div class='weui-pull-to-refresh__preloader'></div>
+      <div class="down">下拉刷新</div>
+      <div class="up">释放刷新</div>
+      <div class="refresh">正在刷新</div>
+    </div>
+    <div id="vote-info">
+
+    </div>
+    <div id="voteList">
+      <ul class="vote-list voting-list"></ul>
+    </div>
+    <div class="weui-loadmore">
+      <i class="weui-loading"></i>
+      <span class="weui-loadmore__tips">正在加载</span>
+    </div>
+  </div>
+  <div class="selected-vote flex-y" style="display:none;height:6.4rem;">
+    <div class="select-list">
+
+    </div>
+    <div class="select-tips">最多还能投 3 张票</div>
+    <div class="item-btn">确认投票</div>
+  </div>
+  <div class="modal" id="showSharePic">
+    <div class="sharepic-right">
+      <img src="/web/assets/image/smdg/share-icon.png">
+    </div>
+  </div>
+  <div class="modal" id="modal-Pop">
+    <div class="pop-cover modal-content">
+      <div class="pop-close"></div>
+      <div class="pop-header">
+        <img src="/web/assets/image/smdd_ico.png" alt="">
+        <p>人气选手投票</p>
+      </div>
+      <div class="car-img">
+        <div class="code-img"><img src="" alt=""></div>
+        <div class="car-tel"><a>长按保存二维码发送给微信好友</a></div>
+      </div>
+    </div>
+  </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script src="/web/assets/js/smdg/fresh-infinite.js"></script>
+<script type="text/template" id='datainfo'>
+  <div class="ac-avatar">
+    <img src="{{=it.data.vote_img?it.data.vote_img:'/web/assets/image/smdg/bg_activity_750.png'}}" alt=""> {{?it.data.is_me=='1'}}
+    <div class="publish-btn clear">
+      <span class="pub-btn spec"></span>
+    </div>
+    {{?}}
+    <div class="rule-icon"></div>
+  </div>
+  <div class="search-con flex-y">
+    <div class="ui-input">
+      <span class="input-icon"></span>
+      <input type="search" class="search-input" autofocus="autofocus" placeholder="搜索用户昵称/编号">
+      <span class="close-icon"></span>
+    </div>
+    <div class="search-tips flex-c">
+      {{?it.data.is_vote=='1'}}
+      <p>每天只能投一次</p>
+      <p>请明天再来</p>
+      {{??}}
+      <span class="sort a ">按票数排序</span> {{?}}
+    </div>
+  </div>
+  {{?it.data.is_vote!='1'}} {{?}}
+</script>
+<script type="text/template" id='datalist'>
+  {{?it.data.is_vote=='1' || it.data.is_stop=='1'}} {{?it.data.list.length>=1}} {{~it.data.list:lists:listItem}}
+  <li class="flex" uid="{{=lists.userid}}">
+    {{?listItem==0}}
+    <div class="ranks one"></div>
+    {{??listItem==1}}
+    <div class="ranks two"></div>
+    {{??listItem==2}}
+    <div class="ranks three"></div>
+    {{??}}
+    <div class="ranks">{{=listItem+1}}</div>
+    {{?}}
+
+    <div class="usr-avatar">
+      <img src="{{=lists.photo}}" alt=""> {{?lists.is_check=='1'}}
+      <span class="cetify"></span> {{?}}
+    </div>
+    <div class="usr-con flex-c">
+      <div class="usr-info">
+        <div class="usr-title">
+          <p>{{=lists.name}}<span class="female {{=(lists.sex=='1')?'male':''}}"></span></p>
+          <div class="car-info"><img class="car-sign" src="{{=(lists.logo!=null)?lists.logo:'/web/assets/image/smdg/che_icon.png'}}" alt="">{{=(lists.model!=null)?lists.model:''}}
+            <span class="car-desc">
+                {{=(lists.signature).length>6?(lists.signature).substring(0,6)+'...':lists.signature}}
+              </span></div>
+        </div>
+        <div class="vote-num">
+          <p>NO.{{=lists.code}}</p>
+          <p>{{=lists.vote_num}} 票</p>
+        </div>
+      </div>
+      <div class="usr-vote flex-y">
+        <div class="percent-linebg">
+          <span class="percent-line" style="width: {{=lists.ratio}}%;" data-percent="{{=lists.ratio}}%"></span>
+        </div>
+        <div class="vote-percent">{{=lists.ratio}}%</div>
+        {{?it.data.is_stop!='1'}}
+        <div class="vote-btn voting-btn" uid="{{=lists.userid}}">为TA拉票</div>
+        {{?}}
+      </div>
+    </div>
+  </li>
+  {{~}} {{??it.data.list.length==0 && page==1}}
+  <p class="no-res">没有相关信息!</p>
+  {{?}} {{??}} {{?it.data.list.length>=1}} {{~it.data.list:item:index}}
+  <li class="flex" uid="{{=item.userid}}">
+    <div class="usr-avatar">
+      <img src="{{=item.photo}}" alt=""> {{?item.is_check=='1'}}
+      <span class="cetify"></span> {{?}}
+    </div>
+    <div class="usr-con flex-c">
+      <div class="usr-info">
+        <div class="usr-title">
+          <p>{{=item.name}}<span class="female {{=(item.sex=='1')?'male':''}}"></span></p>
+          <div class="car-info"><img class="car-sign" src="{{=(item.logo!=null)?item.logo:'/web/assets/image/smdg/che_icon.png'}}" alt="">{{=(item.model!=null)?item.model:''}} <span class="car-desc">{{=item.signature}}</span></div>
+        </div>
+        <div class="vote-num">
+          <p>NO.{{=item.code}}</p>
+          <p>{{=item.vote_num}} 票</p>
+        </div>
+      </div>
+      <div class="usr-vote flex-y">
+        {{?item.is_vote=='0'}}
+        <div class="select-btn a" uid="{{=item.userid}}" usrname="{{=item.name}}" usrimg="{{=item.photo}}">投TA一票</div>
+        {{??}}
+        <div class="select-btn selected-btn" uid="{{=item.userid}}">已选择</div>
+        {{?}}
+        <div class="vote-btn" uid="{{=item.userid}}">为TA拉票</div>
+      </div>
+    </div>
+  </li>
+  {{~}} {{??it.data.list.length==0 && page==1}}
+  <p class="no-res">没有相关信息!</p>
+  {{?}} {{?}}
+</script>
+
+<script>
+  var aid = I('aid', '609'),
+    name, type = 1,
+    page = 1,
+    member_infos = [],
+    member_ids = [];
+  var tml_list = getRender('datalist');
+  var tml_info = getRender('datainfo');
+
+  function onStart() {
+    isLogin(function(ret) {
+      if (ret) {
+        // _initMui();
+        initData();
+        getData();
+      }
+    });
+  }
+
+  var pull_action = '';
+  var loading = false;
+  $('.fresh-body').infinite().on("infinite", function() {
+    pull_action = 'down';
+    console.log(pull_action);
+    if (loading) return;
+    loading = true;
+    setTimeout(function() {
+      getData();
+    }, 2000);
+  });
+  $('.vote-wrap').pullToRefresh(true).on("pull-to-refresh", function() {
+    pull_action = 'up';
+    console.log(pull_action);
+    page = 1;
+    //刷新清除底部选择的选手
+    member_infos = [],
+      member_ids = [];
+    $('.select-list').html('');
+    setTimeout(function() {
+      getData();
+      // $('.load-wrap').pullToRefreshDone();
+      $('.fresh-body').infinite();
+      $('.weui-loadmore').show();
+    }, 2000);
+  });
+
+  function initData() {
+    jsonAjax(API.API_LIST.GOLD_VOTE_LIST, {
+      aid: aid,
+      userid: getUserid()
+    }, function(data) {
+      if (data.status == 1) {
+        $('#vote-info').html(tml_info(data));
+        $('#voteList .vote-list').html(tml_list(data));
+        if (data.data.is_me == '1') {
+          imageUpdate(1, 'click', 'selfs');
+        }
+        if (data.data.is_vote != '1') {
+          $('.selected-vote').show();
+        } else {
+          $('#voteList .vote-list').css("padding-bottom", "0");
+        }
+        if (data.data.is_vote == '1' || data.data.is_stop == '1') {
+          $('#voteList .vote-list').css("padding-bottom", "0");
+          $('.selected-vote').hide();
+          TitleReSet('人气选手排行榜');
+        } else {
+          TitleReSet('人气选手投票');
+        }
+        WxShare.title = data.data.share.title;
+        WxShare.imgUrl = data.data.share.image;
+        WxShare.desc = data.data.share.content;
+        WxShare.link = data.data.share.link;
+        loadWxObject(true);
+      }
+      loadEnd();
+    });
+  }
+  //搜索 or 排序结果
+  function getData(action) {
+    var option = {
+      aid: aid,
+      userid: getUserid(),
+      name: '',
+      type: '1',
+      page: page
+    };
+    if (action == 'search') {
+      option.page = 1;
+      page = 1;
+      option.name = arguments[1] ? arguments[1] : '';
+    } else if (action == 'sort') {
+      option.page = 1;
+      page = 1;
+      option.type = 2;
+      $('#voteList .vote-list').html();
+    }
+    console.log(option, 111);
+    jsonAjax(API.API_LIST.GOLD_VOTE_LIST, option, function(data) {
+      if (data.status == 1) {
+        if(data.data.is_vote=='1' || data.data.is_stop=='1'){
+          $('.vote-wrap').css({
+            'margin-bottom':'0'
+          });
+        }
+        if (data.data.list.length <= 0) {
+          if (page == 1) {
+            $('#voteList .vote-list').html('<p class="no-res">没有相关信息!</p>');
+          }
+          $('.weui-loadmore').hide();
+          if (pull_action == 'up') {
+            $('.vote-wrap').pullToRefreshDone();
+          } else if (pull_action == 'down') {
+            $('.weui-loadmore').hide();
+            $('.fresh-body').destroyInfinite(); //加载结束后必须再次初始化插件
+          }
+          loadEnd();
+          return;
+        }
+        if (page == 1) {
+          if (data.data.list.length <= 0) {
+            $('#voteList .vote-list').html('<p class="no-res">没有相关信息!</p>');
+          } else {
+            $('#voteList .vote-list').html(tml_list(data));
+          }
+        } else {
+          $('#voteList .vote-list').append(tml_list(data));
+        }
+        // $('.mui-pull-caption').show();
+        if (data.data.list.length < 10) {
+          $('.weui-loadmore').hide();
+          $('.weui-nomore').show();
+          setTimeout(function() {
+            $('.weui-nomore').hide();
+          }, 1500);
+          // $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+        }
+        page++;
+        if (pull_action == 'up') {
+          $('.vote-wrap').pullToRefreshDone();
+        } else if (pull_action == 'down') {
+          $('.fresh-body').destroyInfinite();
+          loading = false;
+        }
+      } else {
+        if (pull_action == 'up') {
+          $('.vote-wrap').pullToRefreshDone();
+        } else if (pull_action == 'down') {
+          $('.fresh-body').destroyInfinite();
+          loading = false;
+        }
+      }
+    });
+  }
+  //搜索
+  $('.vote-wrap').on('click', '.input-icon', function() {
+    if ($(this).next('.search-input').val() == '') {
+      inputTipsText(' 请输入搜索条件!');
+      return;
+    }
+    $('#voteList .vote-list').html('');
+    $('.select-list').html('');
+    member_ids.length = 0;
+    member_infos.length = 0;
+    getData('search', $(this).next('.search-input').val());
+  });
+  $('.vote-wrap').on('keypress', '.search-input', function() { //绑定键盘去搜索
+    if (event.keyCode == 13) {
+      if ($(this).val() == '') {
+        inputTipsText(' 请输入搜索条件!');
+        return;
+      }
+      $('#voteList .vote-list').html('');
+      $('.select-list').html('');
+      member_ids.length = 0;
+      member_infos.length = 0;
+      getData('search', $(this).val());
+      console.log($(this).val());
+
+    }
+  });
+  (function(){
+    $('.vote-wrap').on('propertychange input change', '.search-input', function() { //绑定键盘去搜索
+      if($(this).val()==''){
+        $('#voteList .vote-list').html('');
+        $('.select-list').html('');
+        member_ids.length = 0;
+        member_infos.length = 0;
+        getData('search', $(this).val());
+        console.log($(this).val());
+      }
+      if($(this).val().length==0){
+        $(this).next('.close-icon').hide();
+      }else {
+        $(this).next('.close-icon').show();
+      }
+    });
+    $('.vote-wrap').on('click', '.close-icon', function() {
+      $('.search-input').val('');
+      $('#voteList .vote-list').html('');
+      getData('search', $(this).val());
+      $(this).hide();
+      $('.select-list').html('');
+      member_ids.length = 0;
+      member_infos.length = 0;
+    });
+  })();
+
+  function addtml(arrs) {
+    var tmls = '';
+    for (var i = 0; i < arrs.length; i++) {
+      tmls += '<div class="select-item" uid="' + arrs[i].userid + '">' +
+        '<img class="usrAvatar" src="' + arrs[i].usrimg + '" alt="">' +
+        '<p class="usr-name">' + arrs[i].usrname + '</p>' +
+        '</div>';
+    }
+    return tmls;
+  }
+  $('.select-list').on('click', '.select-item', function() {
+    var $that = $(this),
+      num = member_ids.indexOf($that.attr('uid'));
+    $that.remove();
+    member_ids.splice(num, 1);
+    member_infos.splice(num, 1);
+    $('.vote-list>li').each(function() {
+      if ($(this).attr('uid') == $that.attr('uid')) {
+        $(this).find('.usr-vote>.a').removeClass('selected-btn').addClass('select-btn').text('投TA一票');
+      }
+    });
+    $('.select-tips').text('最多还能投 ' + (3 - member_ids.length) + ' 张票');
+  });
+  //排序
+  $('.vote-wrap').on('click', '.sort', function() {
+    $('#voteList .vote-list').html('');
+    page = 1;
+    $('.select-list').html('');
+    member_ids.length = 0;
+    member_infos.length = 0;
+    if ($(this).hasClass('sort-default')) {
+      onStart();
+    } else {
+      $(this).addClass('sort-default').text('按编号排序');
+      getData('sort');
+    }
+  });
+  $('.vote-wrap').on('click', '.select-btn', function() { //add
+    if (member_ids.indexOf($(this).attr('uid')) >= 0) {
+      return;
+    }
+    if (member_ids.length >= 3) {
+      inputTipsText('一次只能为3人投票!');
+      return;
+    }
+    // var arrs={usrname:$(this).attr('usrname'),usrimg:$(this).attr('usrimg')};
+    member_ids.push($(this).attr('uid'));
+    member_infos.push({
+      userid: $(this).attr('uid'),
+      usrname: $(this).attr('usrname'),
+      usrimg: $(this).attr('usrimg')
+    });
+    $('.select-list').html(addtml(member_infos));
+    $('.select-tips').text('最多还能投 ' + (3 - member_ids.length) + ' 张票');
+    $(this).removeClass('select-btn').addClass('selected-btn').text('已选择');
+  });
+  $('.selected-vote').on('click', '.item-btn', function() {
+    if (member_ids.length <= 0) {
+      inputTipsText('最多还能投3张票哦');
+      one_click = true;
+      return;
+    }
+    jsonAjax(API.API_LIST.GOLD_VOTE_PUTVOTE, {
+      aid: aid,
+      userid: getUserid(),
+      member_ids: member_ids.join(',')
+    }, function(data) {
+      if (data.status == 1) {
+        inputTipsText(data.info);
+        window.location.reload();
+      }
+    });
+  });
+  //为TA拉票
+  $('.vote-wrap').on('click', '.vote-btn', function() {
+    if ($('#showSharePic').hasClass('fade')) {
+      return;
+    }
+    var $this = $(this);
+    $(this).toggleClass('highlight-color');
+    var member_id = $(this).attr('uid');
+    jsonAjax(API.API_LIST.GOLD_VOTE_VOTESHARE, {
+      aid: aid,
+      userid: getUserid(),
+      member_id: member_id
+    }, function(data) {
+      console.log(3);
+      if (data.status == 1) {
+        WxShare.title = data.data.title;
+        WxShare.imgUrl = data.data.image;
+        WxShare.desc = data.data.content;
+        WxShare.link = data.data.link;
+        $('.code-img img').attr('src', data.data.share_img);
+        if (is_weixn(true)) {
+          $('#showSharePic').addClass('fade');
+          $this.addClass('highlights');
+        } else {
+          $('#modal-Pop').addClass('fade');
+        }
+        loadWxObject(true);
+      }
+    });
+  });
+  $('#vote-info').on('click', '.rule-icon', function(e) {
+    e.stopPropagation();
+    var obj = {
+      code: 'VOTE_DOC'
+    };
+    Interface('gotoCarnivalRules', obj);
+  });
+  $('#voteList').on('click', '.usr-avatar', function() {
+    var obj = {
+      uid: $(this).parents('li').attr('uid')
+    };
+    Interface('gotoPersonInfo', obj);
+  });
+  // })();
+  $('#showSharePic').on('click', function() {
+    $("#showSharePic").removeClass("fade");
+    $('.vote-btn').removeClass('highlights');
+  });
+  $('#modal-Pop').on('click', function() {
+    $("#modal-Pop").removeClass("fade");
+  });
+</script>
+
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="/web/car-service/assets/css/get-packagecard.css">
+	 <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+	<title>领取套餐卡</title>
+	<script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+</head>
+<body>
+<div id="content"></div>
+<script type="text/template" id="getcardinfo">
+	<div class="card-head">
+		
+			<div class="use-rule"><p><span class="icon"></span>使用规则</p></div>
+			<div class="card-info">		
+					<div class="card-info-left" id="{{=it.data.id}}" fetchdate="{{=it.data.fetch_expiry_date}}" receive_status="{{=it.data.receive_status}}">
+							<b>{{=it.data.title}}</b>
+							<ul>
+							{{~it.data.item:item:index}}
+								{{?index<=1}}
+									<li><p>{{=item.name}}：<span>{{=item.quantity}}</span>次</p></li>
+								{{?}}
+							{{~}}
+							</ul>
+					</div>
+					{{?it.data.status==0}}
+					 	<img class="hasfetch" src="/web/car-service/assets/image/mall/yishixiao@2x_14.png" />
+					{{??it.data.receive_status==1}}
+						<img class="hasfetch" src="/web/car-service/assets/image/mall/yilingqu@2x_24.png" />
+					{{?}}
+					<div class="card-info-right">￥<span>{{=it.data.price}}</span></div>					
+			</div>
+
+	</div>
+	<div class="btn">
+		<div class="btn-get">立即领取</div>
+		<div class="btn-share">分享给小伙伴</div>
+	</div>
+	<div class="qrcode">
+		<div class="qrcode-head">使用条件：搜索关注"{{=it.data.notes}}"或者扫描下方二维码关注公众号即可使用</div>
+		<img src="{{=it.data.code}}" alt="">
+	</div>
+
+</script>
+	<div class="wutaocanka">
+		<img src="/web/car-service/assets/image/mall/ico_wutaocangka@2x.png" alt="">
+		<p>暂无套餐卡~</p>
+	</div>
+	<div class="mask-level">
+        	<img src="/web/assets/image/smdg/share-icon.png">
+    </div>	
+</body>
+<script>
+	var card_id=I('card_id');
+	var type=2;//套餐卡ID类型 1用户使用 2商家表示商家分享，用于区别是否为商家分享
+	var cardStatus=1;//套餐卡状态，0为已失效，1为未失效
+	var hasReceive=0;//是否已领取
+	var DOT_CODE='';//使用规则code
+	var cardDetailRender=getRender('getcardinfo');
+	function onStart(){
+		getCardDtail();
+		loadEnd();
+		$('#content').on('click','.btn-get',function(){
+			if(cardStatus==1 && hasReceive==0){
+				jsonAjax(API.API_LIST.CAR_CARD_ISBINDPHONE,{userid:getUserid()},function(data){
+					if(data.status==0){	
+						var obj = M();				
+						obj.card_id=card_id;	 
+				        obj.redirect = 'pubBidPhone';
+				        PageJumpTap('gotoBindMobile',obj);
+					}else{
+						getcard();
+					}
+				});
+				
+			}
+		});
+		$('#content').on('click','.btn-share',function(){
+			if(cardStatus==1){
+				$('.mask-level').show();
+			}
+		});
+		$('.mask-level').on('click',function(){
+			$(this).hide();
+		});
+		$('#content').on('click','.use-rule',function(){
+			PageJump("gotoPreview", {code: DOT_CODE});
+		});
+	}
+	function getShare(){
+		var obj=M();
+		obj.userid=getUserid();
+		obj.package_card_id=card_id;
+		jsonAjax(API.API_LIST.CAR_CARD_SHARE,obj,function(data){
+			if(data.status==1){
+				WxShare.title=data.data.title;
+				WxShare.imgUrl=data.data.images;
+				WxShare.desc=data.data.content;
+				WxShare.link=data.data.url;
+				//WxShare.linkUrl=data.data.share_url;//分享到其他平台时可用
+				loadWxObject(true);  //加载微信对象
+				console.log(WxShare);
+			}
+		});
+	}
+	function getCardDtail(){
+		var obj=M();
+		obj.card_id=card_id;
+		obj.type=type;
+		obj.userid=getUserid();
+		jsonAjax(API.API_LIST.CAR_CARD_CARDDETAILED,obj,function(data){
+			if(data.status==1){
+				$('#content').html(cardDetailRender(data));
+				DOT_CODE=data.data.link_code;
+				cardStatus=data.data.status;
+				hasReceive=data.data.receive_status;
+				if(data.data.status==1){
+					getShare();
+				}
+				if(data.data.receive_status==1 || data.data.status==0){
+					$('.btn .btn-get').css('background-color','#f9f9f9');
+					$('.btn .btn-get').css('color','#d0d0d0');
+					if(data.data.status==0){
+						$('.btn .btn-share').css('background-color','#f9f9f9');
+						$('.btn .btn-share').css('color','#d0d0d0');
+					};
+				}
+			}else{
+				$('.wutaocanka').css('display','block');
+			}
+		})
+	}
+	function getcard(){
+		var obj=M();
+		obj.package_card_id=I('card_id');
+		obj.userid=getUserid();
+		jsonAjax(API.API_LIST.CAR_CARD_FETCHCARD,obj,function(data){
+			if(data.status==1){
+				inputTipsText(data.info);
+				setTimeout(function(){
+					window.location.reload();
+				},3000);
+			}else{
+				inputTipsText(data.info);
+			}
+		});
+	}
+	function JumpAfterSharing(){//微信分享回调函数
+		$('.mask-level').hide();
+		var obj=M();
+		obj.userid=getUserid();
+		obj.rid=card_id;
+		obj.source=4;
+		jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,obj,function(data){
+			if(data.status==1){	
+				console.log(data);
+			}
+		});
+	}
+</script>
+</html>

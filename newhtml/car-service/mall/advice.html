@@ -1,0 +1,372 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>结算单</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/advice.css"/>
+</head>
+<body>
+<div class="modal" id="prompt">
+    <div class="box">
+        <p>是否确认该核算单无误</p>
+        <div class="flex" border="top">
+            <div class="flex-c" border="right">取消</div>
+            <div class="flex-c">确认</div>
+        </div>
+    </div>
+</div>
+<div class="container">
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id="tmpl-data-list">
+    {{~it.data.list:item:index}}
+    <div class="advice-list">
+        <div class="title flex-y" border="bottom">
+            <div class="design">{{=item.name}}</div>
+            <div class="price flex-c">￥{{=item.total_amount}}</div>
+            <div class="arrow {{?it.data.status==2||nList==1}}up{{?}}"></div>
+        </div>
+        <div class="content {{?it.data.status==2||nList==1}}fade{{?}}">
+            {{?item.type==1}}
+            <!--销售结算单-->
+                <div class="tit">{{=item.name+'信息'}}</div>
+                <div class="con">
+                    {{?item.sid==1||item.sid==2}}
+                    <!--买车&转介-->
+                    <div class="list flex">
+                        <div>车型</div>
+                        <div class="flex-c">{{=item.param.detail}}</div>
+                    </div>
+                    {{??item.sid==3}}
+                    <!--置换-->
+                    <div class="list flex">
+                        <div>旧车车型</div>
+                        <div class="flex-c">{{=item.param.old_detail}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>旧车收购价</div>
+                        <div class="flex-c">￥{{=Number(item.param.oldcarprice).toFixed(2)}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>新车车型</div>
+                        <div class="flex-c">{{=item.param.new_detail}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>新车成交价</div>
+                        <div class="flex-c">￥{{=Number(item.param.changeprice).toFixed(2)}}</div>
+                    </div>
+                    {{?}}
+                    <div class="list flex">
+                        <div>首付</div>
+                        <div class="flex-c">￥{{=Number(item.param.down_payment).toFixed(2)}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>二期</div>
+                        <div class="flex-c">￥{{=Number(item.param.two_amount).toFixed(2)}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>尾款</div>
+                        <div class="flex-c">￥{{=Number(item.param.final_amount).toFixed(2)}}</div>
+                    </div>
+                    {{?parseFloat(item.coupon_money)>0}}
+                    <!--使用了优惠券才显示-->
+                    <div class="list flex">
+                        <div>优惠券</div>
+                        <div class="flex-c">{{=item.coupon_name}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div></div>
+                        <div class="flex-c">{{='-￥'+item.coupon_money}}</div>
+                    </div>
+                    {{?}}
+                    <div class="bottom">实付金额：￥{{=item.amount}}</div>
+                </div>
+            {{??item.type==2}}
+            <!--售后结算单同-保养类型-->
+                <div class="tit">{{=item.name+'信息'}}</div>
+                <div class="con">
+                    <div class="list flex">
+                        <div>配件</div>
+                        <div class="flex-c">￥{{=Number(item.param.parts).toFixed(2)}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>工时费</div>
+                        <div class="flex-c">￥{{=Number(item.param.working_hours).toFixed(2)}}</div>
+                    </div>
+                    {{?item.sid==4}}
+                    <div class="list flex">
+                        <div>新车车型</div>
+                        <div class="flex-c">{{=item.param.new_detail}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>新车成交价</div>
+                        <div class="flex-c">￥{{=Number(item.param.changeprice).toFixed(2)}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>首付</div>
+                        <div class="flex-c">￥{{=Number(item.param.down_payment).toFixed(2)}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>二期</div>
+                        <div class="flex-c">￥{{=Number(item.param.two_amount).toFixed(2)}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>尾款</div>
+                        <div class="flex-c">￥{{=Number(item.param.final_amount).toFixed(2)}}</div>
+                    </div>
+                    {{?}}
+                    {{?parseFloat(item.coupon_money)>0}}
+                    <!--使用了优惠券才显示-->
+                    <div class="list flex">
+                        <div>优惠券</div>
+                        <div class="flex-c">{{=item.coupon_name}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div></div>
+                        <div class="flex-c">{{='-￥'+item.coupon_money}}</div>
+                    </div>
+                    {{?}}
+                    <div class="bottom">实付金额：￥{{=item.amount}}</div>
+                </div>
+            {{??item.type==3}}
+            <!--续保结算单-->
+                <div class="tit">基本信息</div>
+                <div class="con">
+                    <div class="list flex">
+                        <div>姓名</div>
+                        <div class="flex-c">{{=item.param.contacts}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>车牌号码</div>
+                        <div class="flex-c">{{=item.param.carnum}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>电话号码</div>
+                        <div class="flex-c">{{=item.param.phone}}</div>
+                    </div>
+                </div>
+                <div class="tit">行驶证信息</div>
+                <div class="con">
+                    <div class="list flex">
+                        <div>车架号</div>
+                        <div class="flex-c">{{=item.param.vin}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>发动机号</div>
+                        <div class="flex-c">{{=item.param.engineno}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>初登日期</div>
+                        <div class="flex-c">{{=item.param.earlytime.split(' ')[0]}}</div>
+                    </div>
+                </div>
+                <div class="tit">车辆信息</div>
+                <div class="con">
+                    <div class="list flex">
+                        <div>车型</div>
+                        <div class="flex-c">{{=item.param.insurance.brand+' '+item.param.insurance.detail}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>裸车价格</div>
+                        <div class="flex-c">￥{{=Number(item.param.carmoney).toFixed(2)}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>公里数</div>
+                        <div class="flex-c">{{=Math.round(item.param.mileage)}}公里</div>
+                    </div>
+                </div>
+                <div class="tit">保险信息</div>
+                <div class="con">
+                    <div class="list flex">
+                        <div>保险公司</div>
+                        <div class="flex-c">{{=item.param.endcompany}}</div>
+                    </div>
+                    <div class="list flex">
+                        <div>交强险</div>
+                        <div class="flex-c">￥{{=Number(item.param.insurance[0].price).toFixed(2)}}</div>
+                    </div>
+                    <div class="bottom">实付金额：￥{{=Number(item.param.insurance[0].price).toFixed(2)}}</div>
+                </div>
+                <div class="tit">商业保险</div>
+                <div class="con">
+                    {{~item.param.insurance:item2:index2}}
+                        {{?index2!=0&&item2.select==1}}
+                        <!--不用循环第一个交强险 交强险在上面显示了-->
+                            <div class="list flex">
+                                <div>{{=item2.name}}</div>
+                                <div class="flex-c">￥<span>{{=Number(item2.price).toFixed(2)}}</span></div>
+                            </div>
+                        {{?}}
+                    {{~}}
+                    <div class="bottom">保费金额：￥{{=oPremium.toFixed(2)}}</div>
+                </div>
+            {{?}}
+        </div>
+    </div>
+    {{~}}
+    <div class="bot-box" border="top">
+        <div class="flex">
+            <div class="all-price flex-c">总计 <span>￥{{=it.data.totalMoney.toFixed(2)}}</span></div>
+            {{?it.data.pay_type==0}}
+                {{?it.data.status==0}}
+                    <div class="bot">去确认</div>
+                {{??it.data.status==1}}
+                    <div class="bot yellow">待商家确认</div>
+                {{??it.data.status==2}}
+                    <div class="bot gray">已确认</div>
+                {{?}}
+            {{??}}
+                {{?it.data.status==0}}
+                    <div class="bot">去结算</div>
+                {{??it.data.status==1}}
+                    <div class="bot yellow">待商家确认</div>
+                {{??it.data.status==2}}
+                    <div class="bot gray">已结算</div>
+                {{?}}
+            {{?}}
+        </div>
+    </div>
+</script>
+<script>
+    var render_list = getRender('tmpl-data-list');
+    var oid = I('id',''); //结算单id
+    var merge_no = I('merge_no',''); //结算单合并号
+    var order = 0; //订单号
+    var oPremium = 0; //保费金额
+    var goConfirm = false; //去确认的逻辑
+    var nList = 0; // 数据条数
+
+    function onStart(){
+        getData();
+//        loadEnd();
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_USER_STATEMENTSDETAILS,{'userid':getUserid(),'id':oid,'merge_no':merge_no},function(data){
+            if(data.status==1){
+                order = Number(data.data.list[0].order_id);
+                nList = data.data.list.length;
+                console.log(order,nList);
+                $.each(data.data.list, function (i) {
+                    if(data.data.list[i].type==3){
+                        $.each(data.data.list[i].param.insurance, function (j) {
+                            var _this = data.data.list[i].param.insurance[j];
+                            if(_this.select==1&&j!=0){
+                                var oPrice = parseFloat(_this.price!=''?_this.price:0);
+                                oPremium += oPrice;
+                                console.log(oPremium,parseFloat('1.01'),'...');
+                            }
+                        });
+                    }
+                });
+                $('.container').html(render_list(data));
+                loadEnd();
+            }
+        })
+    }
+
+    $('.container').on('click','.title',function(){ //上下拉隐藏详情
+        $(this).find('.arrow').toggleClass('up');
+        $(this).siblings('.content').toggleClass('fade');
+    }).on('click','.bot',function(){ //操作按钮
+        var oTxt = $(this).text();
+        if(oTxt=='去结算'){
+            if(order){ //有订单号直接进收银台
+                var obj = M();
+                var go_param = M();
+                go_param.id = oid;
+                go_param.merge_no = merge_no;
+                obj.orderid = order;
+                obj.go_action = "gotoMallAdvice";
+                obj.go_param = go_param;
+                obj.from_page = 'carsvcMall';
+                PageJumpTap('gotoCashier', obj);
+            }else {
+                getToken();
+            }
+            console.log('order:',order);
+        }else if(oTxt=='去确认'){
+            $('#prompt').addClass('fade');
+        }
+    });
+
+    $('#prompt').on('click','.flex > div',function(){
+        var oTxt = $(this).text();
+        if(oTxt=='取消'){
+            $('#prompt').removeClass('fade');
+        }else {
+            goConfirm = true;
+            getToken();
+        }
+    });
+
+    //获取生成订单号token
+    function getToken(){
+        jsonAjax(API.API_LIST.CAR_USER_PAYSATEMENTS,{'userid':getUserid(),'id':oid,'merge_no':merge_no},function(data){
+            if(data.status==1){
+                order = data.data;
+                console.log('order:',order);
+            }else if(data.status==2){
+                var oToken = data.data;
+                getOrderNo(oToken);
+            }else {
+                inputTipsText(data.info);
+            }
+        })
+    }
+
+    //获取订单号
+    function getOrderNo(token) {
+        var t = setInterval(function () {
+            jsonAjax(API.API_LIST.ORDER_GETORDERNO, {'userid': getUserid(), 'token': token}, function (data) {
+                if (data.status == 1) {
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad('订单生成成功正在进行跳转...');
+                    $('.inputTipsText').addClass('hide');
+                    order = data.data;
+                    $("#cover").removeClass("fade");
+                    $('.apply-immediately').slideUp(100);
+                    $('.now-in-progress').slideDown(200);
+                    if(goConfirm){
+                        jsonAjax(API.API_LIST.CAR_USER_CONFIRM,{'userid':getUserid(),'id':oid,'merge_no':merge_no},function(data){
+                            if(data.status==1){
+                                $('#prompt').removeClass('fade');
+                                getData();
+                            }
+                        })
+                    }else {
+                        buyFn();
+                    }
+                    //unableAll();
+                } else if(data.status == 0){
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad(data.info);
+                }else{
+                    showLoad(data.info);
+                }
+            });
+        }, 2000);
+    }
+
+    function buyFn() {
+        //支付
+        var obj = M();
+        var go_param = M();
+        go_param.id = oid;
+        go_param.merge_no = merge_no;
+        obj.orderid = order.orderid;
+//        obj.merge_no = order.merge_no;
+        obj.go_action = "gotoMallAdvice";
+        obj.go_param = go_param;
+        obj.from_page = 'carsvcMall';
+        PageJumpTap('gotoCashier', obj);
+    }
+
+</script>
+</html>

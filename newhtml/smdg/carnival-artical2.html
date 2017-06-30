@@ -1,0 +1,404 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>资讯详情</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/pub-acct/assets/css/weui.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/weui-refresh.css">
+    <link rel="stylesheet" href="/web/assets/css/note.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/articals.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/competitiveExplanation.css">
+    <style media="screen">
+      .articals-wrap{padding-bottom: 10.6rem;}
+      .competitiveCon img{max-width: 100%;}
+      .down-miaomiao{position: fixed;left: 0;bottom: 4.8rem;width: 100%;height: 6.5rem;}
+      .down-miaomiao img{width: 100%;height: 100%;}
+      .down-miaomiao .close_down_btns{width: 2.5rem;height: 2.5rem;position: absolute;right: 0;top: 3rem;}
+    </style>
+</head>
+<!-- 喵喵在途社区 -->
+<body>
+    <div class="articals-wrap">
+        <div class="artical-modal"></div>
+        <div class="comment-modal">
+
+        </div>
+        <div class="loadmore">查看更多</div>
+    </div>
+    <div class="down-miaomiao">
+      <img src="/web/assets/image/smdg/bar_miaomiao.png" alt="">
+      <div class="close_down_btns"></div>
+    </div>
+    <div class="bs-reply" style="">
+        <textarea id="content" class="content-textarea bs-reply-text" style="overflow-y:scroll;" rows="6" placeholder="该文章你怎么看?"></textarea>
+        <div class="flex-x-about">
+            <div id="bs-comment-apply" class="bs-comment-apply">提交</div>
+            <div id="bs-comment-close" class="bs-comment-close">取消</div>
+        </div>.
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id='datalist'>
+    <div class="competitiveVideo">
+      <video src="{{=it.data.articles.video_url}}" controls="controls"  type="video/mp4" preload="auto" autoplay="autoplay">
+          您的浏览器不支持 video 标签。
+      </video>
+    </div>
+    <div class="competitiveMessage">
+        <div class="competitiveTitle" style="padding:1.3rem 0">{{=it.data.articles.title}}</div>
+        {{var div=document.createElement('div');div.innerHTML=it.data.articles.description;var con=div.innerText || div.textContent;}}
+        <div class="competitiveCon" style="padding:1.3rem 0">{{=con}}</div>
+    </div>
+    <div class="author-info flex-y" style="padding-top:1rem;">
+      <img class="author-img" src="{{=(it.data.articles.author_thumb)?it.data.articles.author_thumb:'/web/assets/image/smdg/touxiang@2x.png'}}" alt="">
+      <div class="author-area flex-c">
+        <p>{{=it.data.articles.author}}</p>
+        <p class="date">{{=getFrendlyDate(it.data.articles.add_time,true)}}</p>
+      </div>
+    </div>
+    <div class="collect-nums">
+        <span>收藏 <i class="colles">{{=it.data.info.collection}}</i></span>
+        <span>赞 <i class="favors">{{=it.data.info.click}}</i></span>
+    </div>
+    <div class="footer flex-y" border="top">
+        <input type="text" placeholder="写评论..." class="comment-input" readonly="readonly">
+        <div class="comment-icons flex-c flex-x-about">
+            <div class="comment-box" conmentsnums="{{=it.data.comments.length}}">
+                {{?it.data.info.comment && it.data.info.comment>0}}
+                <div class="box-nums">{{=(it.data.info.comment>99)?'99+':it.data.info.comment}}</div>
+                {{?}}
+            </div>
+            {{var is_collections=it.data.info.is_collection;}}
+            {{var has_click=it.data.info.is_click;}}
+            <div class="comment-collects {{=(is_collections>0)?'':'no-collects'}}"></div>
+            <div class="comment-zan {{=(has_click>0)?'':'no-zan'}}"></div>
+        </div>
+    </div>
+</script>
+<script type="text/template" id="comments">
+  {{? isArray(it.data.comments)&&it.data.comments.length>=1}}
+  <ul class="comment-list" >
+      {{~it.data.comments:item:index}}
+          <li class="comment-item flex">
+              <img class="comment-usrImg" src="{{=item.photo}}" alt="">
+              <div class="commemt-cons flex-c">
+                  <div class="comment-usrName">{{=item.nickname}}</div>
+                  <div class="usr-con">{{=item.comment}}</div>
+                  <div class="comment-other">
+                      {{=getFrendlyDate(item.add_time,true)}}  <span class="comment-recall" commentid="{{=item.id}}">{{=(item.comment_num>0)?item.comment_num+'条回复 >':'回复'}}</span>
+                  </div>
+              </div>
+              <div class="like-box {{=(item.is_click>0)?'':'unlike-box'}}" id="{{=item.id}}">{{=item.hits}}</div>
+          </li>
+      {{~}}
+  </ul>
+  {{?}}
+  {{?page==1&&it.data.comments.length<1}}
+  <div class="no-comment flex-center">
+      <div class="flex-c" style="text-align:center;">
+          <p class="icons"></p>
+          <p>暂无评论，点击抢沙发</p>
+      </div>
+  </div>
+  {{?}}
+</script>
+<script>
+    var ar_id=I('id','581');
+    var share=I('share');
+    var userid=getUserid();
+    var plant_source=I('source','1'),
+        page=1,
+        type_source=I('type','1')
+        types=I('type',0);
+    var artical_tml=getRender('datalist');
+    var comment_tml=getRender('comments');
+    var jsonEndArtical,jsonEndComment;
+    var cellct_tmls='',pub_tmlcons='';
+    var articles;//文章内容
+    var txtWidth;//标签长度
+    var iconWidth=26;//刷新icon宽度
+    var firstClick1=true;
+    var firstClick2=true;
+    function onStart(){
+        loadArtical();
+    }
+    var isArray = function(obj) {
+        return Object.prototype.toString.call(obj) === '[object Array]';
+    };
+    function isNull(data){
+        return (data == "" || data == undefined || data == null) ? "false" : true;
+    }
+    function jsonAllEnd(){
+        if(jsonEndArtical&&jsonEndComment){
+            loadEnd();
+        }
+    }
+    function loadArtical(){
+        jsonAjax(API.API_LIST.MMONLINE_GETNOTEDETAIL,{id:ar_id,userid:getUserid(),type:types},function(data){
+            if(data.status==1){
+                cellct_tmls=cellct_tmls;
+                var share_imgs=data.data.articles.video_img;
+                TitleReSet(data.data.articles.title);
+                WxShare.title=data.data.articles.title;
+                WxShare.link=data.data.info.share;
+                WxShare.imgUrl=share_imgs;
+                var divs=document.createElement('div');
+                divs.innerHTML=data.data.articles.description;
+                var cons=divs.innerText || divs.textContent;
+                var resss=$(cons).text();
+                WxShare.desc=resss;
+                console.log(resss);
+                $('.articals-wrap .artical-modal').html(artical_tml(data));
+                getComments();
+                loadWxObject(true);
+            }else{
+                inputTipsText(data.info);
+            }
+          loadEnd();
+        });
+    }
+    function getComments(){
+        jsonAjax(API.API_LIST.MMONLINE_GETNOTEDETAIL,{id:ar_id,page:page,userid:getUserid(),type:types},function(data){
+            if(data.status==1){
+                if(page==1){
+                    $('.articals-wrap .comment-modal').html(comment_tml(data));
+                }else {
+                    if(isArray(data.data.comments)){
+                        $('.articals-wrap .comment-modal').append(comment_tml(data));
+                    }else{
+                        inputTipsText('无更多数据');
+                    }
+                }
+                if(isArray(data.data.comments)&&data.data.comments.length>=5){
+                    $('.loadmore').show();
+                }else {
+                    $('.loadmore').hide();
+                }
+            }
+        });
+    }
+    //加载更多
+    $('.articals-wrap').on('click','.loadmore',function(){
+        page++;
+        getComments();
+    });
+    //推荐视频
+    $('.articals-wrap').on('click','.competitiveOther .fac',function(){
+        var obj={
+            id:$(this).attr('id')
+        };
+        Interface('gotoCarnivalArtical2',obj);
+    });
+
+    //文章收藏
+    function ar_collect(type,action,ele){
+        jsonAjax(API.API_LIST.MMONLINE_DOCOLLECTARTICLE,{id:ar_id,userid:getUserid(),type:type,action:action},function(data){
+            if(data.status==1){
+                inputTipsText(data.info);
+                ele.toggleClass('no-collects');
+                var vals=parseInt($('.collect-nums').find('.colles').text());
+                if(ele.hasClass('no-collects')){
+                    $('.collect-nums').find('.colles').text(vals-1);
+                }else{
+                    $('.collect-nums').find('.colles').text(vals+1);
+                }
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    $('.articals-wrap').on('click','.comment-collects',function(){
+        if(!firstClick1){
+            return;
+        }
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                type_source=I('type',0);
+                if($this.hasClass('no-collects')){
+                    ar_collect(types,'',$this);
+                }else {
+                    ar_collect(types,'cancel',$this);
+                }
+            }
+        });
+        firstClick1=false;
+        setTimeout(function(){
+            firstClick1=true;
+        },1000);
+    });
+    //文章点赞
+    function ar_zan(type,action,ele){
+        jsonAjax(API.API_LIST.MMONLINE_DOLIKEARTICLE,{id:ar_id,userid:getUserid(),type:type,action:action},function(data){
+            if(data.status==1){
+                var vals=parseInt($('.collect-nums').find('.favors').text());
+                inputTipsText(data.info);
+                ele.toggleClass('no-zan');
+                if(ele.hasClass('no-zan')){
+                    $('.collect-nums').find('.favors').text(vals-1);
+                }else{
+                    $('.collect-nums').find('.favors').text(vals+1);
+                }
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    $('.articals-wrap').on('click','.comment-zan',function(){
+        if(!firstClick2){
+            return;
+        }
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                if($this.hasClass('no-zan')){
+                    ar_zan(types,'',$this);
+                }else {
+                    ar_zan(types,'cancel',$this);
+                }
+            }
+        });
+        firstClick2=false;
+        setTimeout(function(){
+            firstClick2=true;
+        },1000);
+    });
+    //评论点赞
+    function comm_zan(ArId,type,action,ele){
+        jsonAjax(API.API_LIST.MMONLINE_DOLIKENOTECOMMENT,{id:ArId,userid:getUserid(),type:type,action:action},function(data){
+            if(data.status==1){
+                inputTipsText(data.info);
+                ele.toggleClass('unlike-box');
+                if(ele.hasClass('unlike-box')){
+                    ele.text(parseInt(ele.text())-1);
+                }else {
+                    ele.text(parseInt(ele.text())+1);
+                }
+            }else {
+                inputTipsText(data.info);
+            }
+        });
+    }
+    $('.articals-wrap').on('click','.like-box',function(){
+        var $this=$(this);
+        isLogin(function(ret){
+            if(ret){
+                if($this.hasClass('unlike-box')){
+                    comm_zan($this.attr('id'),types,'',$this);
+                }else {
+                    comm_zan($this.attr('id'),types,'cancel',$this);
+                }
+            }
+        });
+    });
+    //回复评论
+    $(".articals-wrap").on("click",'.comment-recall',function () {
+        var $this=$(this);
+        var obj={
+            comment_id:$this.attr('commentid'),
+            artical_id:ar_id,
+            type:types
+        };
+        Interface('gotoCommentReply1',obj);
+    });
+    //写评论
+    $(".articals-wrap").on("click",'.comment-input',function () {
+        isLogin(function(ret){
+            if(ret){
+                $(".bs-reply").animate({
+                    height:"toggle"
+                },"slow");
+                $(".articals-wrap").hide();
+            }
+        });
+    });
+    $(".articals-wrap").on("click",'.no-comment>div',function () {
+        isLogin(function(ret){
+            if(ret){
+                $(".bs-reply").animate({
+                    height:"toggle"
+                },"slow");
+                $(".articals-wrap").hide();
+            }
+        });
+    });
+    $(".bs-reply").on("click",".bs-comment-close",function () {
+        $(".bs-reply").animate({
+            height:"toggle"
+        },"slow");
+        $(".articals-wrap").show();
+    });
+    $(".bs-reply").on("click",".bs-comment-apply",function () {
+        if($('#content').val() == "" || $.trim($('#content').val()) == "") {
+            inputTipsText("请输入内容！");
+            $('#content').focus();
+            return;
+        }
+        if($('#content').val().length>100){
+            inputTipsText("评论内容不能超过100字！");
+            $('#content').focus();
+            return;
+        }
+        jsonAjax(API.API_LIST.MMONLINE_ADDNOTECOMMENT,{id:ar_id,userid:getUserid(),comment:$('#content').val(),type:types},function(data){
+            if(data.status==1){
+                $('#content').val('');
+                $(".bs-reply").animate({
+                    height:"toggle"
+                },"slow");
+                inputTipsText(data.info);
+                onStart();
+                $(".articals-wrap").show();
+                $('html,body').animate({scrollTop:$('.artical-modal').height()},500);
+            }
+        });
+    });
+    //查看评论
+    $(".articals-wrap").on("click",'.comment-box',function () {
+        var conments_nums=$(this).attr('conmentsnums');
+    //    var commentValue = $(".box-nums").text();
+       if(conments_nums == 0){
+           isLogin(function(ret){
+              if(ret){
+                  $(".bs-reply").animate({
+                      height:"toggle"
+                  },"slow");
+                  $(".articals-wrap").hide();
+              }
+           });
+       }else{
+            $('html,body').animate({scrollTop:$('.artical-modal').height()},500);
+       }
+    });
+
+    $(".articals-wrap").on("click",'.appreciate-list',function () {
+      $('#mask').addClass('weui_fade_toggle').show();
+      $('#weui_actionsheet').addClass('weui_actionsheet_toggle');
+      $('body').css('overflow','hidden');
+    });
+    // 关闭
+    $('#weui_actionsheet').on('click','i.close',function () {
+        $('#mask').removeClass('weui_fade_toggle').hide();
+        $('#weui_actionsheet').removeClass('weui_actionsheet_toggle');
+        $('body').css('overflow','scroll');
+    });
+    $('#mask').on('click',function(){
+      $('#mask').removeClass('weui_fade_toggle').hide();
+      $('#weui_actionsheet').removeClass('weui_actionsheet_toggle');
+      $('body').css('overflow','scroll');
+    })
+    $('#weui_actionsheet').on('touchmove', function (event) {
+            event.preventDefault();
+    },false);
+    $('.down-miaomiao').on('click','img',function(){
+      Interface('downmiaomiaoApp','');
+    });
+    $('.down-miaomiao').on('click','.close_down_btns',function(){
+      $('.down-miaomiao').hide();
+      $('.articals-wrap').css("padding-bottom","4.8rem");
+    });
+</script>
+</html>

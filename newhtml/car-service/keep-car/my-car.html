@@ -1,0 +1,208 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>我的车辆</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.min.css"/>
+    <script src="/web/car-service/assets/js/mui.min.js?v=41cb80c42a"></script>
+</head>
+<body>
+    <div id="data-list"></div>
+
+    <div class="btn-box">
+        <a class="btn" id="btn">添加车辆</a>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/x-dot-template" id="temp1">
+    {{~it:val:index}}
+    <div class="margin-bottom" id="car_{{=val.carid}}">
+        <div class="car-info" style="margin-bottom: 0;" onclick="judge('{{=val.carid}}','{{=val.mileage}}')">
+            <div class="attr1">
+                <img src="{{=val.logo}}"/>
+                <div class="car-type">
+                    <div>{{=val.model}}</div>
+                    <div>{{=val.brand+" "+(val.detail?val.detail:'')}}</div>
+                </div>
+            </div>
+            <div class="attr2">
+                <div>行驶里程</div>
+                <div>{{=val.mileage}}公里</div>
+            </div>
+            <div class="attr2">
+                <div>车牌号码</div>
+                <div>{{=val.carnum}}</div>
+            </div>
+        </div>
+        <div class="opt">
+            <div class="setfirst" onclick="setfirst('{{=val.carid}}',this)">
+                {{?val.is_default==0}}
+                <img src="/web/car-service/assets/image/no_sel_btn.png"/>
+                <span>设为默认</span>
+                {{??}}
+                <img src="/web/car-service/assets/image/sel_btn.png"/>
+                <span class="active">设为默认</span>
+                {{?}}
+            </div>
+            <div class="del-edit">
+                <div class="item" onclick="editCar('{{=val.carid}}')">
+                    <img src="/web/car-service/assets/image/edit.svg"/>
+                    <span>编辑</span>
+                </div>
+                <div class="item" onclick="delCar('{{=val.carid}}')">
+                    <img src="/web/car-service/assets/image/del.svg"/>
+                    <span>删除</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{~}}
+</script>
+<script>
+    var render = getRender('temp1');
+
+    function onStart(){
+        //Interface('gotoIndex');
+        if(I('carid')){
+
+        }else{
+
+        }
+        getDate();
+
+    }
+    //获取数据
+    function getDate(){
+        var datas = {
+            userid:getUserid()
+        };
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETCARINFO,datas,function (res) {
+            if(res.status == 1){
+                var arr = res.data;
+                //排序，设置默认的在前面
+                arr.sort(function(a,b){
+                    var result = a.is_default-b.is_default;
+                    if(result>0){
+                        return -1;
+                    }else if(result<0){
+                        return 1;
+                    }else{
+                        return 0;
+                    }
+                });
+
+                var tpl = render(arr);
+                $("#data-list").html(tpl);
+
+            }
+            loadEnd();
+        });
+    }
+    //设置默认
+    function setfirst(carid,obj){
+        var datas={
+            userid:getUserid(),
+            carid:carid
+        };
+        jsonAjax(API.API_LIST.CAR_CARINFO_SETDEFAULTCAR,datas,function (res) {
+            if(res.status == 1){
+                $(".setfirst img").attr('src','/web/car-service/assets/image/no_sel_btn.png');
+                $(".setfirst span.active").removeClass('active');
+                $(obj).children('img').attr('src','/web/car-service/assets/image/sel_btn.png');
+                $(obj).children('span').addClass('active');
+            }
+        });
+    }
+    //删除
+    function delCar(carid){
+        mui.confirm('是否删除该车辆',function(res){
+            if(res.index==1) {
+                var datas = {
+                    userid: getUserid(),
+                    carid: carid
+                };
+                jsonAjax(API.API_LIST.CAR_CARINFO_DELCAR, datas, function (res) {
+                    $("#car_"+carid).remove();
+                });
+            }
+        });
+    }
+    //编辑
+    function editCar(carid) {
+        var param = M();
+        param.source = I('source');
+        param.carid = carid;
+        PageJump('gotoEditCar',param);
+    }
+    //
+    $("#btn").on('click',function(){
+        var param = M();
+        param.source = I('source','0');
+        param.source2 = 0;
+        PageJump('gotoAddCar',param);
+    });
+
+    function judge(carid) {
+        var param = M();
+        param.carid = carid;
+        var source = I('source');
+        var url;
+        switch (source){
+            case 'fillM':
+                url = 'gotoFillMileage';
+                break;
+            case '0':
+                url = 'gotoInsuranceCompensate';
+                break;
+            case 'pq':
+                url = 'gotoSprayLacquer';
+                break;
+            case 'repair':
+                url = 'gotoMaintain';
+                break;    
+            case 'insurance':
+                param.mileage=arguments[1];
+                param.source_page=I('source_page');
+                param.username=decodeURIComponent(I('username'));//用户名
+                param.carnum=decodeURIComponent(I('carnum'));//昵称
+                param.phone=I('phone');//手机
+                param.vin=I('vin');//车架
+                param.engineno=I('engineno');//发动机
+                param.earlytime=decodeURIComponent(I('earlytime'));//初登日期
+                param.aid=I('aid');//顾问id
+                url = 'gotoCarInsurance';
+                break;
+            case 'lipei':
+                url = 'gotoInsurance';
+                break;
+            case 'index':
+                var datas={
+                    userid:getUserid(),
+                    carid:carid
+                };
+                jsonAjax(API.API_LIST.CAR_CARINFO_SETDEFAULTCAR,datas,function (res) {
+                    if(res.status == 1){
+                        url = "gotoKeepIndex";
+                        PageJump(url,param);
+                    }else{
+                        inputTipsText(res.info);
+                    }
+                });
+                break;
+            case 'pgzh':
+                url = 'gotoReplacement';
+                break;
+            case 'keep-insurance':
+                url = 'gotoKeepInsurance';
+                break;
+            default :
+                break;
+        }
+        PageJump(url,param);
+    }
+</script>
+</html>

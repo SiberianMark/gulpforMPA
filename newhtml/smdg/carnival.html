@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>晒图</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script src="/web/assets/js/masonry.pkgd.min.js?v=f2985d6acb"></script>
+    <script src="/web/assets/js/imagesloaded.pkgd.min.js?v=caef420227"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/live-Interactive.css">
+</head>
+<body>
+
+<div class="ordersbox" style="padding-bottom: 1.2rem;">
+    <div class="tabs-box">
+        <div class="shop-order border">
+            <ul class="shop-order-nav" border='bottom'>
+                <li index='0'><span border="right">报名</span></li>
+                <li index='1'><span border="right">活动</span></li>
+                <li index='2' class="cur"><span border="right">晒图</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="margin-top: 4rem;">
+    <div class="mui-scroll" style="padding-bottom:4.4rem;">
+        <div class="out clear" id="out"></div>
+    </div>
+    <div class='cart-nogoods' style="display: none;">
+        <div class='cart-nogoods-empty'>您来得太早了，稍后再来看看吧~</div>
+        <div class="live-btn">
+            <div class="live-return car">返回活动列表</div>
+        </div>
+    </div>
+</div>
+<a href="#top" class="top"></a>
+<div class="release"></div>
+<div class="mask">
+    <div class="box">
+        <div class="text">
+            <p>只有APP上才能发表文章哦</p>
+            <span>取消</span>
+            <div class="a">立即下载</div>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="app-download">
+    <img src="/web/assets/image/smdg/logo.png" alt="" class="logo">
+    <div class="down_detail">
+        <p class="down_appname">神马嘀嘀</p>
+        <p class="">人.车.生活移动互联社区</p>
+    </div>
+    <div class="down_btn vc">立即使用</div>
+    <img src="/web/assets/image/smdg/close.png" alt="" class="close vc">
+</div> -->
+</body>
+
+
+<script type="text/template" id="live-act">
+    {{?it.status==1}}
+    {{~it.data:item:index}}
+    <div class="act clear"  article_id="{{=item.id}}">
+        <div class="act-img" article_id="{{=item.id}}" border="all">
+            <img src="{{=item.images}}" alt=""/>
+        </div>
+        <div class="act-main">
+            <div class="act-comment" article_id="{{=item.id}}" >
+                {{=clearHtml(item.content)}}
+            </div>
+            <div class="act-msg clear">
+                <div class="act-name">
+                    <div class="user-img"><img src="{{=item.photo}}" alt=""/></div><div class="user-name">{{=item.nickname}}</div></div>
+                <div class="article_collections">
+                    {{?item.is_collections==0}}
+                    <div class="act-follow" article_id="{{=item.id}}" action=""></div>
+                    {{??}}
+                    <div class="act-follow follow" article_id="{{=item.id}}" action="cancel"></div>
+                    {{?}}
+
+
+                    <div class="collections">{{=item.collectnum}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{~}}
+    {{?}}
+</script>
+<script src="/web/assets/js/smdg/carnival.js"></script>
+</html>

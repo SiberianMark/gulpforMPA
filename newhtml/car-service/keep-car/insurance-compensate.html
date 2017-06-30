@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>保险理赔</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=6k8EkQ4GBKCBqiDixvyzGpK462AoF7mM"></script>
+    <script src="/web/assets/js/imageUpdate.js?v=1a03330829"></script>
+</head>
+<body >
+    <div class="first-step" border="bottom ccc">
+        <div></div>
+        <div></div>
+    </div>
+    <div class="guwen" style="margin-bottom: 0; clear: both;display: none;">
+        <!--temp1-->
+    </div>
+    <div class="second-step" border="top ccc">
+        <span class="used-tel" border="all ccc" onclick="PageJump('gotoUsedPhone')">常用电话</span>
+        <span class="claims-guide" border="all ccc" onclick="PageJump('gotoCGuide1')">理赔指南</span>
+    </div>
+    <div class="consult" style="margin-top: 1rem;line-height: 3rem;padding-top: 0;color: #999999;">
+        为了更好地服务于你，请提交事故部位的照片
+        <div class="publish-btn clear">
+            <div class="publish-btn clear">
+                <span class="pub-btn spec"></span>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 1rem;">
+        <div class="input-box" id="choseCar">
+            <label>选择车型</label>
+            <span id="res">请选择您的爱车</span>
+            <input type="hidden" name="carid" placeholder="请选择您的爱车" verify/>
+            <span class="arrow"></span>
+        </div>
+        <div class="input-box">
+            <label>车牌号码</label>
+            <div class="quyu" id="quyu">
+                <div><span id="license">粤B</span><span class="down"></span></div>
+            </div>
+            <input type="text" placeholder="请输入车牌号" maxlength="5" size="5" name="carNum" readonly/>
+        </div>
+        <div class="flex-box">
+            <div class="input-box box-item">
+                <label>联系人&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <input type="text" placeholder="请输入联系人" name="contacts"  maxlength="32" verify class="lianxi"/>
+            </div>
+            <div class="chose-sex box-auto">
+                <label>男</label>
+                <span class="selected" style="margin-right: 1rem;" rel="1"></span>
+                <label>女</label>
+                <span class="no_select" rel="0"></span>
+            </div>
+        </div>
+
+        <div class="input-box" style="clear: both;">
+            <label>手机号码</label>
+            <input type="number" placeholder="请输入手机号码" name="phone" maxlength="11" verify/>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>我的位置</label>
+            <input type="text" placeholder="请输入地址" name="address" />
+        </div>
+        <div class="btn-box">
+            <a class="btn" href="javascript:;" onclick="submit();">一键理赔</a>
+        </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var dataLoad = false;
+    var empLoad = false;
+    var mapLaod = false;
+    var locLoad = false;
+    var defLoad = false;
+    var welLoad = false;
+
+    function onStart(){
+        imageUpdate(5);
+        getData();
+        getEmployee(API.API_LIST.CAR_INSURANCE_PAYMONEYEMPLOYEE,$(".guwen"));
+        getLocation();
+        getWelcome();
+    }
+
+    $('.input-box').attr('border','all ccc');
+
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected').addClass('no_select');
+        $(this).removeClass('no_select').addClass('selected');
+    });
+
+    $('.claims-guide').on('click',function(){
+        PageJump('gotoClaimsGuide1','');
+    });
+
+    function getWelcome(){
+    	 jsonAjax(API.API_LIST.CAR_INSURANCE_PAYMONEYWELCOME,{},function (res) {
+            if(res.status == 1){
+                $(".first-step div:eq(0)").html(res.data.welcome);
+            }else {
+                inputTipsText(res.info);
+            }
+            welLoad = true;
+            allLoadEnd();
+         });
+    }
+
+    function getData(){
+        $("input[name='contacts']").val(UserInfo.nickname);
+        $("input[name='phone']").val(UserInfo.mobile);
+
+        if(UserInfo.sex==2){
+            $("span[sex='1']").addClass('no_select').removeClass('selected');
+            $("span[sex='0']").addClass('selected').removeClass('no_select');
+        }
+
+        if(I('carid')){
+            var datas = {
+                userid:getUserid(),
+                carid:I('carid'),
+                source:1
+            };
+            $("input[name='carid']").val(I('carid'));
+            jsonAjax(API.API_LIST.CAR_CARINFO_GETONECARINFO,datas,function (res) {
+                if(res.status == 1){
+                    $('#res').html(res.data.brand+' '+(res.data.model==null?'':res.data.model)+''+(res.data.detail==null?'':res.data.detail))
+                            .css('color','#333333');
+                    var carNum = res.data.carnum;
+                    $('#license').text(carNum.substring(0,2));
+                    $("input[name='carNum']").val(carNum.substring(2,carNum.length));
+                    loadEnd();
+                }else {
+                    inputTipsText(res.info);
+                }
+            });
+        }else{
+            getDefaultCar();
+        }
+        dataLoad = true;
+        allLoadEnd();
+    }
+
+    $("#choseCar").on('click', function(){
+        var param = M();
+        param.source = 'lipei';
+        PageJump('gotoMyCar',param);
+    });
+
+    function submit(){
+        var contacts = $("input[name='contacts']").val();
+        var sex = $(".selected").attr("rel");
+        var phone = $("input[name='phone']").val();
+        var carid = $("input[name='carid']").val();
+        var address = $("input[name='address']").val();
+        var advisorid = $("div[aid]").attr('aid')?$("div[aid]").attr('aid'):'';
+        var images = new Array();
+        $('.publish-btn .pub-img img').each(function (i) {
+            images[i]=$(this).attr('src');
+            //_s +='['+i+']'+sub.images[i];
+        })
+        //判断非空
+        for(var i=0;i<$("input[verify]").length;i++){
+            if(empty($("input[verify]").eq(i).val())){
+                inputTipsText($("input[verify]").eq(i).attr("placeholder"));
+                return;
+            }
+        }
+        //限制字符
+        if(!contacts.isContacts()){
+            inputTipsText('联系人不能输入特殊字符且中文不能超过16个，字符不能超过32个');
+            return;
+        }
+        //验证手机号码
+        if(!phone.isMobile()){
+            inputTipsText('请输入正确的手机号码');
+            return;
+        }
+
+        if(!address.isAddress()){
+            inputTipsText('地址不能输入特殊字符');
+            return;
+        }
+        var datas = {
+            userid:getUserid(),
+            contacts:contacts,
+            sex:sex,
+            phone:phone,
+            carid:carid,
+            address:address,
+            images:images,
+            advisorid:advisorid
+        }
+        //提交
+        jsonAjax(API.API_LIST.CAR_INSURANCE_PAYMONEYORDER,datas,function (res) {
+            if(res.status == 1){
+                var param = M();
+                param.type = res.data.type;
+                changeBackUrlL("car-service/keep-car/index",'');
+                PageJump('gotoRescueSuccess',param);
+            }else {
+                inputTipsText(res.info);
+                BackKeepIndex();
+            }
+        });
+    }
+
+    var position_option = {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 20000
+    };
+
+    function getLocation(){
+        var geolocation = new BMap.Geolocation();
+        geolocation.getCurrentPosition(function(r){
+            if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                getMap(r.point.lng,r.point.lat);
+            }
+            else{
+                inputTipsText('获取位置失败，您可以手动填写您的信息或者直接联系顾问专员');
+            }
+            locLoad = true;
+            allLoadEnd();
+        },{enableHighAccuracy: true});
+    }
+
+
+    function getMap(x,y){
+        var new_point = new BMap.Point(x,y);
+        var myGeo  = new BMap.Geocoder(); // 创建地址解析器实例
+        myGeo.getLocation(new_point, function(rs){// 将地址反解析
+            var addComp = rs.addressComponents;
+            var address = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber;
+            $('input[name="address"]').val(address);
+            mapLaod = true;
+            allLoadEnd();
+        });
+    }
+
+    function getDefaultCar(){
+        var datas = {
+            userid:getUserid()
+        };
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETCARINFO,datas,function (res) {
+            if(res.status == 1){
+                $.each(res.data, function(index,item){
+                    if(item.is_default==1){
+                        $("input[name='carid']").val(item.carid);
+                        $('#res').html(item.brand+' '+(item.model==null?'':item.model)+''+(item.detail==null?'':item.detail))
+                                .css('color','#333333');
+                        var carNum = item.carnum;
+                        $('#license').text(carNum.substring(0,2));
+                        $("input[name='carNum']").val(carNum.substring(2,carNum.length));
+                    }
+                });
+
+            }
+            defLoad = true;
+            allLoadEnd();
+        });
+    }
+
+    function allLoadEnd(){
+        console.log(dataLoad,empLoad,mapLaod,defLoad,locLoad,welLoad);
+        if(dataLoad&&empLoad&&mapLaod&&defLoad&&locLoad&&welLoad){
+            loadEnd();
+        }
+    }
+</script>
+</html>

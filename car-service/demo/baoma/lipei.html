@@ -1,0 +1,329 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>理赔救援</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css"/>
+    <script type="text/javascript" src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=3eEiDPduO9asSj6C2XBKj7jbH1Vdl502"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <style>
+        .btn-box{
+            margin-top:1rem;
+            margin-bottom: 1rem;
+        }
+        .btn-box .btn{
+            background: #fff;
+            color: #000;
+            background-image: url(/web/assets/image/cashier/phone_ico.png);
+            background-size: 1.5rem 1.5rem;
+            background-repeat: no-repeat;
+            background-position: 10rem center;
+        }
+        p{
+            font-size: 1.8rem;
+            background: #fff;
+            padding:0.5rem 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="main" style="margin-top: 1rem;">
+    <!--<div class="input-box" id="choseCar" scl-pe="before">-->
+        <!--<label>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系</label>-->
+        <!--<span id="res" style="color: #333333;"></span>-->
+    <!--</div>-->
+    <!--<div class="input-box" scl-pe="before">-->
+        <!--<label>车牌号码</label>-->
+        <!--<div class="quyu" id="quyu">-->
+            <!--<div><span id="license"></span><span class="down" id="arrow"></span></div>-->
+        <!--</div>-->
+        <!--<input type="text" style="width: 50%;" id="b" readonly>-->
+    <!--</div>-->
+
+    <div class="input-box">
+        <label>当前位置</label>
+        <input type="text" id="loc">
+    </div>
+    <div class="map" id="getMap" style="height: 15.5rem;"></div>
+</div>
+
+<div class="btn-box">
+    <span class="btn">
+        <a id="allshop">全国服务热线</a>
+    </span>
+</div>
+<div class="btn-box">
+    <span class="btn">
+        <a id="myshop">我的专营店</a>
+    </span>
+</div>
+<p id="near">离我最近的专营店</p>
+<div id="near_shop"></div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="near_shop_temp">
+    {{~it.data:item:index}}
+    <a class="guwen"  style="margin:1px 0 0 0;min-height: 8rem;padding-right: 1rem;" href="tel:{{=item.tel?item.tel:''}}">
+        <img style="border:none;width: 3.5rem;height: 3.5rem;margin: 2.25rem 1.5rem;" src="/web/assets/image/cashier/phone_ico.png">
+        <div class="info">
+            <div class="name">{{=item.name}}</div>
+            <div class="contact" style="color: #000;">
+                {{=item.address}}
+            </div>
+        </div>
+    </a>
+    {{~}}
+</script>
+<script type="text/template" id="near_shop_temp2">
+    {{for(var i=0,len =(it.length<3)?it.length:3;i< len;i++){}}
+    <a class="guwen"  style="margin:1px 0 0 0;min-height: 8rem;padding-right: 1rem;" href="tel:{{=it[i].phoneNumber?it.phoneNumber:''}}">
+        <img style="border:none;width: 3.5rem;height: 3.5rem;margin: 2.25rem 1.5rem;" src="/web/assets/image/cashier/phone_ico.png">
+        <div class="info">
+            <div class="name">{{=it[i].title}}</div>
+            <div class="contact" style="color: #000;">
+                {{=it[i].address}}
+                <!--<br>-->
+                <!--距离：{{=it[i].distance}}-->
+            </div>
+
+        </div>
+    </a>
+    {{}}}
+</script>
+<script>
+    var carLoad = true;
+    var mapLoad = false;
+    var phoneLoad = false;
+    var shopLoad = false;
+    var render = getRender('near_shop_temp');
+    var render2 = getRender('near_shop_temp2')//百度地图
+    var keyword;
+    var soft_vin = I('soft_vin');
+    var userid = I('userid');
+    var longitude = I('longitude');
+    var latitude = I('latitude');
+    var keyword = I('keyword');
+    var vbappid = I('vbappid');
+    var map = new BMap.Map("getMap");
+    var new_point = new BMap.Point(longitude,latitude);
+    var tips = "您未设置专营店，请到车辆信息中设置";
+    function onStart(){
+        $("#allshop").attr("href","tel:"+I('phone'));
+        //getCar();
+        getMap();
+        getNearbyShops();
+        switch(vbappid){
+            case '2':
+                $("#myshop").text("我的特约店");
+                $("#near").text("离我最近的特约店");
+                tips = "您未设置特约店，请到车辆信息中设置";
+                break;
+            case '5':
+                $("#myshop").text("我的生活馆");
+                $("#near").text("离我最近的生活馆");
+                tips = "您未设置生活馆，请到车辆信息中设置";
+                break;
+        }
+    }
+
+    function getCar(){
+        var data = {
+            soft_vin:soft_vin,
+            userid:userid,
+            vbappid:vbappid
+        }
+        jsonAjax(API.API_LIST.TECH_CARINFO_GETONECARINFO,data,function(res){
+            if(res.status==1){
+                $("#res").text(res.data.brand+" "+res.data.model+" "+res.data.detail);
+                var carnum = res.data.carnum;
+                var a = carnum.substr(0,2);
+                var b = carnum.substr(2);
+                $("#license").text(a);
+                $("#b").val(b);
+            }else{
+                inputTipsText(res.info);
+            }
+            carLoad = true;
+            all_load_end();
+        });
+    }
+
+    var position_option = {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 20000
+    };
+
+    function getMap(){
+        map.centerAndZoom(new_point,16);
+        var marker = new BMap.Marker(new_point);  // 创建标注
+        map.addOverlay(marker);  // 将标注添加到地图中
+        map.panTo(new_point);
+        var myGeo  = new BMap.Geocoder(); // 创建地址解析器实例
+        myGeo.getLocation(new_point, function(rs){// 将地址反解析
+            var addComp = rs.addressComponents;
+            var address = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber;
+            getMyShopPhone(addComp.city)
+            $('#loc').val(address);
+            //$('.pho').val(UserInfo.mobile);
+            var label = new BMap.Label(address,{offset:new BMap.Size(-50,-20)});
+            label.setStyle({
+                color : "#fff",
+                fontSize : "10px",
+                background :"rgba(0,0,0,.7)",
+                border :"0",
+                padding:"2px 6px",
+                borderRadius:"6px"
+            });
+            marker.setLabel(label);
+            mapLoad = true;
+            all_load_end();
+        });
+    }
+    //获取我的专营店电话号码
+    function getMyShopPhone(city){
+        var data = {
+            soft_vin:I('soft_vin')
+        }
+        jsonAjax(API.API_LIST.TECH_VB_MYSHOP,data,function(res){
+            console.log(res);
+            if(res.status==1){
+                if(city.search(res.data.city)!=-1){
+                    $("#myshop").attr('data','tel:'+res.data.tel);
+                }else{
+                    $("#myshop").parent().hide();
+                }
+            }
+            phoneLoad = true;
+            all_load_end();
+        });
+    }
+
+    function all_load_end(){
+        console.log(mapLoad,phoneLoad,carLoad,shopLoad);
+        if(mapLoad&&phoneLoad&&carLoad&&shopLoad){
+            loadEnd();
+        }
+    }
+
+    $("#myshop").on("click",function(){
+        if($(this).attr("data")){
+            inputTipsText(tips);
+        }else{
+            $(this).attr("href",$(this).attr("data"));
+        }
+    })
+    //获取附近的店铺
+    function getNearbyShops(){
+        var data = {
+            lng:longitude,
+            lat:latitude,
+            soft_vin:soft_vin
+        }
+        console.log(data);
+        jsonAjax(API.API_LIST.TECH_VB_AROUNDSHOPS,data,function(res){
+            if(res.status==1) {
+                if(res.status==1) {
+                    if(res.data){
+                        $("#near_shop").html(render(res));
+                    } else{
+                        getNearby_baidu();
+                    }
+                }else{
+                    getNearby_baidu();
+                }
+            }
+            shopLoad = true;
+            all_load_end();
+        });
+    }
+    //通过百度地图获取附近的店铺
+    function getNearby_baidu(){
+        var options = {
+            onSearchComplete: function(res){
+                // 判断状态是否正确
+                if (local.getStatus() == BMAP_STATUS_SUCCESS){
+                    console.log('百度',res);
+
+                    var temp = new Array();
+                    //重新拼接json数据,保存为数组对象
+                    for(var i=0;i<res.wr.length;i++){
+                        var pointB = new BMap.Point(res.wr[i].point.lng,res.wr[i].lat);
+                        var obj = {
+                            phoneNumber:res.wr[i].phoneNumber,
+                            address:res.wr[i].address,
+                            title:res.wr[i].title,
+                            distance:(map.getDistance(new_point,pointB)/1000).toFixed(2)+'公里',//计算距离
+                            lng:res.wr[i].point.lng,
+                            lat:res.wr[i].point.lat
+                        }
+                        temp.push(obj);
+                    }
+                    AddShopByBaidu(temp,res.wr[0].city,soft_vin);
+                    //根据距离从近及远排序
+                    temp.sort(function(a,b){
+                        if(a.distance> b.distance){
+                            return 1;
+                        }else if(a.distance< b.distance){
+                            return -1;
+                        }else{
+                            return 0;
+                        }
+                    });
+
+                    $("#near_shop").html(render2(temp));
+                }
+                shopLoad = true;
+                all_load_end();
+            }
+        };
+        var local = new BMap.LocalSearch(map, options);
+        local.search(Keyword(vbappid));
+    }
+
+    function Keyword(vbappid){
+        switch(vbappid){
+            case '1':
+                keyword = "宝马4S店";
+                break;
+            case '2':
+                keyword = "广汽本田4S店";
+                break;
+            case '3':
+                keyword = "东风本田4S店";
+                break;
+            case '4':
+                keyword = "起亚4S店";
+                break;
+            case '5':
+                keyword = "纳智捷4S店";
+                break;
+            case '6':
+                keyword = "启辰4S店";
+                break;
+        }
+        return keyword;
+    }
+    //爬百度数据添加到数据库
+    function AddShopByBaidu(baidu_data,city,soft_vin){
+        var data = {
+            museums: JSON.stringify(baidu_data),
+            city:city,
+            soft_vin:soft_vin
+        }
+        jsonAjax(API.API_LIST.TECH_VB_ADDSHOP,data,function(res){
+            if(res.status==1){
+                console.log('采集成功');
+                //getNearbyShops();
+            }else{
+                console.log('采集失败');
+            }
+        });
+    }
+</script>
+</html>

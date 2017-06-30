@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>全部回复</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/carnivav-lists.css"/>
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+</head>
+<body>
+<section class="comment-section">
+    <ul class="one-comment-box">
+
+    </ul>
+    <h2>全部回复</h2>
+    <ul class="all-comment-box"></ul>
+</section>
+<footer class="comment-footer flex-y" scl-pe="before">
+    <div class="flex-c" scl-pe="before"><input type="text" name="comment" placeholder="写评论..."/></div>
+    <div class="submit">发表</div>
+</footer>
+<div class="bs-reply" style="">
+    <textarea id="content" class="content-textarea bs-reply-text" rows="5" placeholder="该评论你怎么看?"></textarea>
+    <div class="flex-x-about">
+        <div id="bs-comment-apply" class="bs-comment-apply">发表</div>
+        <div id="bs-comment-close" class="bs-comment-close">取消</div>
+    </div>
+</div>
+</body>
+<script type="text/template" id="temp1">
+    {{var _data=it,len=_data.length;}}
+    {{for(var i=0;i<len;i++){}}
+    {{var data_info=_data[i];}}
+    <li data-id="{{=data_info.id}}">
+        <div class="flex-x-about user-name">
+            {{var sex=data_info.sex,_status=data_info.status;}}
+            <div data-userid="{{=data_info.userid}}" class="flex left">
+                {{?sex==0}}
+                <div >
+                    {{??sex==1}}
+                    <div  class="man ">
+                        {{??sex==2}}
+                        <div  class="weman ">
+                            {{?}}
+                            <img src="{{=data_info.photo}}" alt=""/>{{=data_info.nickname}}
+                            {{?_status==1}}
+                            <span></span>
+                            {{??}}
+                            {{?}}
+                        </div>
+                        <div class="right">
+                            {{var _model=data_info.model;}}
+                            {{?_model!==''}}
+                            <img src="{{=data_info.logo}}" alt=""/>{{=data_info.model}}
+                            {{?}}
+                        </div>
+                    </div>
+
+                    {{var _rank=+(data_info.is_rank);}}
+                    {{?_rank===0}}
+                    <div class="flex is-rank">
+                    {{??_rank===1}}
+                    <div class="flex is-rank likes">
+                    {{?}}
+                        <span>{{=data_info.hits}}</span>
+                        <span class="no-likes" data-id="{{=data_info.id}}"></span>
+                    </div>
+                </div>
+                <div class="comment-info">
+                    <p>{{=data_info.comment}}</p>
+                    <div class="comment-user flex">
+                        <div>
+                            {{var _time=''+data_info.back_time.replace(/-/g,'/');}}
+                            <span>{{=getCommentDate(_time)}}</span>
+                        </div>
+                    </div>
+                </div>
+    </li>
+    {{}}}
+</script>
+<script type="text/template" id="temp2">
+    {{var data_info=it;}}
+    <li data-id="{{=data_info.id}}">
+        <div class="flex-x-about user-name">
+            {{var sex=data_info.sex,_status=data_info.status;}}
+            <div data-userid="{{=data_info.userid}}" class="flex left">
+                {{?sex==0}}
+                <div >
+                {{??sex==1}}
+                <div  class="man ">
+                {{??sex==2}}
+                <div  class="weman ">
+                {{?}}
+                    <img src="{{=data_info.photo}}" alt=""/>{{=data_info.nickname}}
+                    {{?_status==1}}
+                    <span></span>
+                    {{??}}
+                    {{?}}
+                </div>
+                <div class="right">
+                    {{var _model=data_info.model;}}
+                    {{?_model!==''}}
+                    <img src="{{=data_info.logo}}" alt=""/>{{=data_info.model}}
+                    {{?}}
+                </div>
+                </div>
+                    {{var _rank=+(data_info.is_rank);}}
+                    {{?_rank===0}}
+                    <div class="flex is-rank">
+                    {{??_rank===1}}
+                    <div class="flex is-rank likes">
+                    {{?}}
+                        <span>{{=data_info.hits}}</span>
+                        <span class="no-likes" data-id="{{=data_info.id}}"></span>
+                    </div>
+                </div>
+                <div class="comment-info">
+                    <p>{{=data_info.comment}}</p>
+                    <div class="comment-user flex">
+                        <div>
+                            {{var _time=''+data_info.add_time.replace(/-/g,'/');}}
+                            <span>{{=getCommentDate(_time)}}</span>
+                        </div>
+                        <div>.</div>
+                        <div class="flex-right reply-num">
+                            {{var _count=data_info.count;}}
+                            <span class="reply" data-id="{{=data_info.id}}">{{=_count}}条回复</span>
+                        </div>
+                    </div>
+                </div>
+
+    </li>
+</script>
+<script type="text/javascript">
+    function onStart(){
+        getData();
+
+    }
+    //转换时间显示方式
+    function getCommentDate(date){
+        var new_date=new Date().getTime(),
+                old_date=new Date(date).getTime(),
+                time=(new_date-old_date)/1000/60;
+        if(time<2){
+            return '刚刚'
+        }else{
+            return Math.ceil((time/60))+'小时前';
+        }
+    }
+    function getData(){
+        var render_one=getRender('temp2'),render_all=getRender('temp1');
+        jsonAjax('gold/home/feedbackList',{type:0,rid:0,id:I('id'),userid:getUserid()},function(data){
+            if(data.status==1){
+                $('.one-comment-box').html(render_one(data.data.res));
+                $('.all-comment-box').html(render_all(data.data.info));
+                loadEnd();
+            }else{
+                inputTipsText(data.info);
+            }
+        })
+    }
+    $('.comment-section').on('click','.no-likes',function(){
+        var _this=$(this),
+                text=+(_this.prev().text()),
+                _class=_this.parent().attr('class').split(' '),
+                obj={
+                    type:I('type',0),
+                    rid:I('rid',0),
+                    id:_this.attr('data-id'),
+                    userid:getUserid()
+                };
+        _this.parent().toggleClass('likes');
+        console.log(_class.indexOf('likes'));
+        if(_class.indexOf('likes')===-1){//点赞
+            text++;
+            obj.action=0
+        }else if(_class.indexOf('likes')===2){//取消点赞
+            text--;
+            obj.action=1
+        }
+        _this.prev().text(text);
+        jsonAjax('gold/home/darComment',obj,function(data){
+            if(data.status==1){
+
+            }else{
+                inputTipsText(data.info);
+            }
+        })
+    });
+    //发表评论
+    $('.bs-comment-apply').on('click',function(){
+        var obj={
+            type:I('type',0),
+            rid:I('rid',0),
+            id:I('id'),
+            userid:getUserid(),
+            comment:$('#content').val()
+        };
+            jsonAjax('gold/home/subFeedback',obj,function(data){
+                if(data.status==1){
+                    getData();
+                    $('#content').val('')
+                    $('.bs-reply').removeClass('show');
+                }else{
+                    inputTipsText(data.info);
+                }
+            })
+    });
+    //取消评论
+    $('.bs-comment-close').on('click',function(){
+        $('#content').val('');
+        $('.bs-reply').removeClass('show');
+    }) //获取焦点  改变position属性
+    $('input[name="comment"]').on('focus',function(){
+        $(this).blur();
+        $('.bs-reply').addClass('show');
+    })
+</script>
+</html>

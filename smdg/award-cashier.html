@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<script src="/web/assets/js/load.meta.js"></script>
+	<title>赞赏</title>
+	<link rel="stylesheet" href="/web/assets/css/smdg/award-cashier.css">
+	<!-- 顶部共用↓ -->
+	 <script src="/web/assets/js/load.head3.js"></script>
+	  <link rel="stylesheet" href="/web/assets/css/mui.3.0.min.css"/>
+    <script src="/web/assets/js/mui.3.0.min.js"></script>
+	 <script src="/web/assets/js/smdg/award-cashier.js?v=2.4.6"></script>
+	<!--  <script src="http://10.10.12.164:8090/target/target-script-min.js#anonymous"></script> -->
+</head>
+<body>
+	<header class="user-info">
+		
+	</header>
+	<section class="award-price">
+		<ul>
+			<li><span>1</span>元</li>
+			<li><span>6.6</span>元</li>
+			<li class="award-active"><span>9.9</span>元</li>
+			<li><span>19</span>元</li>
+			<li><span>66</span>元</li>
+			<li class="other-price-btn"><input type="text" class="other-price-active" id='other-price-active' autofocus="autofocus" placeholder="1-200元"><span class="other-price">其他金额</span></li>
+		</ul>
+	</section>
+	<!-- <div class="pay-total" border="bottom,ccc"> <span class="text">总需支付金额:</span> <span class="money">9.90</span> </div> -->
+	<section class="charge-pay">
+		<div class="charge-pay-left">
+			<span class="charge-icon"></span>
+			<div class="charge-remain">	
+				<p>零钱支付</p>
+				<p><small>￥<span></span></small></p>
+			</div>
+			
+		</div>
+		<div class="charge-pay-right bc-pay unselect select">
+			
+		</div>
+	</section>
+	<section class="other-pay">
+		<header><span class="text">其他支付方式</span> <!-- <span class="rechage-money">0.00</span> --></header>
+		<ul>
+			<li><div><span class="wxicon"></span>微信支付</div><div class="wx-pay select-btn unselect"></div></li>
+			<li><div><span class="zfbicon"></span>支付宝支付</div><div class="zfb-pay select-btn unselect">	</div></li>
+			<li><div><span class="unionicon"></span>银联支付</div><div class="un-pay select-btn unselect">	</div></li>
+			<li><div><span class="yfbicon"></span>易宝支付</div><div class="yfb-pay select-btn unselect">	</div></li>
+		</ul>
+		
+	</section>
+	<footer class="do-pay">确认支付</footer>
+</body>
+<script type="text/template" id="award-temp">
+	<div class="user-img"><img src="{{=it.data.photo}}" alt=""></div>
+		<div class="user-details" is_play="{{=it.data.is_play}}" binding="{{=it.data.binding}}">
+			<span class="user-name">{{=it.data.nickname}}</span>
+			<span class='{{="user-sex sex"+it.data.sex}}'></span>
+			<span class='{{="user-level level"+it.data.rank}}'></span>
+		</div>
+		<div class="group-name"><span class="group-icon"></span><span>{{=it.data.introduce}}</span></div>
+	
+</script>
+<script>
+	var awardRender=getRender('award-temp');
+	var order_token = 0;
+	var totalmoney=9.99;//总需支付金额
+	var alsoMoney = "0.00";//还需支付金额
+	var recharge_money="0.00";//剩余零钱
+	var pay_money=9.99;//其他方式最终需支付金额
+	var ordermoney=0;//订单生成支付金额
+	var plant_source=I('plant_source',0),//是否切换平台文章id
+		rid=I('rid',0),//平台文章id
+	    id=I('id',0);//用户发布文章id，默认使用用户发布的
+	var selected=true;
+	var beforePage=I('beforePage','note');
+	var orderid = null; //订单id
+	var from_page = I('from_page','didi');
+
+
+	function onStart(){
+		if(plant_source==1){
+			id=rid;
+		}
+		isLogin(function(ret){
+			if(ret){
+				//根据平台显示支付方式
+				showpayplatform();
+				getData();
+			}
+		});
+		loadEnd();
+		/************************金额选择start*****************************/
+
+		//点击输入金额
+		// $('.other-price-btn').on('click',function(e){
+		// 	e=event||window.event;
+		// 	e.stopPropagation();
+		// 	if($('.other-price').css('visibility')=="visible"){
+		// 		$('.other-price').css('visibility',"hidden");
+		// 		$('.other-price-active').addClass('show');				
+		// 		$('.award-active').removeClass('award-active');
+		// 		//初始化金额
+		// 		totalmoney=handleNum("0.00");
+		// 		$('.other-price-active').focus();
+				
+		// 	}		
+		// });
+
+		//点击选择金额列表
+		$('.award-price li').on('click',function(){
+			if(!$(this).hasClass('other-price-btn')){
+				$(this).addClass('award-active').siblings().removeClass('award-active');
+				$('.other-price-active').removeClass('show');
+				$('.other-price').css('visibility',"visible");
+				totalmoney=handleNum(parseFloat($(this).find('span').html()));
+				// $('.money').html(totalmoney);
+
+				//当总需支付金额大于零钱
+				if(parseFloat(totalmoney)-parseFloat(recharge_money)>0){
+					//alsoMoney=handleNum(parseFloat(totalmoney)-parseFloat(recharge_money));
+					// $('.rechage-money').html(alsoMoney);
+				}else{
+					//alsoMoney=handleNum("0.00");
+					// $('.rechage-money').html(alsoMoney);
+				}
+				$('.other-price-active').val('');
+				
+			}else{
+				if($('.other-price').css('visibility')=="visible"){
+					$('.other-price').css('visibility',"hidden");
+					$('.other-price-active').addClass('show');				
+					$('.award-active').removeClass('award-active');
+					//初始化金额
+					totalmoney=handleNum("0.00");
+					
+				}	
+			}
+			//重置选择方式
+			$('.select-btn').each(function(){
+				 $(this).removeClass('select');
+			});
+			$('.charge-pay-right').addClass('select');
+
+
+		});
+		//输入金额完毕
+		$('.other-price-active').on('blur',function(){
+			if(!$(this).val()){
+				$('.other-price-active').removeClass('show');
+				$('.other-price').css('visibility',"visible");
+				//初始化金额
+				totalmoney=handleNum("0.00");
+				// $('.money').html(totalmoney);
+				//alsoMoney=handleNum("0.00");
+				// $('.rechage-money').html(alsoMoney);
+			}else{
+				totalmoney=handleNum($(this).val());
+				// $('.money').html(totalmoney);
+				//当总需支付金额大于零钱
+				if(parseFloat(totalmoney)-parseFloat(recharge_money)>0){
+					//alsoMoney=handleNum(parseFloat(totalmoney)-parseFloat(recharge_money));
+					// $('.rechage-money').html(alsoMoney);
+				}
+
+			}
+			
+		});
+		//输入金额时数据绑定触发
+		$('.other-price-active').on('change',function(){
+			totalmoney=handleNum($(this).val());
+			// $('.money').html(totalmoney);
+		});
+		//选择支付方式
+		$('.charge-pay-right').on('click',function(){
+			if(!$(this).hasClass('select')){
+			 	$('.select-btn').removeClass('select');
+			 	$(this).addClass('select');
+			}
+		});
+		//输入校验
+		$('.other-price-btn input').on('keyup keypress', function (event) {
+			var $amountInput = $(this);
+			//响应鼠标事件，允许左右方向键移动 
+			event = window.event || event;
+			if (event.keyCode == 37 | event.keyCode == 39) {
+			return;
+			}
+			//先把非数字的都替换掉，除了数字和. 
+			$amountInput.val($amountInput.val().replace(/[^\d.]/g, "").
+			//只允许一个小数点 
+			replace(/^\./g, "").replace(/\.{2,}/g, ".").
+			 //只能输入小数点后两位
+			replace(".", "$#$").replace(/\./g, "").replace("$#$", ".").replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3'));
+
+		});
+		$(".other-price-btn input").on('blur', function () {
+			var $amountInput = $(this);
+			//最后一位是小数点的话，移除
+			$amountInput.val(($amountInput.val().replace(/\.$/g, "")));
+			if($(this).val()>200){
+				inputTipsText('打赏不能大于200元!');
+				//$('.money').html(totalmoney);
+				//alsoMoney=handleNum("0.00");
+				//$('.rechage-money').html(alsoMoney);
+			}
+		});
+		/************************金额选择end*****************************/
+
+		/************************支付方式选择start*****************************/
+		//其他支付方式选择
+		$('.select-btn').on('click',function(){
+			//如果零钱大于总金额，则足够支付
+			if(parseFloat(alsoMoney)<=0){//关闭组合支付
+				if(!$(this).hasClass('select')){
+				 	$(this).parent('li').siblings().each(function(){
+				 		$(this).find('.select-btn').removeClass('select');
+				 	});
+				 	$(this).addClass('select');
+				 	$('.charge-pay-right').removeClass('select');
+				}
+			}else{//启用组合支付--目前不支持零钱的组合支付，所以取消
+				// if(!$(this).hasClass('select')){
+				//  	$(this).parent('li').siblings().each(function(){
+				//  		$(this).find('.select-btn').removeClass('select');
+				//  	});
+				//  	$(this).addClass('select');
+				// }else{
+				// 	$(this).removeClass('select');
+				// }
+			}
+			
+			
+		});
+		//零钱支付方式选择
+		$('.charge-pay-right').on('click',function(){	
+			if(parseFloat(alsoMoney)<=0){//如果零钱大于总金额，则足够支付,则关闭组合支付
+				if(!$(this).hasClass('select')){
+				 	$('.select-btn').removeClass('select');
+				 	$(this).addClass('select');
+				}
+			}else{//否则启动组合支付---目前不支持零钱的组合支付，所以取消
+				
+				// if(selected){
+				//  	$(this).removeClass('select');
+				// 	selected=false;
+				// 	alsoMoney=totalmoney;
+					// $('.rechage-money').html(alsoMoney);
+				// }else{
+				// 	$(this).addClass('select');
+				// 	alsoMoney=handleNum(totalmoney-recharge_money);
+					// $('.rechage-money').html(alsoMoney);
+				// 	selected=true;
+				// }
+			}
+			
+		});
+
+		$('.do-pay').on('click',function(){
+			// if(parseFloat(alsoMoney)<=0){
+			// 	pay_money=totalmoney;
+			// }else{
+			// 	pay_money=alsoMoney;
+			// }
+			
+			pay_money=totalmoney;	
+			if(pay_money<1){
+				inputTipsText('赞赏金额必须大于1元');
+				return;
+			}
+			orderValidate();
+		});
+	}
+	/************************支付方式选择end*****************************/
+
+
+	/************************数据交互start*****************************/
+	function getData(){
+		var param=new Object();
+		param.id=id;
+		param.userid=getUserid();
+		jsonAjax(API.API_LIST.GOLD_AWARD_APRECIATION,param,function(data){
+			if(data.status==1){
+				if(data.data.binding==1){
+					$('.user-info').html(awardRender(data));
+					$('.charge-remain span').html(data.data.balance);
+					recharge_money=data.data.balance;
+				}else{
+					inputTipsText("未绑定手机号码,正在前往绑定...");
+					setTimeout(function(){
+						var obj={};
+						obj.redirect="awardCashier";
+						obj.id=id;
+						obj.rid=rid;
+						obj.plant_source=plant_source;
+						obj.from_page=from_page;
+						obj.beforePage=beforePage;
+						gotoBindMobile(obj);
+					},1000);
+				}
+				
+			}
+		});
+	}
+
+	function orderValidate(){
+		if (buy == 1) {
+	        return false;
+	    }
+		if(parseFloat(pay_money)>parseFloat(recharge_money) && $('.bc-pay').hasClass('select')){
+        	inputTipsText('零钱不足，请选择其它支付方式');
+        	return false;
+        }
+        buy = 1;
+		if(order !=null){//如果订单号已经生成，存在验证
+			if(totalmoney==ordermoney){//如果需支付金额有变动，则重新生成订单
+				if(is_weixn()){	
+					go_param.orderid=order.orderid;
+					go_param.merge_no=order.merge_no;
+					go_param.pay=1;
+					orderid = order.orderid;
+	            	merge_no = order.merge_no;
+	            	from_page='didi';
+	    		 	if(I('beforePage','article')=="note"){
+	        			go_action="gotoNote";
+	            	}else{
+	            		go_action="gotoCarnivalArticle";
+	            	}
+	            	go_param.id=I('id');
+	            	id=I('id');
+	            	
+	            	do_payAction();
+	            	return false;
+				}else{
+					go_param.orderid=order.orderid;
+					go_param.merge_no=order.merge_no;
+					go_param.pay=1;
+					orderid = order.orderid;
+	            	merge_no = order.merge_no;
+	            	from_page='didi';
+	    		 	if(I('beforePage','article')=="note"){
+	        			go_action="gotoNote";
+	            	}else{
+	            		go_action="gotoCarnivalArticle";
+	            	}
+	            	go_param.id=I('id');
+	            	id=I('id');
+	            	do_payAction();
+	            	return false;
+				}
+			}
+			
+		}
+		inputTipsText('正在生成订单，请稍后...',-1);
+		var daTA={'userid': getUserid(),
+            'order_token': order_token,
+            'sync': 0,
+            'money':pay_money,
+            'id':id
+        };
+        jsonAjax(API.API_LIST.GOLD_AWARD_APRECIATION_ORDER,daTA,function(data){
+        	if(data.status==1){
+        		 $('.inputTipsText').addClass('hide');
+        		 ordermoney=totalmoney;
+        		 order=data.data;
+        		 if(is_weixn()){
+        		 	var obj=M();
+        		 	
+        		 	go_param.orderid=order.orderid;
+					go_param.merge_no=order.merge_no;
+					go_param.pay=1;
+					orderid = order.orderid;
+	            	merge_no = order.merge_no;
+	            	from_page='didi';
+        		 	if(I('beforePage','article')=="note"){
+            			go_action="gotoNote";
+	            	}else{
+	            		go_action="gotoCarnivalArticle";
+	            	}
+	            	go_param.id=I('id');
+	            	id=I('id');
+	            	do_payAction();
+        		 }else{
+        		 	// //DOTO: APP端购买
+            //         if (data.data.orderid == 0) {
+            //             data.data.orderid = data.data.merge_no;  //合并订单号赋值给订单id
+            //         }
+            //         if (data.data.merge_no == '') {
+            //             data.data.merge_no = 0;
+            //         }
+            //         event_link(API.SERVER_URL + 'sdp/' + API.API_LIST.ORDER_ORDERPAY + '?userid=' + getUserid() + '&order_type=' + data.data.order_type + '&orderid=' + data.data.orderid + '&merge_no=' + data.data.merge_no);
+        		 }
+
+        	}else if(data.status==2){//异步处理
+	            getOrderNo(data.data);
+	        }else {
+	        	buy = 0;
+	            inputTipsText(data.info);
+	        }
+        });
+	}
+
+	//获取订单号
+    function getOrderNo(token) {
+        var t = setInterval(function () {
+            jsonAjax(API.API_LIST.ORDER_GETORDERNO, {userid:getUserid(),'token': token}, function (data) {
+                if (data.status == 1) {
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad('订单生成成功正在进行跳转...');
+                    $('.inputTipsText').addClass('hide');
+                    order=data.data;
+                    orderid=data.data.orderid;
+                    if(is_weixn()){
+	                    var obj = M();
+	                    
+	                    orderid = orderid;
+	                    merge_no = '';
+	                    if(I('beforePage','CarnivalArticle')=="note"){
+	            			go_action="gotoNote";
+		            	}else{
+		            		go_action="gotoCarnivalArticle";
+		            	}
+	                    go_param.orderid=orderid;
+	                    go_param.merge_no='';
+	                    go_param.pay_source='didiNoteAward';
+	                    from_page='didi';
+	                    pay_source='didiNoteAward';	                  
+		            	go_param.id=I('id');
+		            	id=I('id');
+	                    do_payAction();
+
+                	}else{
+                		  // //DOTO: APP端购买
+                    //     if (data.data.orderid == 0) {
+                    //         data.data.orderid = data.data.merge_no;  //合并订单号赋值给订单id
+                    //     }
+                    //     if (data.data.merge_no == '') {
+                    //         data.data.merge_no = 0;
+                    //     }
+                    //     event_link(API.SERVER_URL + 'sdp/' + API.API_LIST.ORDER_ORDERPAY + '?userid=' + getUserid() + '&order_type=' + data.data.order_type + '&orderid=' + data.data.orderid + '&merge_no=' + data.data.merge_no);
+                	}
+                }else if(data.status == 0){
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad(data.info);
+                }else{
+                    showLoad(data.info);
+                }
+            });
+        }, 2000);
+    }
+
+	function do_payAction(obj){
+		console.log(obj);
+
+        if($('.bc-pay').hasClass('select')){
+            payid = 2;
+            
+        }else if($('.wx-pay').hasClass('select')){//微信支付
+            //payid = 4;
+            payid = 9;
+        }else if($('.zfb-pay').hasClass('select')){//支付宝支付
+            payid = 5;
+        }else if($('.un-pay').hasClass('select')){//银联支付
+            payid = 6;
+        }else if($('.yfb-pay').hasClass('select')){//易付宝支付
+            payid = 7;
+        }else{
+            inputTipsText('请选择支付方式');
+            return;
+        }
+		if(payid==2){
+	        ///////////test/////////
+	        //errPwdMsg();
+	        //setPwdMsg();
+	        //checkPwd();
+	        ///////////test/////////
+	        checkHasPwd(0);
+        }else{
+           dopay(0);
+        }
+	}
+	/************************数据交互end*****************************/
+	function handleNum(num){
+		var f='';
+		if(typeof num == "string"){
+			f=num.split('.')[1];
+			if(f==undefined){
+				num=num+'.00'
+			}else if(f==""){
+				num=num+'00'
+			}else if(f.length==1){
+				num=num+"0";
+			}else if(f.length>2){
+				num=parseInt(num)+"."+f.substr(0,2);
+			}
+		}else if(typeof num =="number"){
+
+			f=num.toString().split('.')[1];
+			if(f==undefined){
+				num=num+'.00'
+			}else if(f.length==1){
+				num=num+"0";
+			}else if(f.length>2){
+				num=parseInt(num)+"."+f.substr(0,2);
+			}
+		}else{
+			return;
+		}
+		return num;
+
+	}
+	function showpayplatform(){
+		if(is_weixn(true)){
+			$('.other-pay ul li:nth-child(2)').css('display','none');
+		}else{
+			$('.other-pay ul li:nth-child(2)').css('display','block');
+		}
+	}
+</script>
+</html>

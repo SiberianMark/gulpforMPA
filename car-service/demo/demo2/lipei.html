@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>理赔救援</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css"/>
+    <script type="text/javascript" src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=3eEiDPduO9asSj6C2XBKj7jbH1Vdl502"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+</head>
+<body>
+<div class="main" style="margin-top: 1rem;">
+    <div class="input-box" id="choseCar" scl-pe="before">
+        <label>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系</label>
+        <span id="res" style="color: #333333;">CRV 2016款 2.0L 两驱经典版</span>
+    </div>
+    <div class="input-box" scl-pe="before">
+        <label>车牌号码</label>
+        <div class="quyu" id="quyu">
+            <div><span id="license">粤B</span><span class="down" id="arrow"></span></div>
+        </div>
+        <input type="text" value="2X4L3" style="width: 50%;">
+    </div>
+    <!-- <div class="input-box">
+        <label>购车时间</label>
+        <input type="text" value="2015-6-27">
+    </div>
+
+    <div class="flex-box">
+        <div class="input-box box-item">
+            <label>联系人&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <input type="text"  value="陈宇峰"/>
+        </div>
+        <div class="chose-sex box-auto">
+            <label>男</label>
+            <span class="selected" sex='1'></span>
+            <label>女</label>
+            <span class="no_select" sex='2'></span>
+        </div>
+    </div>
+    <div class="input-box">
+        <label>手机号码</label>
+        <input type="text" id="phone"/>
+    </div> -->
+
+    <div class="input-box">
+        <label>当前位置</label>
+        <input type="text" id="loc">
+    </div>
+    <div class="map" id="getMap" style="height: 15.5rem;"></div>
+    <div class="mask"></div>
+    <div class="menu">
+        <ul>
+            <li><a href="tel:800-880-9899">全国服务热线</a></li>
+            <li><a href="tel:15814481990">我的专营店</a></li>
+            <li><a href="tel:15814481990">最近专营店</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="btn-box" style="margin-top:1rem;margin-bottom: 0;">
+    <span class="btn" style="background: #fff;color: #000;background-image: url(/web/assets/image/cashier/phone_ico.png);background-size: 1.5rem 1.5rem;background-repeat: no-repeat;background-position: 10rem center">
+        <a href="tel:800-880-9899">全国服务热线</a>
+    </span>
+</div>
+<div class="btn-box" style="margin-top:1rem;margin-bottom: 1rem;">
+    <span class="btn" style="background: #fff;color: #000;background-image: url(/web/assets/image/cashier/phone_ico.png);background-size: 1.5rem 1.5rem;background-repeat: no-repeat;background-position: 10rem center">
+        <a href="tel:15814481990">我的专营店</a>
+    </span>
+</div>
+<p style="font-size: 1.8rem;background: #fff;padding:0.5rem 1rem;">离我最近的专营店</p>
+<a class="guwen"  style="margin:1px 0 0 0;min-height: 8rem;" href="tel:15814481990">
+    <img style="border:none;width: 3.5rem;height: 3.5rem;margin: 2.25rem 1.5rem;" aid="174" src="/web/assets/image/cashier/phone_ico.png">
+    <div class="info" aid="174">
+        <div class="name">东风本田汇丰特约销售服务店</div>
+        <div class="contact" style="color: #000;">
+            长丰大道特8号
+        </div>
+    </div>
+</a>
+<a class="guwen"  style="margin:1px 0 0 0;min-height: 8rem;" href="tel:15814481990">
+    <img style="border:none;width: 3.5rem;height: 3.5rem;margin: 2.25rem 1.5rem;" aid="174" src="/web/assets/image/cashier/phone_ico.png">
+    <div class="info" aid="174">
+        <div class="name">东风本田汽车友芝友中环特约销售服务店</div>
+        <div class="contact" style="color: #000;">
+            后湖竹叶山中环汽车商贸入口处
+        </div>
+    </div>
+</a>
+<a class="guwen"  style="margin:1px 0 0 0;min-height: 8rem;" href="tel:15814481990">
+    <img style="border:none;width: 3.5rem;height: 3.5rem;margin: 2.25rem 1.5rem;" aid="174" src="/web/assets/image/cashier/phone_ico.png">
+    <div class="info" aid="174">
+        <div class="name">东风本田汽车宏亚坤特约销售服务店</div>
+        <div class="contact" style="color: #000;">
+            雄楚大道266号
+        </div>
+    </div>
+</a>
+<!-- <div style="padding: 1rem 1rem;border-top: 1px solid #ddd;background: #fff;">
+    <p style="font-size: 2.0rem;">离我最近的专营店</p>
+    <div style="font-size: 1.4rem;border:1px solid #ddd;margin: 1rem 0;padding: 0.5rem 0.6rem">
+        <p>广汽本田恒福店</p>
+        <p>东圃镇吉山村莲塘路1号</p>
+        <p>电话:020-32388088</p>
+    </div>
+    <div style="font-size: 1.4rem;border:1px solid #ddd;margin: 1rem 0;padding: 0.5rem 0.6rem">
+        <p>广汽本田东圃店</p>
+        <p>黄埔大道东553号</p>
+        <p>电话:020-82320888</p>
+    </div>
+    <div style="font-size: 1.4rem;border:1px solid #ddd;margin: 1rem 0;padding: 0.5rem 0.6rem">
+        <p>广汽本田天河店</p>
+        <p>天源路350号</p>
+        <p>电话:020-37085183</p>
+    </div>
+</div> -->
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var mapLoad = false;
+    function onStart(){
+        getdata();
+        getLocation()
+
+    }
+
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected').addClass('no_select');
+        $(this).removeClass('no_select').addClass('selected');
+    });
+
+    function getdata(){
+        $("#phone").val(UserInfo.mobile);
+        if(UserInfo.sex==1){
+            $("span[sex='1']").addClass('selected').removeClass('no_select');
+            $("span[sex='2']").addClass('no_select').removeClass('selected');
+        }else{
+            $("span[sex='1']").addClass('no_select').removeClass('selected');
+            $("span[sex='2']").addClass('selected').removeClass('no_select');
+        }
+    }
+
+    var position_option = {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 20000
+    };
+
+    function getLocation(){
+        var geolocation = new BMap.Geolocation();
+        geolocation.getCurrentPosition(function(r){
+            if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                getMap(r.point.lng,r.point.lat);
+            }
+            else{
+                inputTipsText('获取位置失败，您可以手动填写您的信息或者直接联系顾问专员');
+            }
+            mapLoad = true;
+            all_load_end();
+        },{enableHighAccuracy: true});
+    }
+
+
+    function getMap(x,y){
+        var map = new BMap.Map("getMap");
+        var new_point = new BMap.Point(x,y);
+        map.centerAndZoom(new_point,16);
+        var marker = new BMap.Marker(new_point);  // 创建标注
+        map.addOverlay(marker);  // 将标注添加到地图中
+        map.panTo(new_point);
+        /*var navigationControl = new BMap.NavigationControl({
+         // 靠左上角位置
+         anchor: BMAP_ANCHOR_TOP_LEFT,
+         // LARGE类型
+         type: BMAP_NAVIGATION_CONTROL_LARGE,
+         // 启用显示定位
+         enableGeolocation: true
+         });
+         map.addControl(navigationControl);*/
+        // 添加定位控件
+        var geolocationControl = new BMap.GeolocationControl();
+        geolocationControl.addEventListener("locationSuccess", function(e){
+            // 定位成功事件
+            var address = '';
+            address += e.addressComponent.province;
+            address += e.addressComponent.city;
+            address += e.addressComponent.district;
+            address += e.addressComponent.street;
+            address += e.addressComponent.streetNumber;
+            //$('.add').val(address);
+        });
+        geolocationControl.addEventListener("locationError",function(e){
+            // 定位失败事件
+            alert(e.message);
+        });
+        map.addControl(geolocationControl);
+        var myGeo  = new BMap.Geocoder(); // 创建地址解析器实例
+        myGeo.getLocation(new_point, function(rs){// 将地址反解析
+            var addComp = rs.addressComponents;
+            var address = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber;
+            $('#loc').val(address);
+            //$('.pho').val(UserInfo.mobile);
+            var label = new BMap.Label(address,{offset:new BMap.Size(-50,-20)});
+            label.setStyle({
+                color : "#fff",
+                fontSize : "10px",
+                background :"rgba(0,0,0,.7)",
+                border :"0",
+                padding:"2px 6px",
+                borderRadius:"6px"
+
+            });
+            marker.setLabel(label);
+        });
+    }
+
+
+    $(".btn").on('click',function(){
+        /*$(".mask").fadeIn();
+        $(".menu").animate({'bottom':'0'},500);
+        $.getJSON("http://Nzj.didi365.com/api/demo/insurance?callback=?",function(data) {
+            if(data.code==1){
+                //inputTipsText(data.message);
+                //location.href = '/web/car-service/demo/booking-success.html';
+            }else{
+                inputTipsText(data.message);
+            }
+        });*/
+    });
+
+    $(".mask").on("click",function () {
+        $(".mask").fadeOut();
+        $(".menu").animate({'bottom':'-100%'},500);
+        //location.href = '/web/car-service/demo/booking-success.html';
+    });
+
+    function all_load_end(){
+        if(mapLoad){
+            loadEnd();
+        }
+    }
+</script>
+</html>

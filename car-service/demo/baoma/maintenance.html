@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>保养</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/maintenance.css">
+    <link href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css" rel="stylesheet" type="text/css"/>
+    <script src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js" type="text/javascript"></script>
+</head>
+<body>
+    <div class="maintenance-wrap">
+        <ul class="list">
+            <li class="item">
+                <div class="item-head">
+                    <span class="car-name"></span>
+                    <span id="carnum"></span>
+                    <span class="edit"></span>
+                </div>
+                <div class="item-data">
+                    <div class="mileage">
+                        <span class="circle"><i class="db" id="left_mileage">0</i>km</span>
+                        <p>剩余保养里程</p>
+                    </div>
+                    <div class="days">
+                        <span class="circle"><i class="db" id="left_time">0</i>天</span>
+                        <p>剩余保养天数</p>
+                    </div>
+                </div>
+                <div class="item-bottom">
+                    <div>上次保养里程:<span id="last_mileage"></span>km</div>
+                    <div>上次保养日期:<span id="last_time"></span></div>
+                </div>
+            </li>
+        </ul>
+        <div class="btn-box">
+            <div class="btn"><a id="book" style="color: #333;">预约保养</a></div>
+        </div>
+    </div>
+
+    <div class="mask"></div>
+    <div class="alert-box">
+        <div class="main">
+            <h3>保养校准</h3>
+            <div class="input-box">
+                <input type="number" placeholder="请输入上次保养里程" name="last_mileage" style="width: 80%;">
+                <span>Km</span>
+            </div>
+            <div class="tips">请输入整数值</div>
+            <div class="input-box">
+                <input type="text" placeholder="请输入上次保养日期" name="last_time" style="width: 100%;">
+            </div>
+            <div class="tips">输入如例：2016-08-20</div>
+            <div class="input-box">
+                <input type="number" placeholder="请输入保养间隔里程" name="per_mileage" style="width: 80%;">
+                <span>Km</span>
+            </div>
+            <div class="tips">请输入整数值</div>
+        </div>
+        <div class="btn-box" border="top">
+            <div class="cancel" border="right">取消</div>
+            <div class="confirm">确定</div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    var soft_vin = I('soft_vin');
+    var userid = I('userid');
+    var carLoad = false;
+    var dataLoad = false;
+    var vbappid = I('vbappid');
+    function onStart(){
+        loadEnd();
+        getCar();
+        getData();
+    }
+    //获取车辆信息
+    function getCar(){
+        var data = {
+            soft_vin:soft_vin,
+            userid:userid,
+            vbappid:vbappid
+        }
+        jsonAjax(API.API_LIST.TECH_CARINFO_GETONECARINFO,data,function(res){
+            if(res.status==1){
+                brand = res.data.brand;
+                $(".car-name").text(res.data.brand);
+                $("#carnum").text(res.data.carnum);
+            }else{
+                inputTipsText(res.info);
+            }
+            carLoad = true;
+            all_load_end();
+        });
+    }
+    //获取车辆保养信息
+    function getData(){
+        var data = {
+            soft_vin:soft_vin,
+            userid:userid,
+            vbappid:vbappid
+        }
+        jsonAjax(API.API_LIST.TECH_CARINFO_UPKEEP,data,function(res){
+            if(res.status==1){
+                $("#left_mileage").text(res.data.left_mileage);
+                $("#left_time").text(res.data.left_time);
+                $("#last_mileage").text(res.data.last_mileage);
+                $("#last_time").text(res.data.last_time);
+            }else{
+                inputTipsText(res.info);
+            }
+            dataLoad = true;
+            all_load_end();
+        });
+    }
+    //点击编辑图标弹出校准框
+    $(".edit").on('click',function(){
+        $(".mask,.alert-box").fadeIn();
+    })
+    //点击黑幕或取消按钮隐藏校准框
+    $(".mask,.cancel").on('click',function(){
+        $(".mask,.alert-box").fadeOut();
+    })
+    //点击确定保存上次保养信息
+    $(".confirm").on('click',function(){
+        var regx = /^[0-9]*[1-9][0-9]*$/;//判断是否为整数
+        var data = {
+            soft_vin:soft_vin,
+            userid:userid,
+            last_mileage:$("input[name='last_mileage']").val(),
+            last_time:$("input[name='last_time']").val(),
+            add_mileage:$("input[name='per_mileage']").val()
+        }
+        if(data.last_mileage==""){
+            inputTipsText("请输入上次保养里程");
+        }else if(data.last_time==""){
+            inputTipsText("请输入上次保养日期");
+        }else if(data.add_mileage==""){
+            inputTipsText("请输入保养间隔里程");
+        }else{
+            jsonAjax(API.API_LIST.TECH_CARINFON_EDITUPKEEP,data,function(res){
+                if(res.status==1){
+                    //$("#last_mileage").text(data.last_mileage);
+                    //$("#last_time").text(data.last_time);
+                    getData();
+                    $(".mask,.alert-box").fadeOut();
+                }else{
+                    inputTipsText(res.info);
+                }
+            });
+        }
+    });
+    //点击预约保养跳转到预约保养页面
+    $("#book").on('click',function(){
+        var param = {
+            userid:I('userid'),
+            logintoken:I('logintoken'),
+            soft_vin:soft_vin,
+            longitude:I('longitude'),
+            latitude:I('latitude'),
+            vbappid:vbappid
+        }
+        PageJump('gotoDemoBaoyao',param);
+    });
+    //时间控件
+    var now = new Date();
+    $("input[name='last_time']").mobiscroll().date({
+        theme: 'android-holo-light',
+        lang: 'zh',
+        display: 'bottom',
+        mode: 'scroller',
+        min: new Date(2000, 0, 1),
+        max:new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+        /*invalid: ['w0', 'w6', '5/1', '12/24', '12/25'],*/
+        dateFormat: 'yy-mm-dd', // 日期格式
+        rows:3
+    });
+    //只能输入整数
+    $("input[name='last_mileage'],input[name='per_mileage']").on('input',function(){
+        var regx = /^[0-9]*[1-9][0-9]*$/;
+        var _value = $(this).val();
+        if(!regx.test(_value)){
+           var result = _value.substr(0,_value.length-1);
+           $(this).val(result);
+        }
+    });
+    //判断全部加载完成
+    function all_load_end(){
+        console.log(carLoad,dataLoad);
+        if(carLoad&&dataLoad){
+            loadEnd();
+        }
+    }
+</script>
+</html>

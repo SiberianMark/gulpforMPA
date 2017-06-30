@@ -1,0 +1,84 @@
+@charset "utf-8";
+*{
+    margin: 0; padding: 0;
+}
+body,html{
+    height: 100%; width: 100%; background-color: #fff;
+}
+i,em{
+    font-style: normal;
+}
+.container{
+    padding-bottom: 5rem;
+}
+.advice-list > .title{
+    font-size: 1.4rem; color: #333; padding: 0 1.2rem;
+}
+.advice-list > .title .design{
+    height: 4.3rem; line-height: 4.3rem; width: 13rem;
+}
+.advice-list > .title .price{
+    text-align: right; color: #f55; margin-right: .6rem;
+}
+.advice-list > .title .arrow{
+    width: 2rem; height: 2rem; background: url('/web/car-service/assets/image/down@2x.png'); background-size: 100% 100%;
+    transition: transform .3s ease 0s; -webkit-transition: transform .3s ease 0s;
+}
+.advice-list > .title .arrow.up{
+    transform:rotate(180deg); -webkit-transform:rotate(180deg);
+}
+.advice-list > .content{
+    padding: 0 1.2rem; display: none;
+}
+.advice-list > .content.fade{
+    display: block;
+}
+.advice-list > .content .tit{
+    font-size: 1.2rem; color: #333; line-height: 2.8rem;
+}
+.advice-list > .content .con{
+    border: 1px solid #eee; background-color: #f8f8f8; color: #999; font-size: 1.2rem; padding: 1rem; border-radius: 3px;
+}
+.advice-list > .content .con .list{
+    margin-bottom: 1rem; line-height: 1.2rem;
+}
+.advice-list > .content .con .list > div:first-child{
+    width: auto;
+}
+.advice-list > .content .con .list > div:last-child{
+    text-align: right;
+}
+.advice-list > .content .con .bottom{
+    text-align: right; color: #333;
+}
+.bot-box{
+    height: 4.8rem; line-height: 4.8rem; position: fixed; bottom: 0; left: 0; width: 100%; font-size: 1.4rem; background-color: #fff;
+}
+.bot-box .all-price{
+    color: #333; padding-left: 1rem;
+}
+.bot-box .all-price span{
+    color: #f55; font-weight: bold;
+}
+.bot-box .bot{
+    width: 12.5rem; background-color: #f55; color: #fff; text-align: center;
+}
+.bot-box .bot.yellow{
+    background-color: #fd9724;
+}
+.bot-box .bot.gray{
+    background-color: #cdcdcd;
+}
+#prompt > div{
+    width: 29rem; height: 14rem; margin: -7rem 0 0 -14.5rem; background-color: #fff; border-radius: 4px; font-size: 1.4rem;
+    position: absolute; left: 50%; top:50%; text-align: center;
+}
+#prompt > div > p{
+    color: #666; line-height: 9rem;
+}
+#prompt > div > .flex{
+    line-height: 4.4rem; color: #333;
+}
+#prompt > div > .flex > div:last-child{
+    color: #539bfd;
+}

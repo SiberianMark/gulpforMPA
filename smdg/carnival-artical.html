@@ -1,0 +1,1002 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <script src="/web/assets/js/load.meta.js"></script>
+  <title>资讯详情</title>
+  <script src="/web/assets/js/load.head3.js"></script>
+  <!-- ↑ 顶部共用 ↑ -->
+  <link rel="stylesheet" href="/web/pub-acct/assets/css/weui.css">
+  <link rel="stylesheet" href="/web/assets/css/smdg/weui-refresh.css">
+  <link rel="stylesheet" href="/web/assets/css/note.css">
+  <link rel="stylesheet" href="/web/assets/css/smdg/articals.css">
+  <link rel="stylesheet" href="/web/assets/css/smdg/competitiveExplanation.css">
+  <style>
+    .close {
+      width: 2.1rem;
+      height: 2.1rem;
+      position: absolute;
+      display: block;
+      right: .8rem;
+      top: 1.5rem;
+      background: url('/web/pub-acct/assets/image/close.png');
+      background-size: 100%;
+    }
+
+    .select-box {
+      background-color: #fff;
+      font-size: 1.2rem;
+      width: 100%;
+    }
+
+     ::-webkit-scrollbar {
+      width: 0;
+    }
+
+    .loads-container {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 5rem;
+      overflow: hidden;
+    }
+
+    .load-wrap {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 1rem;
+      left: 0;
+      bottom: 0;
+      overflow-y: scroll;
+      padding-bottom: 1rem;
+    }
+    .masks{
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0);
+      -webkit-transition: background .3s;
+      transition: background .3s;
+      background: #000;
+      opacity: 0.5;
+    }
+    .ar_contents{font-size: 1.4rem;}
+  </style>
+</head>
+
+<body>
+  <div class="attention-now">
+    <a href="javascrip:;" style=""></a>
+  </div>
+  <div class="no-content">
+    <script type="text/template">
+      <div>
+        <div class="noimg">
+          <img src="/web/assets/image/yibeishanchu_ico.png">
+        </div>
+      </div>
+      {{ show = '删除'; if(it.data.info.is_del == 1){ show = '删除'; }else if(it.data.info.status == 0){ show = '屏蔽'; } }}
+      <p class="p1">内容已经被{{=show}}</p>
+      <p class="p2">您可以直接访问店铺</p>
+    </script>
+  </div>
+  <div class="articals-wrap">
+    <div class="artical-modal"></div>
+    <div class="ifappreciate"></div>
+    <div class="act_recommend"></div>
+    <div class="comment-modal"></div>
+    <div class="loadmore" rids="">查看更多</div>
+  </div>
+  <div class="bs-reply" style="">
+    <textarea id="content" class="content-textarea bs-reply-text" style="overflow-y:scroll;" rows="6" placeholder="该文章你怎么看?"></textarea>
+    <div class="flex-x-about">
+      <div id="bs-comment-apply" class="bs-comment-apply">提交</div>
+      <div id="bs-comment-close" class="bs-comment-close">取消</div>
+    </div>.
+  </div>
+  <div id="actionSheet_wrap">
+    <div id="mask" class="weui_mask_transition" style="display: none;"></div>
+    <div id="weui_actionsheet" class="weui_actionsheet" style="height: 50rem;z-index:2000;">
+      <i class="close" style="z-index:999"></i>
+      <div class="box-text">读者赞赏</div>
+      <div class="loads-container">
+        <div class="load-wrap fresh-body">
+          <div class="weui-pull-to-refresh__layer">
+            <div class='weui-pull-to-refresh__arrow'></div>
+            <div class='weui-pull-to-refresh__preloader'></div>
+            <div class="down">下拉刷新</div>
+            <div class="up">释放刷新</div>
+            <div class="refresh">正在刷新</div>
+          </div>
+          <ul class="select-box">
+          </ul>
+          <div class="weui-loadmore">
+            <i class="weui-loading"></i>
+            <span class="weui-loadmore__tips">正在加载</span>
+          </div>
+          <div class="weui-nomore" style="display:none;text-align:center">没有更多了</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="masks" style="display:none;"></div>
+  <div class="award-pay" style="z-index:1002;">
+    <p class="title">赞赏成功</p>
+    <p class="desc">感谢您的支持和鼓励</p>
+    <div class="btn">
+      <div class="cancel">关闭</div>
+      <div class="goto-my-award">赞赏记录</div>
+    </div>
+  </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<!-- type值0:采集的文章 1：采集的视频 2:玩家号发表的文章 3:首页资讯列表的图文广告 4：玩家号发表的视频 5:首页资讯列表的视频广告 6：文章详情页的图文广告 7：文章详情页的视频广告 8：首页资讯列表的关注人 -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id='datalist'>
+  {{var typess=it.data.detail.type;}}
+  {{?typess==0 || typess==2 || typess==3 || typess==6 || typess==8}}
+    <div class="actical-title">{{=it.data.detail.title}}</div>
+    <div class="author-info flex-y" uid="{{=it.data.detail.userid}}">
+      <img class="author-img" isplant={{=it.data.detail.rid?it.data.detail.rid:''}} src="{{=(it.data.detail.author_thumb)?it.data.detail.author_thumb:'/web/assets/image/smdg/touxiang@2x.png'}}" alt="">
+      <div class="author-area flex-c" isplant={{=it.data.detail.rid?it.data.detail.rid:''}}>
+        <p>{{=(it.data.detail.author)?it.data.detail.author:it.data.detail.source}}</p>
+        <p class="date">{{=getFrendlyDate(it.data.detail.put_time,true)}}</p>
+
+      </div>
+      {{?it.data.detail.rid}} {{?it.data.detail.followed}}
+      <span class="follow following" otherid={{=it.data.detail.userid}}>已关注</span> {{??}}
+      <span class="follow" otherid={{=it.data.detail.userid}}>+关注</span> {{?}} {{?}}
+    </div>
+    <div class="ar_contents">
+      {{?typess==2}} {{var conArr=it.data.detail.content;}}
+      <div id="pic_content" class="diray_txt">
+        {{~conArr:optionItem:option}} {{?optionItem.cid==1}}
+        <div class="text">
+          <pre>{{=decodeHTMLNote(optionItem.content)}}</pre>
+        </div>
+        {{??optionItem.cid==2}}
+        <div class='img' id='{{="imgsvg"+option}}' pic_labels={{=optionItem.pic_label}}>
+          <img src="{{=optionItem.content}}" width="100%">
+        </div>
+        {{??optionItem.cid==3}}
+        <div>
+          <a href="#" class="goods" goodsid="{{=optionItem.content.id}}">
+            <img src="{{=optionItem.content.ad_img}}">
+            <div>
+              <p class="goods-desc">{{=optionItem.content.name}}</p>
+              <p class="goods-price">
+                <span class="priceKill0">¥ 0</span>
+                <span>¥ {{=optionItem.content.sell_price}}</span>
+              </p>
+            </div>
+          </a>
+        </div>
+        {{?}} {{~}}
+      </div>
+      {{??}}
+      <div class="actical-cons">
+        {{=it.data.detail.content}}
+      </div>
+      {{?}}
+    </div>
+  {{??}}
+  <div class="ar_contents">
+    <div class="competitiveVideo">
+      <video src="{{=(isArray(it.data.detail.content))?(it.data.detail.content[0].content):(it.data.detail.content)}}" controls="controls" type="video/mp4" preload="auto" autoplay="autoplay">
+                      您的浏览器不支持 video 标签。
+                  </video>
+    </div>
+    <div class="competitiveMessage">
+      <div class="competitiveTitle" style="padding:1.3rem 0">{{=it.data.detail.title}}</div>
+    </div>
+  </div>
+  {{?}}
+  {{?it.data.detail.topics && (it.data.detail.topics).length>0}}
+  <ul class="artical-tags">
+    {{var keywords=(it.data.detail.topics).split(',');}} {{~keywords:item:index}}
+    <li class="tagItem">{{=keywords[index]}}</li>
+    {{~}}
+  </ul>
+  {{?}}
+</script>
+<script type="text/template" id='act_recommend'>
+  {{var typess=it.data.detail.type;}} {{?typess==1||typess==4||typess==5||typess==7}}
+  <div class="author-info flex-y" style="padding-top:1rem;" uid="{{=it.data.detail.userid}}">
+    <img isplant={{=it.data.detail.rid?it.data.detail.rid:''}} class="author-img" src="{{=(it.data.detail.author_thumb)?it.data.detail.author_thumb:'/web/assets/image/smdg/touxiang@2x.png'}}" alt="">
+    <div class="author-area flex-c" isplant={{=it.data.detail.rid?it.data.detail.rid:''}}>
+      <p>{{=(it.data.detail.author)?it.data.detail.author:it.data.detail.source}}</p>
+      <p class="date">{{=getFrendlyDate(it.data.detail.put_time,true)}}</p>
+    </div>
+    {{?it.data.detail.rid}} {{?it.data.detail.followed}}
+    <span class="follow following" otherid={{=it.data.detail.userid}}>已关注</span> {{??}}
+    <span class="follow" otherid={{=it.data.detail.userid}}>+关注</span> {{?}} {{?}}
+  </div>
+  {{?}} {{?!it.data.detail.rid}}
+  <div class="copyright-info">本文转载为《{{=it.data.detail.source}}》媒体，如涉及版权问题，请与作者联系。</div>
+  {{?}}
+  <ul class="competitiveOther">
+    {{?typess==1||typess==5||typess==7}} {{~it.data.recommend:item:index}}
+    <li class="flex-x-about fac" border="top" id="{{=item.id}}">
+      <div class="competitiveOtherMsg flex-c">
+        <div class="competitiveOtherTitle">{{=item.title}}</div>
+        <div class="competitiveOtherStatus">
+          <span>{{=item.author}}</span>
+          <span>{{=getFrendlyDate(item.pub_time,true)}}</span>
+        </div>
+      </div>
+      <div class="competitiveOtherImg">
+        <img src="{{=item.thumbnail}}" alt="">
+        <div class="competitiveOtherVideoTime">
+          <span>{{=(item.duration)?item.duration:''}}</span>
+        </div>
+      </div>
+    </li>
+    {{~}}
+    <div class="competitiveOtherMore" border="all">查看更多</div>
+    {{??}} {{~it.data.recommend:item:index}}
+    <li class="flex-x-about fac" style="padding:0" border="top" id="{{=item.id}}">
+      <div class="competitiveOtherTitle" style="-webkit-line-clamp: 1;margin:0.5rem 0;">{{=item.title}}</div>
+    </li>
+    {{~}} {{?}}
+  </ul>
+</script>
+<script type="text/template" id='commentlist'>
+  <div class="footer flex-y" border="top">
+    <input type="text" placeholder="写评论..." class="comment-input" readonly="readonly">
+    <div class="comment-icons flex-c flex-x-about">
+      {{?it.data.appreciate && it.data.appreciate.can_award != '0'}}
+      <div class="appreciate"></div>
+      {{?}}
+      <div class="comment-box" conmentsnums="{{=(it.data.comments)?it.data.comments.length:0}}">
+        {{?it.data.info.comment && it.data.info.comment>0}}
+        <div class="box-nums">{{=(it.data.info.comment>99)?'99+':it.data.info.comment}}</div>
+        {{?}}
+      </div>
+      {{var is_collections=it.data.info.is_collection;}} {{var has_click=it.data.info.is_click;}}
+      <div class="comment-collects {{=(is_collections>0)?'':'no-collects'}}"></div>
+      <div class="comment-zan {{=(has_click>0)?'':'no-zan'}}"></div>
+    </div>
+  </div>
+  {{? isArray(it.data.comments)}}
+  <ul class="comment-list">
+    {{~it.data.comments:item:index}}
+    <li class="comment-item flex" uid="{{=item.userid}}">
+      <img class="comment-usrImg" src="{{=item.photo}}" alt="">
+      <div class="commemt-cons flex-c">
+        <div class="comment-usrName"><span class="comment-usrName-real">{{=item.nickname}}</span> {{?item.car_name!=''}}
+          <img class="comment_car_logo" src="{{=item.car_logo}}" alt="">
+          <span class="comment_car_name">{{=item.car_name}}</span> {{?}}
+        </div>
+        <div class="usr-con">{{=item.comment}}</div>
+        <div class="comment-other">
+          {{=getFrendlyDate(item.add_time,true)}} <span class="comment-recall" commentid="{{=item.id}}">{{=(item.comment_num>0)?item.comment_num+'条回复 >':'回复'}}</span>
+        </div>
+      </div>
+      <div class="like-box {{=(item.is_click>0)?'':'unlike-box'}}" id="{{=item.id}}">{{=item.hits}}</div>
+    </li>
+    {{~}}
+  </ul>
+  {{??page==1 && !isArray(it.data.comments)}}
+  <div class="no-comment flex-center">
+    <div class="flex-c" style="text-align:center;">
+      <p class="icons"></p>
+      <p>暂无评论，点击抢沙发</p>
+    </div>
+  </div>
+  {{?}}
+</script>
+<script type="text/template" id="appreciateList">
+  {{var res = it.data;}} {{~res:list:indexs}}
+  <li class="flex" border="bottom" uid="{{=list.userid}}">
+    <div class="avatar"><img src="{{=list.photo}}" alt=""></div>
+    <div class="flex-c item-con">
+      <div class="appreciate-title">
+        <span>{{=list.nickname}}</span><span class="{{=list.sex==1?'female':'male'}}"></span>赞赏了文章
+      </div>
+      <p style="margin-top:0.85rem;"><span class="{{=(list.is_play==1)?'player':''}}"></span>{{=list.introduce}}</p>
+    </div>
+    <div class="list-time">{{=list.addtime}}</div>
+  </li>
+  {{~}}
+</script>
+<script type="text/template" id='ifappreciate'>
+  {{?it.data.appreciate.can_award==1}}
+  <div class="appreciate-con">
+    <div class="appreciate-text">朕已阅，莫辜负爱卿，赏</div>
+    <div class="appreciate-btn">赞赏</div>
+    <div class="appreciate-nums"><i>{{=it.data.appreciate.number}}</i>人赞赏</div>
+    <div class="appreciate-list">
+      {{var appreciatePhoto=it.data.appreciate.photo;}} {{~appreciatePhoto:item:index}}
+      <div class="appreciate-item"><img src="{{=item}}" alt=""></div>
+      {{~}}
+    </div>
+  </div>
+  {{?}}
+  <div class="collect-nums">
+    <span>阅读 <i class="pvs">{{=it.data.info.pv}}</i></span>
+    <span>收藏 <i class="colles">{{=it.data.info.collection}}</i></span>
+    <span>赞 <i class="favors">{{=it.data.info.click}}</i></span>
+  </div>
+</script>
+<script type="text/template" id="contents">
+  {{?it.data.info.note_type!=1}}
+    {{if(it.data.articles!=null){ }}
+      {{for(var i=0;i<it.data.articles.length;i++)  {}}
+        {{
+          val = it.data.articles[i];
+          cid = val.cid;
+        }}
+        {{if(cid == "1"){ }}
+          /*文字*/
+          <div class="text">
+            <pre>
+              {{
+                var con=decodeHTMLNote(val.content.replace('&lt;embed','&lt;video'));
+              }}
+              {{=con}}
+            </pre>
+          </div>
+        {{ } }}
+        {{if(cid == "2"){ }}
+          /*图片*/
+          <div class='img' id='{{="imgsvg"+i}}' pic_labels="{{=val.pic_label}}">
+            <img src="{{=val.content}}" width="100%">
+          </div>
+        {{ } }}
+        {{if(cid == "3" && val.content){ }}
+          /*商品信息*/
+          <div>
+            <a href="#" class="goods" goodsid="{{=val.content.id}}">
+              <img src="{{=val.content.ad_img}}">
+              <div>
+                <p class="goods-desc">{{=val.content.name}}</p>
+                <p class="goods-price">
+                  <span class="priceKill0">¥ 0</span>
+                  <span>¥ {{=val.content.sell_price}}</span>
+                </p>
+              </div>
+            </a>
+          </div>
+        {{ } }}
+        {{if(cid == "4"){ }}
+          /*视频*/
+           <div class="competitiveVideo">
+                  <video src="{{=val.content}}" controls="controls"  type="video/mp4" preload="auto" autoplay="autoplay">
+                      您的浏览器不支持 video 标签。
+                  </video>
+              </div>
+        {{ } }}
+      {{ } }}
+    {{ } }}
+  {{??}}
+    <div class="competitiveVideo">
+                <video src="{{=it.data.info.video_url}}" controls="controls"  type="video/mp4" preload="auto" autoplay="autoplay" poster="{{=it.data.info.image}}">
+                    您的浏览器不支持 video 标签。
+                </video>
+            </div>
+  {{?}}
+</script>
+<script src="/web/assets/js/svg.js"></script>
+<script src="/web/assets/js/labelSvg.js"></script>
+<script src="/web/assets/js/smdg/fresh-infinite.js"></script>
+<script>
+  var ar_id = I('id', '581');
+  var share = I('share');
+  var userid = getUserid();
+  var plant_source = I('source', '1'),
+    page = 1,
+    type_source = I('type', '1'),
+    pay_source = I('pay_source'),
+    rids = '0';
+  types = I('type', 1);
+  var artical_tml = getRender('datalist');
+  var comment_tml = getRender('commentlist');
+  var recommend_tml = getRender('act_recommend');
+  var ifappreciate_tml = getRender('ifappreciate');
+  var appreciateList_tml = getRender('appreciateList');
+  var ar_contentTml = getRender('contents');
+  var jsonEndArtical, jsonEndComment;
+  var cellct_tmls = '',
+    pub_tmlcons = '';
+  var articles; //文章内容
+  var txtWidth; //标签长度
+  var iconWidth = 26; //刷新icon宽度
+  var firstClick1 = true;
+  var firstClick2 = true;
+  function onStart() {
+    loadArtical();
+    // if ($.cookie('isPay'+ar_id)) {
+    //   $('.award-pay').show();
+    //   $('.masks').css('display', 'block');
+    //   $('body').css('overflow', 'hidden');
+    //   $('video').hide();
+    // }
+    //顶部引流条
+    if (!is_weixn(true)) {
+      $('.attention-now').addClass('attention-web');
+    }
+    if (share) {
+      $('.attention-now').show();
+    } else {
+      $('.attention-now').hide();
+    }
+  }
+  var isArray = function(obj) {
+    return Object.prototype.toString.call(obj) === '[object Array]';
+  };
+
+  function isNull(data) {
+    return (data == "" || data == undefined || data == null) ? "false" : true;
+  }
+
+  // function jsonAllEnd() {
+  //   if (jsonEndArtical && jsonEndComment) {
+  //     loadEnd();
+  //   }
+  // }
+  var pull_action = '';
+  var loading = false;
+  $('.load-wrap').infinite().on("infinite", function() {
+    pull_action = 'down';
+    console.log(pull_action);
+    if (loading) return;
+    loading = true;
+    setTimeout(function() {
+      getAppreciate();
+    }, 2000);
+  });
+  $('.load-wrap').pullToRefresh().on("pull-to-refresh", function() {
+    pull_action = 'up';
+    console.log(pull_action);
+    page = 1;
+    setTimeout(function() {
+      getAppreciate();
+      // $('.load-wrap').pullToRefreshDone();
+      $('.load-wrap').infinite();
+      $('.weui-loadmore').show();
+    }, 2000);
+  });
+
+  function getAppreciate() {
+    console.log(page, 'getdata');
+    jsonAjax('Gold/note/appreciationRecord', {
+      id: (rids == '0') ? ar_id : rids,
+      userid: getUserid(),
+      page
+    }, function(data) {
+      if (data.status == 1) {
+        // $('.weui-loadmore').show();
+        loading = false;
+        if (data.data.length <= 0) {
+          if (pull_action == 'up') {
+            $('.load-wrap').pullToRefreshDone();
+          } else if (pull_action == 'down') {
+            $('.weui-loadmore').hide();
+            $('.load-wrap').destroyInfinite(); //加载结束后必须再次初始化插件
+          }
+          return;
+        }
+        if (page == 1) {
+          $('.select-box').html(appreciateList_tml(data));
+        } else {
+          $('.select-box').append(appreciateList_tml(data));
+        }
+        if (data.data.length < 10) {
+          $('.weui-loadmore').hide();
+          $('.weui-nomore').show();
+          setTimeout(function() {
+            $('.weui-nomore').hide();
+          }, 1500);
+        }
+        page++;
+        if (pull_action == 'up') {
+          $('.load-wrap').pullToRefreshDone();
+        } else if (pull_action == 'down') {
+          $('.load-wrap').destroyInfinite();
+          loading = false;
+        }
+      } else {
+        if (pull_action == 'up') {
+          $('.load-wrap').pullToRefreshDone();
+        } else if (pull_action == 'down') {
+          $('.load-wrap').destroyInfinite();
+          loading = false;
+        }
+      }
+    });
+  }
+
+  function loadArtical() {
+    jsonAjax(API.API_LIST.CARREC_RE_DETAILCONTENT, {
+      itemid: ar_id,
+      userid: getUserid(),
+      type: types
+    }, function(data) {
+      if (data.status == 1) {
+        cellct_tmls = cellct_tmls;
+        var share_imgs = (data.data.detail.thumbnail) ? (data.data.detail.thumbnail).split(',')[0] : '';
+        TitleReSet(data.data.detail.title);
+        WxShare.title = data.data.detail.title;
+        WxShare.imgUrl = share_imgs;
+        WxShare.desc = data.data.detail.description;
+        //(用户发布或者平台文章id)rid重新赋值
+        if (plant_source == '1') {
+          if (data.data.detail.rid) {
+            rids = data.data.detail.rid;
+          }
+        }
+        // $('.loadmore').attr('rids',rids);
+        getComments(data.data.detail.rid);
+        $('.articals-wrap .artical-modal').html(artical_tml(data));
+        $('.articals-wrap .act_recommend').html(recommend_tml(data));
+        //自己发布的文章不能关注
+        if (data.data.detail.userid == getUserid()) {
+          $('.follow').hide();
+        }
+        if (data.data.detail.type == 1 || data.data.detail.type == 4 || data.data.detail.type == 5 || data.data.detail.type == 7) {
+          $('.comment-modal>.collect-nums').hide();
+        } else {
+          $('.comment-modal>.collect-nums').show();
+          if (data.data.detail.rid) {
+            $('#pic_content div').each(function(i, val) {
+              if ($(val).hasClass('img') && $(val).attr("pic_labels") != '' && $(this).attr("pic_labels") != 'false') {
+                $(val).drawLabel({});
+              }
+            });
+          }
+        }
+        //微信查看图片大图 -add by JM 2017.05.10
+        var $images = $(".actical-cons").find("img");
+        imgPreview($images);
+      } else {
+        inputTipsText(data.info);
+      }
+      loadEnd();
+    }, null, 'jsonp', 1);
+  }
+
+  function getComments() {
+    var con_rids=arguments[0]?arguments[0]:0;
+    jsonAjax(API.API_LIST.GOLD_NOTE_NODEDETAIL, {
+      id: ar_id,
+      rid: rids,
+      source: plant_source,
+      page: page,
+      userid: getUserid()
+    }, function(data) {
+      if (data.status == 1) {
+        WxShare.link = data.data.info.share;
+        if (data.data.info.is_del == "1" || data.data.info.status == "0") {
+          $(".no-content").css({
+            'display': 'block'
+          });
+          $('.articals-wrap').hide();
+          doTer(data, $(".no-content"));
+          return;
+        }
+        if(con_rids>0){
+          $('.ar_contents').html(ar_contentTml(data));
+        }
+        if (data.data.appreciate) {
+          $('.ifappreciate').html(ifappreciate_tml(data));
+        }
+        // $('.collect-nums .colles').text(data.data.info.collection);
+        // $('.collect-nums .favors').text(data.data.info.click);
+        if (page == 1) {
+          $('.articals-wrap .comment-modal').html(comment_tml(data));
+        } else {
+          if (isArray(data.data.comments)) {
+            $('.articals-wrap .comment-modal').append(comment_tml(data));
+          } else {
+            inputTipsText('无更多数据');
+          }
+        }
+        if (isArray(data.data.comments) && data.data.comments.length >= 5) {
+          $('.loadmore').show();
+        } else {
+          $('.loadmore').hide();
+        }
+      }
+      loadWxObject(true);
+      getAppreciate();
+      if ($.cookie('isPay'+ar_id)) {
+        $('.award-pay').show();
+        $('.masks').css('display', 'block');
+        $('body').css('overflow', 'hidden');
+        $('video').hide();
+      }
+    });
+  }
+  //加载更多
+  $('.articals-wrap').on('click', '.loadmore', function() {
+    page++;
+    getComments();
+  });
+  //推荐视频
+  $('.articals-wrap').on('click', '.competitiveOther .fac', function() {
+    var obj = {
+      id: $(this).attr('id')
+    };
+    Interface('gotoCarnivalArtical', obj);
+  });
+
+  //作者关注
+  $('.articals-wrap').on('click', '.follow', function() {
+    var $this = $(this);
+    // console.log($this);
+    isLogin(function(ret) {
+      if (ret) {
+        if ($this.hasClass('following')) {
+          follows($this.attr('otherid'), '1', $this);
+        } else {
+          follows($this.attr('otherid'), '0', $this);
+        }
+      }
+    });
+  });
+
+  function follows(other_id, action, ele) {
+    jsonAjax(API.API_LIST.GOLD_PLAY_DOFOLLOW, {
+      userid: getUserid(),
+      other_id: other_id,
+      action: action
+    }, function(data) {
+      if (data.status == 1) {
+        ele.toggleClass('following');
+        if (ele.hasClass('following')) {
+          ele.text('已关注');
+        } else {
+          ele.text('+关注');
+        }
+      }
+    });
+  }
+  //文章收藏
+  function ar_collect(type, source, action, ele) {
+    jsonAjax(API.API_LIST.GOLD_NOTE_DOCOLLECT, {
+      id: ar_id,
+      userid: getUserid(),
+      type: type,
+      source: source,
+      action: action
+    }, function(data) {
+      if (data.status == 1) {
+        inputTipsText(data.info);
+        ele.toggleClass('no-collects');
+        var vals = parseInt($('.collect-nums').find('.colles').text());
+        if (ele.hasClass('no-collects')) {
+          $('.collect-nums').find('.colles').text(vals - 1);
+        } else {
+          $('.collect-nums').find('.colles').text(vals + 1);
+        }
+      } else {
+        inputTipsText(data.info);
+      }
+    });
+  }
+  $('.articals-wrap').on('click', '.comment-collects', function() {
+    if (!firstClick1) {
+      return;
+    }
+    var $this = $(this);
+    isLogin(function(ret) {
+      if (ret) {
+        var type_source = I('type', 0);
+        if ($this.hasClass('no-collects')) {
+          ar_collect(type_source, plant_source, '', $this);
+        } else {
+          ar_collect(type_source, plant_source, 'cancel', $this);
+        }
+      }
+    });
+    firstClick1 = false;
+    setTimeout(function() {
+      firstClick1 = true;
+    }, 1000);
+  });
+  //文章点赞
+  function ar_zan(type, source, action, ele) {
+    jsonAjax(API.API_LIST.GOLD_NOTE_DOLIKE, {
+      id: ar_id,
+      userid: getUserid(),
+      type: type,
+      source: source,
+      action: action
+    }, function(data) {
+      if (data.status == 1) {
+        var vals = parseInt($('.collect-nums').find('.favors').text());
+        inputTipsText(data.info);
+        ele.toggleClass('no-zan');
+        if (ele.hasClass('no-zan')) {
+          $('.collect-nums').find('.favors').text(vals - 1);
+        } else {
+          $('.collect-nums').find('.favors').text(vals + 1);
+        }
+      } else {
+        inputTipsText(data.info);
+      }
+    });
+  }
+  $('.articals-wrap').on('click', '.comment-zan', function() {
+    if (!firstClick2) {
+      return;
+    }
+    var $this = $(this);
+    isLogin(function(ret) {
+      if (ret) {
+        if ($this.hasClass('no-zan')) {
+          ar_zan(type_source, plant_source, '', $this);
+        } else {
+          ar_zan(type_source, plant_source, 'cancel', $this);
+        }
+      }
+    });
+    firstClick2 = false;
+    setTimeout(function() {
+      firstClick2 = true;
+    }, 1000);
+  });
+  //评论点赞
+  function comm_zan(ArId, type, action, ele) {
+    jsonAjax(API.API_LIST.GOLD_NOTE_DOLIKECOMMENT, {
+      id: ArId,
+      userid: getUserid(),
+      type: type,
+      action: action
+    }, function(data) {
+      if (data.status == 1) {
+        inputTipsText(data.info);
+        ele.toggleClass('unlike-box');
+        if (ele.hasClass('unlike-box')) {
+          ele.text(parseInt(ele.text()) - 1);
+        } else {
+          ele.text(parseInt(ele.text()) + 1);
+        }
+      } else {
+        inputTipsText(data.info);
+      }
+    });
+  }
+  $('.articals-wrap').on('click', '.like-box', function() {
+    var $this = $(this);
+    isLogin(function(ret) {
+      if (ret) {
+        if ($this.hasClass('unlike-box')) {
+          comm_zan($this.attr('id'), type_source, '', $this);
+        } else {
+          comm_zan($this.attr('id'), type_source, 'cancel', $this);
+        }
+      }
+    });
+  });
+  //回复评论
+  $(".articals-wrap").on("click", '.comment-recall', function() {
+    var $this = $(this);
+    var obj = {
+      comment_id: $this.attr('commentid'),
+      artical_id: ar_id
+    };
+    isLogin(function(ret){
+      if(ret){
+        Interface('gotoCommentReply', obj);
+      }
+    });
+  });
+  //写评论
+  $(".articals-wrap").on("click", '.comment-input', function() {
+    isLogin(function(ret) {
+      if (ret) {
+        $(".bs-reply").animate({
+          height: "toggle"
+        }, "slow");
+        $(".articals-wrap").hide();
+      }
+    });
+  });
+  $(".articals-wrap").on("click", '.no-comment>div', function() {
+    isLogin(function(ret) {
+      if (ret) {
+        $(".bs-reply").animate({
+          height: "toggle"
+        }, "slow");
+        $(".articals-wrap").hide();
+      }
+    });
+  });
+  $(".bs-reply").on("click", ".bs-comment-close", function() {
+    $(".bs-reply").animate({
+      height: "toggle"
+    }, "slow");
+    $(".articals-wrap").show();
+  });
+  $(".bs-reply").on("click", ".bs-comment-apply", function() {
+    if ($('#content').val() == "" || $.trim($('#content').val()) == "") {
+      inputTipsText("请输入内容！");
+      $('#content').focus();
+      return;
+    }
+    if ($('#content').val().length > 100) {
+      inputTipsText("评论内容不能超过100字！");
+      $('#content').focus();
+      return;
+    }
+    jsonAjax(API.API_LIST.GOLD_NOTE_ADDNOTECOMMENT, {
+      id: ar_id,
+      userid: getUserid(),
+      comment: $('#content').val(),
+      type: type_source,
+      source: plant_source
+    }, function(data) {
+      if (data.status == 1) {
+        $('#content').val('');
+        $(".bs-reply").animate({
+          height: "toggle"
+        }, "slow");
+        inputTipsText(data.info);
+        page = 1;
+        onStart();
+        $(".articals-wrap").show();
+        $('html,body').animate({
+          scrollTop: $('.artical-modal').height()
+        }, 500);
+      }
+    });
+  });
+  //查看评论
+  $(".articals-wrap").on("click", '.comment-box', function() {
+    var conments_nums = $(this).attr('conmentsnums');
+    //    var commentValue = $(".box-nums").text();
+    if (conments_nums == 0) {
+      isLogin(function(ret) {
+        if (ret) {
+          $(".bs-reply").animate({
+            height: "toggle"
+          }, "slow");
+          $(".articals-wrap").hide();
+        }
+      });
+    } else {
+      $('html,body').animate({
+        scrollTop: $('.artical-modal').height()
+      }, 500);
+    }
+  });
+  //跳转到赞赏页面
+  $(".articals-wrap").on("click", '.appreciate-btn', function() {
+    var obj = {
+      id: ar_id,
+      rid: rids,
+      plant_source: plant_source,
+      beforePage: 'article'
+    };
+    Interface('gotoAwardCashier', obj);
+  });
+  $(".articals-wrap").on("click", '.appreciate', function() {
+    var obj = {
+      id: ar_id,
+      rid: rids,
+      plant_source: plant_source,
+      beforePage: 'article'
+    };
+    Interface('gotoAwardCashier', obj);
+  });
+
+  //个人中心跳转
+  $(".articals-wrap").on("click", '.author-info .author-img', function() {
+    var obj = {
+      uid: $(this).parents('.author-info').attr('uid')
+    };
+    var is_plant = $(this).attr('isplant');
+    if (is_plant!='') {
+      Interface('gotoPersonInfo', obj);
+    }
+  });
+  $(".articals-wrap").on("click", '.author-info .author-area', function() {
+    var obj = {
+      uid: $(this).parents('.author-info').attr('uid')
+    };
+    var is_plant = $(this).attr('isplant');
+    if (is_plant!='') {
+      Interface('gotoPersonInfo', obj);
+    }
+  });
+  $(".articals-wrap").on("click", '.comment-list .comment-usrImg', function() {
+    var obj = {
+      uid: $(this).parents('li').attr('uid')
+    };
+    Interface('gotoPersonInfo', obj);
+  });
+  $(".articals-wrap").on("click", '.comment-list .comment-usrName-real', function() {
+    var obj = {
+      uid: $(this).parents('li').attr('uid')
+    };
+    Interface('gotoPersonInfo', obj);
+  });
+  $("#actionSheet_wrap").on("click", '.avatar', function() {
+    var obj = {
+      uid: $(this).parents('li').attr('uid')
+    };
+    Interface('gotoPersonInfo', obj);
+  });
+
+  $(".articals-wrap").on("click", '.appreciate-list', function() {
+    $('#mask').addClass('weui_fade_toggle').show();
+    $('#weui_actionsheet').addClass('weui_actionsheet_toggle');
+    $('video').hide();
+    $('body').css('overflow', 'hidden');
+  });
+  // 关闭
+  $('#weui_actionsheet').on('click', 'i.close', function() {
+    $('#mask').removeClass('weui_fade_toggle').hide();
+    $('#weui_actionsheet').removeClass('weui_actionsheet_toggle');
+
+    $('video').show();
+    $('body').css('overflow', 'scroll');
+  });
+  $('#mask').on('click', function() {
+    $('#mask').removeClass('weui_fade_toggle').hide();
+    $('#weui_actionsheet').removeClass('weui_actionsheet_toggle');
+    $('video').show();
+    $('body').css('overflow', 'scroll');
+  })
+  $('.award-pay .cancel').on('click', function() {
+    $.cookie('isPay'+ar_id,'',{expires: 30,path:'/'});
+    $('.award-pay').hide();
+    $('.masks').css('display', 'none');
+    $('body').css('overflow', 'scroll');
+    $('video').show();
+  });
+  $('.award-pay .goto-my-award').on('click', function() {
+    $.cookie('isPay'+ar_id,'',{expires: 30,path:'/'});
+    gotoAwardRecord();
+  });
+  //网页图片大图预览 -add by JM 2017.05.10
+  function imgPreview(imgs) {
+    console.log(imgs);
+    var imgPaths = [];
+    if ($('#pic_content div').length != 0) {
+      var imgbox = $('#pic_content div').find('.img'); //兼容有标签的文章
+    }
+
+    $(imgs).each(function() {
+      imgPaths.push(this.src);
+    });
+    if ($('#pic_content div').length != 0) {
+      $(imgbox).on("click", function() { //兼容有标签的文章
+        wx.previewImage({
+          current: $(this).find('img').src,
+          urls: imgPaths
+        });
+        console.log(imgbox);
+      });
+    } else {
+      $(imgs).on("click", function() {
+        wx.previewImage({
+          current: this.src,
+          urls: imgPaths
+        });
+        console.log(imgs);
+      });
+    }
+
+
+  }
+
+  function decodeHTMLNote(str) {
+    var div = document.createElement('div');
+    div.innerHTML = str;
+    if (str.indexOf('&lt;') > -1) { //经过编码的html数据
+      return div.innerText || div.textContent;
+    } else { //未经过编码
+      return div.innerHTML;
+    }
+  }
+</script>
+
+</html>

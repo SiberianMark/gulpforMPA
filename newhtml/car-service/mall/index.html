@@ -1,0 +1,444 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>商城</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mall.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script src="/web/assets/js/jquery.lazyload.min.js?v=5c01d7aff0"></script>
+    <style>
+        s{text-decoration: none;}
+        .mui-scroll-wrapper{min-height:25rem;}
+    </style>
+</head>
+<body>
+    <div id="scoll-hide">
+        <div class="swiper-container index-banner banner">
+            <div class="swiper-wrapper">
+
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+        <div class="mall-nav flex">
+            <div class="item flex-c" onclick="PageJump('gotoIntegralSign');">
+                <div class="item-box" border="left">
+                    <div class="point" id="point" limitline="1"><span></span>积分</div>
+                    <div class="check">查看详情&gt;</div>
+                </div>
+            </div>
+            <div class="item flex-c" onclick="PageJump('gotoHowAcqureSign');">
+                <div class="item-box" border="left">
+                    <div class="earn">如何赚积分</div>
+                    <div class="check2">查看详情&gt;</div>
+                </div>
+            </div>
+        </div>
+        <div class="mall-combo">
+
+        </div>
+    </div>
+    <div class="mall-goods">
+        <ul class="nav flex" border="bottom" id="nav">
+            <li class="flex-c cur" data-type="1"><span>最新</span></li>
+            <li class="flex-c" data-type="2"><span>人气</span></li>
+            <li class="flex-c" data-type="3">
+                <span>价格
+                    <b class="switch">
+                        <div class="up"></div>
+                        <div class="down"></div>
+                    </b>
+                </span>
+            </li>
+            <li class="flex-c" data-type="0">
+                <span><s id="lei">积分兑换</s>
+                    <b class="switch">
+                        <div class="down"></div>
+                    </b>
+                </span>
+                <div class="category" id="category">
+
+                </div>
+            </li>
+        </ul>
+        <div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+            <div class="mui-scroll">
+                <div class="main flex" id="goods-list">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/template" id="temp-banner-list">
+    {{~it.data:item:index}}
+    <div class="swiper-slide" hrefUrl="{{=item.url}}" id="{{=item.id}}">
+        <img class="swiper-lazy" data-src="{{=item.image?item.image:'/web/assets/image/default_ico.svg'}}">
+        <div class="swiper-lazy-preloader"></div>
+    </div>
+    {{~}}
+</script>
+<script type="text/template" id="temp-combo-list">
+    {{?it.data}}
+    <div class="title" border="bottom">
+        <div class="fl">套餐卡</div>
+        <div class="fr">更多</div>
+    </div>
+    <div class="main flex">
+        {{~it.data:item:index}}
+        {{?index<2}}
+        <div class="item" border="right" data-id="{{=item.package_card_id}}">
+            <div class="pic-box flex flex-y">
+                <img data-original="{{=item.image?item.image:'/web/assets/image/default_ico.svg'}}" class="lazy"/>
+                <div class="mask">套餐卡</div>
+            </div>
+            <div class="name" limitline='1'>{{=item.title}}({{=Service(item.item)}})</div>
+            <div class="price">￥{{=item.price}}</div>
+        </div>
+        {{?}}
+        {{~}}
+    </div>
+    {{?}}
+</script>
+<script type="text/template" id="temp-goods-list">
+    {{~it.data:item:index}}
+    <div class="item" data-id="{{=item.id}}" data-exchange="{{=item.is_exchange}}" border="right bottom">
+        <div class="pic-box flex flex-y">
+            <img data-original="{{=item.img?item.img:'/web/assets/image/default_ico.svg'}}" class="lazy"/>
+        </div>
+        <div class="name" limitline="2">{{=item.name}}</div>
+        {{?item.is_exchange==1}}
+        <div class="price">{{=item.sell_price}}-{{=item.max_price}} 积分</div>
+        {{??}}
+        <div class="price">￥{{=item.sell_price}}</div>
+        {{?}}
+    </div>
+    {{~}}
+    {{var len=it.data.length;}}
+    {{?len<3}}
+        {{for(var j=0;j<3-len;j++){}}
+        <div class="item" style="background-color:#eee;">
+            <div class="pic-box flex flex-y">
+                <img  />
+            </div>
+            <div class="name" limitline="2"></div>
+            <div class="price" style="height:2rem;"></div>
+        </div>
+        {{}}}
+    {{?}}
+</script>
+<script type="text/template" id="temp-category-list">
+    <div border="bottom" data-typeid="0" class="cur">积分兑换</div>
+    {{~it.data:item:index}}
+    <div border="bottom" data-typeid="{{=item.id}}">{{=item.name}}</div>
+    {{~}}
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var is_bottom = true;//商品模块在底部
+    var render_banner= getRender('temp-banner-list');
+    var combo_render = getRender('temp-combo-list');
+    var goods_render = getRender('temp-goods-list');
+    var category_render = getRender('temp-category-list');
+    var banner_loader = false;
+    var point_loader = false;
+    var combo_loader = false;
+    var data_loader = false;
+    var category_loader = false;
+    var mySwiper = null;
+    var type = 1;//筛选分类： 最新1（默认），人气2，价格升3，价格降4
+    var typeid = 0;//筛选分类id：积分兑换0（默认）。其它分类为接口里的id值
+    var page = 1;
+    var hide_height;//要隐藏部分的高度
+    var nav_height;//积分商城导航栏的高度
+    var share_height;//分享栏的高度
+    var combo_mb;
+    var combo_height=0;//套餐卡的高度
+    function onStart(){
+        _initMui();
+        getBanner();
+        getMyPoint();
+        getCombo();
+        getData();
+        getCategory();
+    }
+    /*on wx sdk config ready*/
+    function onWxReady(){
+        jsonAjax(API.API_LIST.CAR_SIGN_STORESHARE,{userid:getUserid()},function(data){
+            if(data.status==1){
+                WxShare.title = data.data.title;
+                WxShare.desc = data.data.content;
+                WxShare.imgUrl = data.data.img;
+                WxShare.link = data.data.url;
+                onWxShare();
+            }
+        });
+    }
+
+    function JumpAfterSharing(){
+        jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,{'rid':I('pid',''),'source':5,'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+
+            }
+        })
+    }
+
+    //积分商城滚动效果
+    $("#pullrefresh").on("scroll",function(e){
+        if($(".share-info").length==1){
+            share_height = 5;
+        }else{
+            share_height = 0;
+        }
+        if(e.originalEvent.detail.lastY<0){
+            if($(".share-info").length==1){
+                $(".share-info").fadeOut();
+            }
+            $("#scoll-hide").fadeOut();
+            $("#pullrefresh").css({
+                'margin-top': '4rem',
+                'transition':'margin-top 0.5s ease'
+            });
+
+        }else if(e.originalEvent.detail.lastY>30){
+            if($(".share-info").length==1){
+                $(".share-info").fadeIn();
+            }
+            $("#scoll-hide").fadeIn();
+            $("#pullrefresh").css({
+                'margin-top': 51+share_height-combo_height+'rem',
+                'transition':'margin-top 0.5s ease'
+            });
+        }
+    });
+    //点击积分商城导航效果
+    $("#nav").on("click","li",function(){
+        $("#nav li.cur").removeClass("cur");
+        $(this).addClass("cur");
+        type = $(this).attr("data-type");
+        if(type == "0"){
+            $(this).find(".switch div").removeClass("down").addClass("up");
+            $("#category").show();
+            return;
+        }else if(type == "3"){
+            $("#nav li[data-type='0'] .switch div").removeClass("up").addClass("down");
+            $("#category").hide();
+            $(this).attr("data-type",4);
+        }else if(type == "4"){
+            $("#nav li[data-type='0'] .switch div").removeClass("up").addClass("down");
+            $("#category").hide();
+            $(this).attr("data-type",3);
+        }else{
+            $("#nav li[data-type='0'] .switch div").removeClass("up").addClass("down");
+            $("#category").hide();
+        }
+        $(".mui-scroll").css({
+            'transform': 'translate3d(0px, 0px, 0px) translateZ(0px)'
+        });
+        page = 1;
+        getData();
+    });
+    //点击商品分类效果
+    $("#category").on("click","div",function(e){
+        e.stopPropagation();
+        $("#category div.cur").removeClass("cur");
+        $("#nav li").removeClass("cur");
+        $("#nav li").has(this).addClass("cur");
+        $(this).addClass("cur");
+        typeid = $(this).attr("data-typeid");
+        $(".mui-scroll").css({
+            'transform': 'translate3d(0px, 0px, 0px) translateZ(0px)'
+        });
+        page = 1;
+        $("#nav li[data-type='0'] .switch div").removeClass("up").addClass("down");
+        $("#lei").html($(this).text());
+        $("#category").hide();
+        $("#goods-list").html("");
+        getData();
+    });
+    //获取商品分类
+    function getCategory(){
+        jsonAjax(API.API_LIST.CAR_SIGN_GOODSCATEGORIES,{},function(res){
+            if(res.status==1){
+                $("#category").html(category_render(res));
+            }
+            category_loader = true;
+            load_all_end();
+        });
+    }
+    //获取广告图
+    function getBanner(){
+        jsonAjax(API.API_LIST.CAR_INDEX_BANNER,{},function(data){
+            if(data.status==1){
+                if (mySwiper != null) {
+                    mySwiper.destroy();
+                    mySwiper = null;
+                }
+                $('.index-banner .swiper-wrapper').html(render_banner(data));
+                mySwiper = new Swiper ('.index-banner', {
+                    loop: true,
+                    autoplay: 3000,
+                    observer: true,
+                    preloadImages: false,
+                    speed: 500,
+                    pagination: '.swiper-pagination',
+                    paginationClickable: true,
+                    autoplayDisableOnInteraction: false,
+                    lazyLoading : true
+                });
+            }
+            banner_loader = true;
+            load_all_end();
+        });
+    }
+    //广告点击事件
+    $('.banner').on("tap", 'div.swiper-slide[hrefUrl]',function () {
+        if ($(this).attr('hrefUrl').length > 0) {
+            jsonAjax(API.API_LIST.CAR_INDEX_BANNER_CLICK,{adid:$(this).attr('id')},function(data){
+                //do something
+            });
+            var obj=M();
+            obj.link=$(this).attr('hrefUrl');
+            gotolink('link',obj);
+        }
+    });
+    //获取积分
+    function getMyPoint(){
+        var data = M();
+        data.userid = getUserid();
+        jsonAjax(API.API_LIST.CAR_SIGN_MYINTEGRAL,data,function(res){
+            if(res.status==1){
+                $("#point span").html(res.data);
+            }
+            point_loader = true;
+            load_all_end();
+        });
+    }
+    //获取套餐卡、
+    function getCombo(){
+        var data = M();
+        data.p = 1;
+        jsonAjax(API.API_LIST.CAR_PACKAGECARD_MALLCARDLIST,data,function(res){
+            if(res.status==1){
+                $("#scoll-hide .mall-combo").html(combo_render(res));
+                LazyLoad();
+            }else{
+                $("#scoll-hide .mall-combo").hide();
+                combo_height = 23.7;
+            }
+            $("#pullrefresh").css({
+                'margin-top': 51+share_height-combo_height+'rem'
+            });
+            combo_loader = true;
+            load_all_end();
+        });
+    }
+    //获取积分商品
+    function getData(){
+        nav_height = $("#nav").height();
+        var data = M();
+        data.type = type;
+        data.typeid = typeid;
+        data.page = page;
+        jsonAjax(API.API_LIST.CAR_SIGN_GETGOODS,data,function(data){
+            if (data.status == 1) {
+                if (data.data.length <= 0) {
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return false;
+                }
+                if (page == 1) {
+                    $('#goods-list').html(goods_render(data));
+                }else {
+                    $('#goods-list').append(goods_render(data));
+                }
+                LazyLoad();
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(page==1){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+            }
+            data_loader = true;
+            load_all_end();
+        });
+    }
+
+    function LazyLoad(){
+        $(".lazy").lazyload({
+            effect : "fadeIn",
+            threshold : 10,
+            placeholder:"/web/assets/image/default_ico.svg"
+        });
+    }
+
+    function load_all_end(){
+        console.log(banner_loader,point_loader,combo_loader,data_loader,category_loader);
+        if(banner_loader&&point_loader&&combo_loader&&data_loader&&category_loader){
+            loadEnd();
+        }
+    }
+
+    $("#goods-list").on("tap",".item",function(){
+        var param = M();
+        param.id = $(this).attr("data-id");
+
+        var is_exchange = $(this).attr("data-exchange");
+        if(is_exchange == "1"){
+            param.source = "mall";
+            PageJumpTap('gotoMallGoodsDetail',param);
+        }else{
+            param.source = "omall";
+            PageJumpTap('gotoGoodsDetail',param);
+        }
+    });
+    //点击更多
+    $("#scoll-hide").on("click",".mall-combo .title",function(){
+        PageJump('gotoComboList');
+    });
+    //套餐卡详情
+    $("#scoll-hide").on("click",".mall-combo .item",function(){
+        var param = M();
+        param.card_id = $(this).attr("data-id");
+        PageJump("gotoPackageCardDetail",param);
+    });
+    //拼接服务
+    function Service(arr){
+        var len = arr.length;
+        var B = [];
+        for(var i=0;i<len;i++){
+            B.push(arr[i].name+arr[i].quantity+'次');
+        }
+        if(B.length<=0){
+            return '';
+        }else{
+            return B.join("+");
+        }
+    }
+</script>
+</html>

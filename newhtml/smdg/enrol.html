@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>报名成功</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/assets/css/smdg/demon.css"/>
+    <script src="/web/assets/js/mui.3.0.min.js?v=41cb80c42a"></script>
+</head>
+  <style>
+
+  </style>
+<body>
+<section class="pic">
+   <br>
+   <br>
+   <br>
+   <div>
+     <img src="/web/assets/image/smdg/success.png">
+     <p>报名成功</p>
+   </div>
+</section>
+ <div class="btn btn0">领取报名凭证</div>
+ <div class="btn btn1">查看我的活动</div>
+
+ <div class="modal">
+        <div class="modal-content ol-content">
+            <div class="ol-pn">只有APP上才能查看我的活动哦</div>
+            <div class="ol-cover-btn" border="top">
+               <a  id="btn-cancel">取消</a>
+               <a  border="left" id="btn-use">立即使用</a>
+            </div>
+        </div>
+ </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var id= I('id');
+    var userid = getUserid();
+    function onStart(){
+        loadEnd();
+    }
+    $('.btn0').on('click',function(){
+      var param=new Object();
+      param.id=id;
+      param.userid = getUserid();
+      param.isshare=1;
+      param.from_page=I('from_page');
+      // console.log( param.orderid);
+      InterfaceTap('gotovoucher',param);
+    })
+    $(".btn1").click(function(){
+      if(is_weixn(true)){
+        $('.modal').addClass('fade');
+      }else {
+        var obj= new Object();
+        obj.activity_id=I('id');
+        Interface('gotosmdgActivityDetail',JSON.stringify(obj));
+      }
+    })
+
+
+    $('#btn-use').click(function(){
+      $(this).addClass('hv');
+      InterfaceTap('downApp');
+    })
+
+    $('#btn-cancel').click(function(){
+      $('.modal').removeClass('fade');
+    })
+</script>
+</html>

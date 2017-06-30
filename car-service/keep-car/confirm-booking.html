@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>确认预约</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css" rel="stylesheet" type="text/css"/>
+    <script src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js" type="text/javascript"></script>
+</head>
+<body >
+    <div class="fill-step">
+        <ul>
+            <li class="cur">填里程</li>
+            <li class="cur">选方案</li>
+            <li class="cur">下订单</li>
+        </ul>
+        <div class="picture">
+            <div class="cur"></div>
+            <div class="cur"></div>
+            <div class="last cur"></div>
+            <img src="/web/car-service/assets/image/car@2x.png" style="left:89%;;"/>
+        </div>
+    </div>
+    <div class="noProject">
+        <img class="yy" src="/web/car-service/assets/image/noproject.png">
+        <p>暂无保养方案</p>
+    </div>
+    <div class="keep-item">
+        <div class="title">保养项目</div>
+        <ul>
+            <!--<li>咚咚16项免费检测<span class="ganth"></span></li>-->
+        </ul>
+        <div class="all-item">全部项目<i></i></div>
+    </div>
+    <div class="ygMoney"> 预估费用：<span></span></div>
+    <div class="main" style="margin: 1rem 0;">
+        <div class="input-box">
+            <label>保养时间</label>
+            <input type="text" class="time" value="" placeholder="请选择保养时间"/>
+            <span class="arrow"></span>
+        </div>
+        <div class="input-box">
+            <label>车牌号码</label>
+            <!--<div class="quyu" id="quyu">-->
+                <!--<div><span style="color: #ff8a00;" id="license">粤B</span><span class="down"></span></div>-->
+            <!--</div>-->
+            <div class="carNum" style="width: 50%;"><i style="color: #333333;"></i> <i></i></div>
+        </div>
+        <div class="flex-box">
+            <div class="input-box box-item">
+                <label>联&nbsp;系&nbsp;人</label>
+                <input type="text" value="" class="name" placeholder="请输入联系人"/>
+            </div>
+            <div class="chose-sex">
+                <label>男</label>
+                <span class="selected" name="1" style="margin-right: 1rem;"></span>
+                <label>女</label>
+                <span class="no_select" name="0"></span>
+            </div>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>手机号码</label>
+            <input type="text" value="" class="phone" placeholder="请输入手机号码"/>
+        </div>
+        <div class="btn-box">
+            <div class="btn">确定预约</div>
+        </div>
+    </div>
+    <div class="guwen" id="adviser">
+
+    </div>
+    <script type="text/template" id="tmpList">
+        {{~it.data.list:val:index}}
+            <li>{{=val.content}}<i>{{=val.child_content}}</i></li>
+        {{~}}
+    </script>
+    <script  type="text/template" id="tmpl-data-getLoy">
+        <img src="{{=it.data.logo}}" class="avatar"/>
+        <div class="info">
+            <div class="name">{{=it.data.realname}}</div>
+            <div class="contact" border="bottom">
+                <span class="shouji"><i></i><a>{{=it.data.mobile}}</a></span>
+                <span class="weixin"><i></i><a>{{=it.data.wx_number}}</a></span>
+            </div>
+            <div class="hello">如果您等不及，请联系我，我会接待您~</div>
+        </div>
+    </script>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var carNum;
+    var render = getRender('tmpList');
+    var dataLoad = false;
+    var empLoad = false;
+
+    if(I('ids')==0||I('ids')==''){
+        $('.keep-item,.ygMoney,.fill-step').hide();
+    }else {
+        $('.noProject').hide();
+    }
+
+    function onStart(){
+        getData();
+        getEmployee(API.API_LIST.CAR_UPKEEP_UPKEEPEMPLOYEE,$(".guwen"));
+
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_UPKEEP_LOADRESERVATION,{'ids':I('ids',''),'car_id':I('car_id','')},function(data){
+            if(data.status==1){
+                $('.keep-item ul').html(render(data));
+                console.log('.00');
+                $('.ygMoney span').text('￥'+I('money'));
+                carNum = data.data.carnum;
+                $('.carNum i:first-child').text(carNum.substring(0,2));
+                $('.carNum i:last-child').text(carNum.substring(2,7));
+                $('.name').val(UserInfo.nickname);
+                $('.phone').val(UserInfo.mobile);
+//                $('.name').val(UserInfo.nickname);
+                console.log(UserInfo.sex,'...');
+                if(UserInfo.sex==2){
+                    $('.chose-sex span[name="1"]').attr('class','no_select');
+                    $('.chose-sex span[name="0"]').attr('class','selected');
+                }
+                dataLoad = true;
+                allLoadEnd();
+            }else {
+
+            }
+        })
+    }
+
+    function allLoadEnd(){
+        console.log(dataLoad,empLoad);
+        if(dataLoad&&empLoad){
+            loadEnd();
+        }
+    }
+
+    var now = new Date();
+    $('input.time').mobiscroll().datetime({
+        theme: 'android-holo-light',
+        lang: 'zh',
+        display: 'bottom',
+        mode: 'scroller',
+        min: new Date(now.getFullYear(), now.getMonth(), now.getDate(),now.getHours(),now.getMinutes()),
+        max:new Date(now.getFullYear(), now.getMonth(), now.getDate()+30),
+        /*invalid: ['w0', 'w6', '5/1', '12/24', '12/25'],*/
+        dateOrder: 'Mddyy',
+        timeWheels: 'HHii',
+        rows:3
+    });
+
+    $('.all-item').on('click',function(){
+        $('.keep-item ul').toggleClass('all');
+        $(this).toggleClass('cur');
+    });
+
+    $('.chose-sex').on('click','span',function(){
+        $(this).attr('class','selected').siblings('span').attr('class','no_select');
+    });
+
+    $('.btn-box').on('click',function(){
+        console.log($('input.time').val(),$('input.time').val()=='');
+        if($('input.time').val()==''){
+            inputTipsText('请选择保养时间');
+            return false;
+        }
+        var nameNum = /^[A-Za-z0-9\u4E00-\u9FA5]{1,32}$/;
+        var nameVal = $('input.name').val();
+
+        if(nameVal==''){
+            inputTipsText('联系人不能为空');
+            return false;
+        }
+
+        if(!nameNum.test(nameVal)){
+            inputTipsText('联系人不能输入特殊字符');
+            return false;
+        }
+
+        if(nameVal.length>32||nameVal.length<=0){
+            inputTipsText('联系人字体不能超过16个，字符不能超过32个!');
+            return false;
+        }
+
+        var phoneNum = /^1[3|4|5|7|8]\d{9}$/;
+        var phoneValue = $('input.phone').val(); // 手机号
+
+        if(!phoneNum.test(phoneValue)){
+            inputTipsText('请输入正确的手机号');
+            return false;
+        }
+        console.log($("div[aid]").attr('aid'));
+        var datas = {
+            userid:getUserid(),
+            car_id:I('car_id',''),//用户添加的车的ID
+            plan_id:I('plan_id','0'),//方案ID
+            ids:I('ids','0'),//项目ID
+            money:I('money','0'),//车品牌id
+            sex:$('.chose-sex .selected').attr('name'),//性别
+            contacts:$('input.name').val(),//联系人
+            addtime:$('input.time').val(),//保养时间
+            phone:phoneValue,//电话
+            advisorid:$("div[aid]").attr('aid')==undefined?'0':$("div[aid]").attr('aid')
+        };
+
+        jsonAjax(API.API_LIST.CAR_UPKEEP_RESERVATION,datas,function (res) {
+            if(res.status == 1){
+                var obj = M();
+                obj.code = res.data.code;
+                obj.id = res.data.id;
+                obj.name = res.data.name;
+                obj.type = res.data.type;
+                PageJump('gotoKeepCarRS',obj);
+            }else {
+                inputTipsText(res.info);
+                BackKeepIndex();
+            }
+        });
+    })
+</script>
+</html>

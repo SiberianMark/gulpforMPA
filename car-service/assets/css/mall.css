@@ -1,0 +1,51 @@
+/*edit by zhouzelin*/
+.banner{width:100%;height:13.75rem;}
+.banner img{width:100%;height:100%;}
+.mall-nav{padding:1rem 1rem 0.5rem;}
+.mall-nav .item{height:8rem;padding-left:7rem;border-radius:0.6rem;box-shadow:4px 4px 4px #ddd;text-align:right;padding-right:1rem;padding-top:1rem;}
+.mall-nav .item:first-child{background:url('/web/car-service/assets/image/mall/bg_card1.png') no-repeat center center;background-size:auto 8rem;margin-right:1rem;}
+.mall-nav .item:last-child{background:url('/web/car-service/assets/image/mall/bg_card2.png') no-repeat center center;background-size:auto 7.9rem;}
+.mall-nav .item .item-box{}
+.mall-nav .item .item-box .point{font-size:1rem;color:#333;margin-top:1rem;}
+.mall-nav .item .item-box .point span{font-size:1.6rem;color:#F4A61A;margin-right:0.5rem;}
+.mall-nav .item .item-box .check{font-size:1rem;color:#666;margin-top:1rem;text-align:right;}
+.mall-nav .item .item-box .earn{font-size:1.2rem;color:#333;margin-top:1.4rem;}
+.mall-nav .item .item-box .check2{font-size:1rem;color:#666;margin-top:1.3rem;text-align:right;}
+.mall-combo{margin-top:1rem;margin-bottom:1rem;height:21.7rem;background:#fff;}
+.mall-combo .title{height:4rem;color:#333;font-size:1.4rem;background:#ffffff;}
+.mall-combo .title .fl{height:4rem;line-height:4rem;float:left;padding-left:1rem;color:#F4A61A;}
+.mall-combo .title .fr{height:4rem;line-height:4rem;text-align:right;float:right;padding-right:3rem;background:url('/web/car-service/assets/image/back@2x.png') no-repeat 70% center;background-size: auto 2rem;}
+.mall-combo .main{flex-wrap: wrap;-webkit-flex-wrap: wrap;box-sizing:border-box;-webkit-box-sizing:border-box;}
+.mall-combo .main .item{width:50%;padding:1.2rem;background:#ffffff;overflow: hidden;}
+.mall-combo .main .item:nth-child(2n){border-right:none;}
+.mall-combo .main .item .pic-box{width:16.4rem;height:10rem;overflow:hidden;position:relative;overflow: hidden;}
+.mall-combo .main .item .pic-box img{width:100%;}
+.mall-combo .main .item .pic-box .mask{position:absolute;top:2rem;left:4rem;color:#F4A61A;font-size:2rem;width:9rem;height:5rem;line-height:5rem;text-align:center;background:#000;opacity:0.6;}
+.mall-combo .main .item .name{margin-top:1.2rem;font-size:1.2rem;color:#333333;}
+.mall-combo .main .item .price{margin-top:1rem;font-size:1.2rem;color:#FF5555;}
+.mall-goods{background:#ffffff;}
+.mall-goods .nav{position:relative;margin:0;padding:0;}
+.mall-goods .nav li{text-align:center;position:relative;}
+.mall-goods .nav li span{font-size:1.4rem;color:#333333;display:inline-block;width:7rem;height:4rem;line-height:4rem;text-align:center;}
+.mall-goods .nav li.cur span{color:#F4A61A;border-bottom:#F4A61A 2px solid;}
+.mall-goods .nav li span .switch{display:inline-block;}
+.mall-goods .nav li[data-type="3"] span .switch .up{background:url('/web/car-service/assets/image/mall/btn_pull-back_sel.png') no-repeat;width:0.6rem;height:0.35rem;background-size:cover;margin-bottom:0.2rem;}
+.mall-goods .nav li[data-type="3"] span .switch .down{background:url('/web/car-service/assets/image/mall/btn_pull-down.png') no-repeat;width:0.6rem;height:0.35rem;background-size:cover;}
+.mall-goods .nav li[data-type="4"] span .switch .up{background:url('/web/car-service/assets/image/mall/btn_pull-back.png') no-repeat;width:0.6rem;height:0.35rem;background-size:cover;margin-bottom:0.2rem;}
+.mall-goods .nav li[data-type="4"] span .switch .down{background:url('/web/car-service/assets/image/mall/btn_pull-down_sel.png') no-repeat;width:0.6rem;height:0.35rem;background-size:cover;}
+.mall-goods .nav li[data-type="0"].cur span .switch .up{background:url('/web/car-service/assets/image/mall/btn_pull-back_sel.png') no-repeat;width:0.6rem;height:0.35rem;background-size:cover;margin-bottom:0.2rem;}
+.mall-goods .nav li[data-type="0"] span .switch .down{background:url('/web/car-service/assets/image/mall/btn_pull-down.png') no-repeat;width:0.6rem;height:0.35rem;background-size:cover;}
+.mall-goods .nav li[data-type="0"] span .switch .up{background:url('/web/car-service/assets/image/mall/btn_pull-back.png') no-repeat;width:0.6rem;height:0.35rem;background-size:cover;margin-bottom:0.2rem;}
+.mall-goods .nav li[data-type="0"].cur span .switch .down{background:url('/web/car-service/assets/image/mall/btn_pull-down_sel.png') no-repeat;width:0.6rem;height:0.35rem;background-size:cover;}
+
+.mall-goods .nav li .category{position:absolute;top:4rem;right:1.2rem;font-size:1.2rem;color:#333;background:#fff;z-index:1000;width:10rem;padding:0 1rem;border:1px solid #ccc;display:none;}
+.mall-goods .nav li .category:before{content:"";width:1rem;height:1rem;display:block;background:#ffffff;border-top:1px solid #ccc;border-left:1px solid #ccc;position:absolute;top:-0.6rem;right:4.2rem;transform:rotate(45deg);-webkit-transform:-webkit-rotate(45deg);}
+.mall-goods .nav li .category div{height:3rem;line-height:3rem;}
+.mall-goods .nav li .category div:last-child{border:none;}
+.mall-goods .nav li.cur .category div.cur{color:#F4A61A;}
+.mall-goods .main{flex-wrap: wrap;-webkit-flex-wrap: wrap;box-sizing:border-box;-webkit-box-sizing:border-box;overflow:hidden;}
+.mall-goods .main .item{width:50%;background:#ffffff;padding:1.2rem;}
+.mall-goods .main .item .pic-box{height:16.4rem;overflow:hidden;width:16.4rem;}
+.mall-goods .main .item .pic-box img{width:100%;}
+.mall-goods .main .item .name{margin-top:1.2rem;font-size:1.2rem;color:#333333;height:3.1rem;line-height:1.5rem;overflow:hidden;}
+.mall-goods .main .item .price{margin-top:1rem;font-size:1.2rem;color:#FF5555;}

@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>评价</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link type="text/css" rel="stylesheet" href="/web/car-service/assets/css/upkeep.css">
+</head>
+<body>
+    <div class="evalute">
+        <div class="feel">
+            <div class="title">请对该顾问进行点评</div>
+            <div class="box flex" id="select-feel">
+                <div class="item flex-c">
+                    <img src="/web/car-service/assets/image/im/ico_manyi@2x.png" id="good"/>
+                    <div select="1">好评</div>
+                </div>
+                <div class="item flex-c">
+                    <img src="/web/car-service/assets/image/im/ico_yiban@2x.png" id="soso"/>
+                    <div select="2">中评</div>
+                </div>
+                <div class="item flex-c">
+                    <img src="/web/car-service/assets/image/im/ico_bumanyi@2x.png" id="bad"/>
+                    <div select="3">差评</div>
+                </div>
+            </div>
+        </div>
+        <div class="text-box" scl-pe="before">
+            <textarea name="" placeholder="写下对该专属顾问的评价吧~"></textarea>
+            <div class="tips"><span>0</span>/200</div>
+        </div>
+        <div class="switch">
+            <div class="evaluate-icon cur" scl-pe="before"></div>
+            <span>匿名评价</span>
+        </div>
+        <div class="btn-box">
+            <div class="btn">提交</div>
+        </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var status = 1;
+    var level = 0;
+    function onStart(){
+        loadEnd();
+    }
+    //选择表情
+    $("#select-feel").on("click",".item",function(){
+        var index = $(this).index();
+        var url = "/web/car-service/assets/image/im";
+        $("#select-feel .item div").removeClass("cur");
+        $(this).children("div").addClass("cur");
+        level = index+1;
+        switch(index){
+            case 0:
+                $("#good").attr("src",url+"/ico_manyi_td@2x.png");
+                $("#soso").attr("src",url+"/ico_yiban@2x.png");
+                $("#bad").attr("src",url+"/ico_bumanyi@2x.png");
+                break;
+            case 1:
+                $("#good").attr("src",url+"/ico_manyi@2x.png");
+                $("#soso").attr("src",url+"/ico_yiban_td@2x.png");
+                $("#bad").attr("src",url+"/ico_bumanyi@2x.png");
+                break;
+            case 2:
+                $("#good").attr("src",url+"/ico_manyi@2x.png");
+                $("#soso").attr("src",url+"/ico_yiban@2x.png");
+                $("#bad").attr("src",url+"/ico_bumanyi_td@2x.png");
+                break;
+        }
+    });
+
+    //匿名评价
+    $(".evaluate-icon").on("click",function(){
+        var exist = $(this).hasClass('cur');
+        if(exist) {
+            $(this).removeClass('cur');
+            status = 2;
+        }
+        else {
+            $(this).addClass('cur');
+            status = 1;
+        }
+    });
+    //监控textarea框输入的字数。
+    $('textarea').on('input',function(){
+        var len=$(this).val().length;
+        $('.tips>span').text(len);
+        if(len>=200){
+            $(this).attr('disabled','disabled');
+        }
+    })
+
+    $('.btn-box').on('click','.btn',function(){
+        var data = {
+            aid:I('aid'),
+            userid:getUserid(),
+            level:level,
+            status:status,
+            comment: $(".text-box textarea").val()
+        }
+        if(data.level==0){
+            inputTipsText("请选择您对该顾问的感觉");
+            return;
+        }
+        if(data.comment.length<6){
+            inputTipsText("至少输入6个字");
+            return;
+        }
+        jsonAjax(API.API_LIST.CAR_USER_COMMENT,data,function (res) {
+            if(res.status==1){
+                inputTipsText(res.info);
+                setTimeout(function(){
+                    PageJump('gotoMyConsultant')
+                },2000);
+            }else{
+                inputTipsText(res.info);
+            }
+        });
+    })
+</script>
+</html>

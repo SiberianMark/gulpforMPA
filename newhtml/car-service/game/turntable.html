@@ -1,0 +1,272 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>大转盘抽现金</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/turntable.css"/>
+    <script src="/web/car-service/assets/js/jQueryRotate.2.2.js?v=9a52221841"></script>
+    <script src="/web/car-service/assets/js/jquery.easing.min.js?v=3eac3c7243"></script>
+    <script src="/web/pc/common/js/timegoing.js"></script>
+</head>
+<body style="background-color: #ffffff;">
+    <!--<div class="time-tit">暂未开始</div>-->
+        <!--<div class="djs">-->
+            <!--&lt;!&ndash; <span class="hour colon" style="display: inline;">02</span> : &ndash;&gt;-->
+            <!--<span class="day colon" style="display: inline;">00</span> 天-->
+            <!--<span class="hour colon" style="display: inline;">00</span> :-->
+            <!--<span class="mini colon" style="display: inline;">00</span> :-->
+            <!--<span class="sec colon" style="display: inline;">00</span>-->
+        <!--</div>-->
+    <!--</div>-->
+    <div id="data">
+
+        <!--temp-->
+    </div>
+    <div class="mask"></div>
+    <div class="confirm-box">
+        <div class="confirm">
+            <div class="content">
+                <h2 id="jiang">恭喜你!已经获得</h2>
+                <span id="zhong">凭手机号并去贵宾室领取奖品</span>
+            </div>
+            <div class="buttons">
+                <div id="cancel">取消</div>
+                <div id="confirm">确定</div>
+            </div>
+        </div>
+        <div class="confirm">
+            <div class="content">
+                <h2>很遗憾，您未获得奖项！</h2>
+                <span>您还有<span id="num"></span>次获奖机会</span>
+            </div>
+            <div class="button">确定</div>
+        </div>
+    </div>
+</body>
+<script type="text/template" id="temp">
+    <div class="table-bg" style="background: url({{=it.game_bg_img}});background-size: cover;">
+        <div class="table-body" style="background: url({{=it.dial_img}});background-size: cover;"></div>
+        <div class="pointer" id="startbtn">
+            <img src="{{=it.pointer}}"/>
+        </div>
+    </div>
+    <div style="text-align: center;font-size: 1.4rem;" id="sy">剩余次数:{{=it.one_count}}</div>
+    <div class="table-ms">
+        <div class="title">奖项设置</div>
+        <p>
+            {{~it.dial:item:index}}
+                {{=item.award}}<br>
+            {{~}}
+        </p>
+    </div>
+    <div class="table-ms">
+        <div class="title">活动说明</div>
+        <p>
+            {{=it.explain?it.explain:''}}
+        </p>
+    </div>
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var render = getRender('temp');
+    var grade = 10;
+    var angle = 0;
+    var dataLoad = false;
+    var angleLoad = true;
+    var game_id = I("game_id");
+    var dial_id = I("dial_id");
+    var phone = I("phone");
+    var one_count;
+    var zhong;
+    var serverTime = new Date().getTime();//服务器当前时间戳
+    var start_time;
+    var roll = true;
+    function onStart(){
+        getdata();
+    }
+
+    $("#confirm,#cancel,.button").on('click',function(){
+        $(".mask").fadeOut();
+        $(".confirm-box .confirm").fadeOut();
+        $(".table-body").css({
+            'transform':'rotate(0deg)',
+            '-webkit-transform':'-webkit-rotate(0)'
+        });
+    });
+
+    function getdata(){
+        var data = {
+            game_id:game_id,
+            dial_id:dial_id,
+            userid:getUserid()
+        }
+        jsonAjax(API.API_LIST.CAR_DIAL_INDEX,data,function(res){
+            if(res.status==1){
+                $("title").html(res.data.activity_name);
+                $("#data").html(render(res.data));
+                zhong = res.data.award_hint;
+                one_count = res.data.one_count;
+                if(one_count!=0){
+                    $("#sy").text('剩余次数:'+(one_count-res.data.all_count));
+                }else{
+                    $("#sy").text('剩余次数:无限次数');
+                }
+
+                var start_time = res.data.mintime;
+                var end_time = res.data.maxtime;
+                console.log(start_time,end_time);
+                rote();
+//                if(compareTime(start_time,serverTime)){
+//                    //倒计时
+//                    $(".djs").fnTimeCountDown(start_time,formatDate2(serverTime),null,null,false,true,function(){
+//
+//                    },null);
+//                    console.log("暂未开始")
+//                }else if(compareTime(end_time,serverTime)&&compareTime(serverTime,start_time)){
+//                    $(".time-tit").text("即将结束");
+//                    $(".djs").fnTimeCountDown(end_time,formatDate2(serverTime),null,null,false,true,function(){
+//
+//                    },null);
+//                    console.log("即将结束")
+//                }else{
+//                    $(".time-tit").text("已经结束");
+//                }
+            }else{
+                inputTipsText(res.info);
+            }
+            dataLoad = true;
+            load_all_end();
+        })
+    }
+
+    function getAngle(){
+
+    }
+
+    function load_all_end(){
+        console.log(dataLoad,angleLoad);
+        if(dataLoad&&angleLoad){
+            loadEnd();
+        }
+    }
+
+    function rote(){
+        $("#startbtn").rotate({
+            bind: {
+                click: function () {
+                    var datas = {
+                        userid:getUserid(),
+                        phone:phone,
+                        game_id:game_id,
+                        dial_id:dial_id
+                    }
+
+                    if(num != 0) {
+                        if (roll == false) {
+                            inputTipsText("小伙子，不要那么猴急！");
+                            return;
+                        }
+                    }
+
+                    jsonAjax(API.API_LIST.CAR_DIAL_GET_RAND,datas,function(res){
+                        if(res.status==1){
+                            grade = res.data.grade;
+                            angle = res.data.angle
+                            console.log(one_count,res.data.surplus_count)
+                            num = one_count-res.data.surplus_count;
+                            if(one_count!=0){
+                                $("#num").text(num);
+                                $("#sy").text('剩余次数:'+num);
+                            }else{
+                                $("#num").text('无限');
+                                $("#sy").text('剩余次数:无限次数');
+                            }
+
+                            roll = false;
+
+                            $(".table-body").rotate({
+                                duration: 3000,
+                                angle: 0,
+                                animateTo: 360 * 4 + angle,
+                                easing: $.easing.easeOutSine,
+                                callback: function () {
+                                    if (grade == 10) {
+
+                                        $(".mask").fadeIn();
+                                        $(".confirm-box .confirm").eq(1).fadeIn();
+                                    } else {
+                                        var jiang;
+                                        switch(grade){
+                                            case '1':
+                                                jiang = "一等奖";
+                                                break;
+                                            case '2':
+                                                jiang = "二等奖";
+                                                break;
+                                            case '3':
+                                                jiang = "三等奖";
+                                                break;
+                                            case '4':
+                                                jiang = "四等奖";
+                                                break;
+                                            case '5':
+                                                jiang = "五等奖";
+                                                break;
+                                            case '6':
+                                                jiang = "六等奖";
+                                                break;
+                                            case '7':
+                                                jiang = "七等奖";
+                                                break;
+                                            case '8':
+                                                jiang = "八等奖";
+                                                break;
+                                            case '9':
+                                                jiang = "九等奖";
+                                                break;
+                                        }
+                                        $("#jiang").text('恭喜你!已经获得'+jiang);
+
+                                        $("#zhong").text(zhong);
+                                        $(".mask").fadeIn();
+                                        $(".confirm-box .confirm").eq(0).fadeIn();
+                                    }
+                                    roll = true;
+                                }
+                            });
+
+                        }else if(res.status==0){
+                           inputTipsText(res.info);
+                        }else{
+                            inputTipsText('次数到达上限');
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    //比较时间
+    function compareTime(time,otime){
+        var a = new Date(time).getTime();
+        var b = new Date(otime).getTime();
+        return (a > b ? true : false);
+    }
+
+    function formatDate2(time){
+        var a = new Date(time);
+        var year = a.getFullYear();
+        var month = a.getMonth()+1;
+        var day = a.getDay();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
+
+        return year+"-"+month+"-"+day+" "+hour+":"+min+":"+sec;
+    }
+</script>
+</html>

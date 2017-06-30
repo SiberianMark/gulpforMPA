@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>更换顾问</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/change.css">
+</head>
+<body>
+<div class="ImChange">
+
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="tpl-change">
+    <div class="my-consultant">
+        <div class="hou-data">
+            <div class="title">{{= it.group.group_name }}</div>
+	        <section>
+			{{~it.data:item}}
+	            <div class="guwen display-flex" >
+	                <div  class="flex-1">
+	                    <img src="{{= item.logo }}" alt=""/>
+	                </div>
+	                <div class="info box-item flex-5">
+	                    <div class="name" data="{{= item.default }}">
+	                    	<span>{{= item.realname}}</span>
+	                    	<i class="select {{? parseFloat(item.default)!=1}}none{{?}}" aid="{{= item.aid }}" id="{{= item.id }}"></i>
+	                    </div>
+	                    <div class="call-number">
+	                        <span></span><span  class="phone"><a href="tel:{{=item.mobile}}">{{=item.mobile}}</a></span>
+	                    </div>
+	                    <div class="hello" border="top">您好，我是您的专属顾问，您可以直接联系我！</div>
+	                </div>
+	            </div>
+	        {{~}}
+	        </section>
+        </div>
+    </div>
+</script>
+<script>
+var render = getRender('tpl-change');
+$('.ImChange').on('click','.select',function(){
+	var id = $(this).attr('id');
+	var aid = $(this).attr('aid');
+	$('.select').each(function(i,item){
+		item.className='select none';
+	});
+	this.className='select';
+		// history.go(-1);
+    jsonAjax(API.API_LIST.CAR_BUYCAR_OPTFLAG, {'userid':getUserid(),'aid':aid,'id':id}, function (data) {
+    	if(data.status==1) {
+	    	self.location=document.referrer
+    	}
+    });
+});
+function onStart(){
+    loadEnd();
+    getDate();
+}
+function getDate() {
+    jsonAjax(API.API_LIST.CAR_BUYCAR_REPLACEFLAG, {'userid':getUserid(),'aid':I('aid') }, function (data) {
+        $(".ImChange").html(render(data.data));
+    });
+}
+</script>
+</html>

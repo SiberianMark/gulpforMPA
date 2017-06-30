@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>选择车款</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/car-lists.css"/>
+    <style type="text/css">
+        .share-info{
+            display: none !important;
+        }
+
+    </style>
+</head>
+<body>
+<div class="position">
+        <div class="box car-brand transition">
+            <div class="anchor">
+            </div>
+            <div></div>
+        </div>
+        <div class="box models transition">
+            <ul>
+
+            </ul>
+        </div>
+        <div class="box vehicle transition">
+            <ul>
+
+            </ul>
+        </div>
+</div>
+</body>
+<!--车品牌模板-->
+<script type="text/template" id="temp1">
+    {{var val=it.data.list;}}
+    {{for(var i in val){}}
+    <div id="id{{=val[i].tagname}}" class="one-class">{{=val[i].tagname}}</div>
+    <div class="car-brand-data">
+        <ul>
+            {{var str=val[i].list;}}
+            {{for(var j in str){}}
+            <li class="" scl-pe="before" brandid="{{=str[j].brandid}}">
+                <div scl-pe="before"><img src="{{=str[j].logo}}" alt=""/></div>
+                <p>{{=str[j].brand}}</p>
+            </li>
+            {{}}}
+        </ul>
+    </div>
+    {{}}}
+</script>
+<!--车型模板-->
+<script type="text/template" id="temp2">
+    {{var val2=it.data;}}
+    {{ for(var i in val2){}}
+    <li class="" scl-pe="before" modelid="{{=val2[i].modelid}}">
+        <p>{{=val2[i].model}}</p>
+    </li>
+    {{ }}}
+</script>
+<!--车款模板-->
+<script type="text/template" id="temp3">
+    {{var val3=it.data;}}
+    {{for(var i in val3){}}
+    <li class="" scl-pe="before" detailid="{{=val3[i].detailid}}">
+        <p>{{=val3[i].detail}}</p>
+    </li>
+    {{}}}
+</script>
+<script type="text/template" id="temp4">
+    {{var str=it;}}
+    {{for(var i in str){}}
+    <a href="#id{{=str[i].tagname}}">{{=str[i].tagname}}</a>
+    {{}}}
+</script>
+<script type="text/javascript">
+    function onStart(){
+        getData();
+    }
+//    'Car/Carinfo/getCarBrand'
+    function getData(){
+        var render=getRender('temp1');
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETCARBRAND,{},function(data){
+            if(data.status==1){
+                $('.car-brand>div').eq(1).html(render(data));
+                $('.anchor').html(render4(data.data.tagname));
+                type=false;
+                loadEnd();
+            }
+        });
+    }
+    var car_name,
+     brandid,
+     modelid,
+     render2=getRender('temp2'),
+     render3=getRender('temp3'),
+     render4=getRender('temp4'),
+     type=false,
+     type1=false,
+     src='';
+
+    //选择车品牌
+    $('.position').on('click','.car-brand li',function(){
+        if(is_weixn(true)){
+            setHistory('#a');
+        }
+        brandid=$(this).attr('brandid');
+          src=$(this).find('img').attr('src');
+        onJsStart();
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETCARMODEL,{brandid:$(this).attr('brandid')},function(data){
+            if(data.status==1){
+                $('.models>ul').html(render2(data));
+                $('.models').addClass(' middle');
+                $('.car-brand').addClass('left');
+                $('.anchor').addClass('left');
+                type=true;
+                loadEnd();            }
+        });
+        car_name=$(this).find('p').text()+'=';
+    });
+    //选择车型
+    $('.position').on('click','.models li',function(){
+        if(is_weixn(true)){
+            setHistory('#b');
+        }
+        car_name+=$(this).find('p').text()+'=';
+        modelid=$(this).attr('modelid');
+        onJsStart();
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETCARDETAIL,{modelid:$(this).attr('modelid')},function(data){
+            if(data.status==1){
+                $('.vehicle>ul').html(render3(data));
+                $('.vehicle').addClass('transition middle');
+                $('.models').addClass('left');
+                type1=true;
+                loadEnd();
+            }else{
+                var obj=M();
+                var jsObj = M();
+                obj.car_id = I('car_id');
+                obj.car_region=decodeURI(I('car_region'));//车所在地区
+                obj.car_number=decodeURI(I('car_number'));//车牌号
+                obj.engine_nimber=I('engine_nimber');//发动机号
+                obj.car_body_number=I('car_body_number');//车身机架号
+                obj.milenge=I('milenge');//里程
+                obj.car=car_name;//车名字
+                obj.brandid=brandid;//车品牌id
+                obj.modelid=modelid;//车型id
+                obj.detailid=0; //车款id
+                obj.source=I('source','10');
+                obj.source1=2;
+                obj.source2=I('source2','10');
+                jsObj.car = car_name;
+                jsObj.detailid = $(this).attr('detailid');
+                if(I('source4')==='0'){
+                    if(is_weixn(true)){
+                        if(I('source')=='modify'){
+                            changeBackUrlL("car-service/keep-car/index",{pub_acct:1});
+                        }
+                        PageJumpTap('gotoAddCar',obj);
+                    }
+                }else if(I('source4')==1){
+                    PageJumpTap('gotoEditCar',obj);
+                }
+                 if(I('source')=='buyJs'){
+                    PageJumpTap('gotoCalculator',jsObj);
+                }else if(I('source')=='smdg'){//神马假日报名
+                    var smObj=M();
+                     smObj.source='2';
+                     smObj.car=car_name;
+                     smObj.brand_id=brandid;
+                     smObj.model_id=modelid;
+                     smObj.detail_id=$(this).attr('detailid');
+                     smObj.name1=decodeURIComponent(I('name1'));
+                     smObj.sex=I('sex');
+                     smObj.mobile=I('mobile');
+                     smObj.id=I('id');
+                     smObj.remark=decodeURIComponent(I('remark'));
+                    PageJumpTap('gotoEnrollinfo',smObj);
+                }else if(I('source')=='clel'){//嘉年华报名
+                   var Obj=M();
+                     Obj.src=src;
+                     Obj.source=2;
+                     Obj.car=car_name;
+                     Obj.brand_id=brandid;
+                     Obj.model_id=modelid;
+                     Obj.detail_id=$(this).attr('detailid');
+                     Obj.name1=decodeURIComponent(I('name1'));
+                     Obj.sex=I('sex');
+                     Obj.mobile=I('mobile');
+                     Obj.id=I('id');
+                     Obj.car_region=decodeURIComponent(I('car_region'));
+                     Obj.car_number=decodeURIComponent(I('car_number'));
+                     Obj.license = decodeURIComponent(I('license'));
+                     Obj.idCard = I('idCard');
+                     Obj.email=decodeURIComponent(I('email'));
+                     Obj.price_id = I('price_id');
+                     Obj.coupon_id = I('coupon_id');
+                     Obj.meg = decodeURIComponent(I('meg'));
+                     PageJumpTap('gotoCarnivalEnrollinfo',Obj);
+
+                }else if(I('source')=='barn'){//2.4车库添加车辆
+                   var Obj=M();
+                    Obj.name=decodeURIComponent(I('name'));
+                    Obj.mobile=I('mobile');
+                    Obj.imgsrc=decodeURIComponent(I('imgsrc'));
+                    Obj.tid = I('tid');//车队id
+                    Obj.f =I('f');//验证块状态
+                    Obj.imgcode =I('imgcode');//图形验证码
+                    Obj.code2 =(I('code2'));//短信验证码
+                    var param={
+                        userid:getUserid(),
+                        brand_id:brandid,
+                        model_id:modelid,
+                        detail_id:$(this).attr('detailid')
+                    };
+
+                    jsonAjax('Gold/Modulegroup/addCar',param,function(data){
+                        if(data.status==1){
+                            PageJumpTap('gotoMyGarage',Obj);
+                        }
+                    });
+
+                }else if(I('source')=='barn_update'){//2.4车库编辑车辆
+                    var Obj=M();
+                    Obj.name=decodeURIComponent(I('name'));
+                    Obj.mobile=I('mobile');
+                    Obj.imgsrc=decodeURIComponent(I('imgsrc'));
+                    Obj.id = I('id');//车库id Obj.f =I('f');//验证块状态
+                    Obj.imgcode =I('imgcode');//图形验证码
+                    Obj.code2 =(I('code2'));//短信验证码
+                    var param={
+                        userid:getUserid(),
+                        id:Obj.id,
+                        brand_id:brandid,
+                        model_id:modelid,
+                        detail_id:$(this).attr('detailid')
+                    };
+
+                    jsonAjax('gold/modulegroup/carPrn',param,function(data){
+                        if(data.status==1){
+                            PageJumpTap('gotoMyGarage',Obj);
+                        }
+                    });
+
+                }
+            }
+        });
+    });
+    //选择车款
+    $('.position').on('click','.vehicle li',function(){
+        car_name+=$(this).find('p').text();
+        var obj=M();
+        var jsObj = M();
+        obj.car_id = I('car_id');
+        obj.car_region=decodeURI(I('car_region'));//车所在地区
+        obj.car_number=I('car_number');//车牌号
+        obj.engine_nimber=I('engine_nimber');//发动机号
+        obj.car_body_number=I('car_body_number');//车身机架号
+        obj.milenge=I('milenge');//里程
+        obj.car=car_name;//车名字
+        obj.brandid=brandid;//车品牌id
+        obj.modelid=modelid;//车型id
+        obj.detailid=$(this).attr('detailid'); //车款id
+        obj.source=I('source','10');
+        obj.source1=2;
+        obj.source2=I('source2','10');
+        jsObj.car = car_name;
+        jsObj.detailid = $(this).attr('detailid');
+        if(I('source4')==='0'){
+            if(is_weixn(true)){
+                if(I('source')=='modify'){
+                    changeBackUrlL("car-service/keep-car/index",{pub_acct:1});
+                }
+                PageJumpTap('gotoAddCar',obj);
+            }
+        }else if(I('source4')==1){
+            PageJumpTap('gotoEditCar',obj);
+        }
+        if(I('source')=='buyJs'){
+            PageJumpTap('gotoCalculator',jsObj);
+        }else if(I('source')=='smdg'){//神马假日报名
+            var smObj=M();
+            smObj.source='2';
+            smObj.car=car_name;
+            smObj.brand_id=brandid;
+            smObj.model_id=modelid;
+            smObj.detail_id=$(this).attr('detailid');
+            smObj.name1=decodeURIComponent(I('name1'));
+            smObj.sex=I('sex');
+            smObj.mobile=I('mobile');
+            smObj.id=I('id');
+            smObj.remark=decodeURIComponent(I('remark'));
+            PageJumpTap('gotoEnrollinfo',smObj);
+        }else if(I('source')=='clel'){//嘉年华报名
+                    var Obj=M();
+                     Obj.src=src;
+                     Obj.source=2;
+                     Obj.car=car_name;
+                     Obj.brand_id=brandid;
+                     Obj.model_id=modelid;
+                     Obj.detail_id=$(this).attr('detailid');
+                     Obj.name1=decodeURIComponent(I('name1'));
+                     Obj.sex=I('sex');
+                     Obj.mobile=I('mobile');
+                     Obj.id=I('id');
+                     Obj.car_region=decodeURIComponent(I('car_region'));
+                     Obj.car_number=decodeURIComponent(I('car_number'));
+                     Obj.license = decodeURIComponent(I('license'));
+                     Obj.idCard = I('idCard');
+                     Obj.email=decodeURIComponent(I('email'));
+                    Obj.price_id = I('price_id');
+                    Obj.coupon_id = I('coupon_id');
+                    Obj.meg = decodeURIComponent(I('meg'));
+                    PageJumpTap('gotoCarnivalEnrollinfo',Obj);
+
+        }else if(I('source')=='barn'){//2.4车库添加车辆
+                    var Obj=M();
+                    Obj.name=decodeURIComponent(I('name'));
+                    Obj.mobile=I('mobile');
+                    Obj.imgsrc=decodeURIComponent(I('imgsrc'));
+                    Obj.tid = I('tid');//车队id 
+                    Obj.f =I('f');//验证块状态
+                    Obj.imgcode =I('imgcode');//图形验证码
+                    Obj.code2 =(I('code2'));//短信验证码
+                    var param={
+                        userid:getUserid(),
+                        brand_id:brandid,
+                        model_id:modelid,
+                        detail_id:$(this).attr('detailid')
+                    };
+                    jsonAjax('Gold/Modulegroup/addCar',param,function(data){
+                        if(data.status==1){
+                            PageJumpTap('gotoMyGarage',Obj);
+                        }
+                    });
+
+        }else if(I('source')=='barn_update'){//2.4车库编辑车辆
+                    var Obj=M();
+                    Obj.name=decodeURIComponent(I('name'));
+                    Obj.mobile=I('mobile');
+                    Obj.imgsrc=decodeURIComponent(I('imgsrc'));
+                    Obj.id = I('id');//车库id
+                    Obj.f =I('f');//验证块状态
+                    Obj.imgcode =I('imgcode');//图形验证码
+                    Obj.code2 =(I('code2'));//短信验证码
+                    var param={
+                        userid:getUserid(),
+                        id:Obj.id,
+                        brand_id:brandid,
+                        model_id:modelid,
+                        detail_id:$(this).attr('detailid')
+                    };
+
+                    jsonAjax('gold/modulegroup/carPrn',param,function(data){
+                        if(data.status==1){
+                            PageJumpTap('gotoMyGarage',Obj);
+                        }
+                    });
+
+                }
+
+    });
+    //后退调回车品牌页面
+    window.addEventListener('hashchange',function(){
+        var href=window.location.hash;
+        var pattr=/^\#[a-z]{3}$/i;
+        console.log(pattr.test(href));
+        if(href==''||pattr.test(href)){
+            $('.car-brand').removeClass('left').addClass('middle');
+            $('.models').removeClass('middle');
+            $('.anchor').removeClass(' left');
+        }else if(href=='#a'){
+            $('.models').removeClass('left');
+            $('.vehicle').removeClass('middle');
+        }
+//        if(type){
+//            getData();
+//        }
+
+    });
+    //增加url历史记录且不刷新页面
+    function setHistory(parameter){
+        var url=window.location.href;
+        var stateObj={'url':url};
+        history.pushState(stateObj, " ", parameter);
+    }
+
+</script>
+</html>

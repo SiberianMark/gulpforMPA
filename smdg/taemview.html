@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>查看车队</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+    <style media="screen">
+
+    </style>
+</head>
+<body>
+    <section class="join-team" >
+        <!-- <li border="bottom">
+            <img class="playlogo" src="/web/assets/image/smdg/icon_weixin.png" alt="">
+            <p class="t1">JEFFREY<i class="user-sex male"></i><i class="user-lv v3"></i></p>
+            <p>宝马 231</p>
+            <p>最好成绩：12.86s（蝴蝶湾道）</p>
+            <div class="integral"><b class="jifennum">1000</b>分</div>
+        </li>
+        <li border="bottom">
+            <img class="playlogo" src="/web/assets/image/smdg/icon_weixin.png" alt="">
+            <p class="t1">JEFFREY<i class="user-sex female"></i><i class="user-lv v3"></i></p>
+            <p class="nocar">宝马</p><span class="nonum">暂无积分</span>
+        </li> -->
+    </section>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="templist">
+{{ var val = it.data;}}
+
+    <div class="jt-main">
+        <!-- 队员列表 -->
+        <ul class="player-list">
+            <li border="bottom" uid="{{=it.data.captain.userid}}" id="{{=it.data.captain.id}}" founderid="{{=it.data.captain.userid}}">
+                <div class="item-cons">
+                    <div class="img-cons">
+                        <img class="playlogo" src="{{=it.data.captain.image}}" alt="">
+                        <i class="{{=(it.data.captain.status==0)?'certifying':'certified'}}"></i>
+                    </div>
+                    <p class="t1">{{=it.data.captain.uname}}
+                        <i class="user-sex {{=(it.data.captain.sex==0)?'male':'female'}}"></i>
+                        <i class="user-lv {{=(it.data.captain.rankid!='')?'v'+it.data.captain.rankid:''}}"></i>
+                        <span class="is_captain">队长</span>
+                    </p>
+                    <p>{{=it.data.captain.brand}} {{=it.data.captain.detail}}</p>
+                    <p>最好成绩：{{=it.data.captain.grade}}</p>
+                    <div class="integral"><b class="jifennum">{{=it.data.captain.total}}</b>分</div>
+                </div>
+                <div class="view-info">查看信息</div>
+                <div class="del-btn" style="display:none">删除</div>
+            </li>
+        {{~val.list:item:index}}
+            <li border="bottom" uid="{{=item.userid}}" id="{{=item.id}}" founderid="{{=it.data.captain.userid}}">
+                <div class="item-cons">
+                    <div class="img-cons">
+                        <img class="playlogo" src="{{=item.image}}" alt="">
+                        <i class="{{=(item.status==0)?'certifying':'certified'}}"></i>
+                    </div>
+                    <p class="t1">{{=item.uname}}
+                        <i class="user-sex {{=(item.sex==0)?'male':'female'}}"></i>
+                        <i class="user-lv {{=(item.rankid!='')?'v'+item.rankid:''}}"></i>
+                    </p>
+                    <p>{{=item.brand}} {{=item.detail}}</p>
+                    <p>最好成绩：{{=item.grade}}</p>
+                    <div class="integral"><b class="jifennum">{{=item.total}}</b>分</div>
+                </div>
+                <div class="del-btn" style="display:none">删除</div>
+            </li>
+        {{~}}
+        </ul>
+    </div>
+    {{?it.data.captain.userid==getUserid()}}
+    <div class="btn-jion">邀请好友加入</div>
+    {{?}}
+</script>
+<script>
+    var team_id=I('team_id','22');
+    var render=getRender('templist');
+    function onStart(){
+        getData();//渲染数据
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_PLAY_SHOWTEAM,{userid:getUserid(),team_id:team_id},function(data){
+            if(data.status==1){
+                $('.join-team').html(render(data));
+
+            }
+            loadEnd();
+        });
+    }
+    //查看车队信息
+    $('.join-team').on('click','.view-info',function(){
+        var obj={
+            tid:team_id,
+            id:$(this).parents('li').attr('id')
+        };
+        Interface('gotoFleetInfo',obj);
+    });
+    //队长邀请好友加入
+    $('.join-team').on('click','.btn-jion',function(){
+        var obj={
+            tid:team_id
+        };
+        Interface('gotoAddJoin',obj);
+    });
+    //查看车手信息
+    $('.join-team').on('click','.player-list .item-cons',function(){
+        var obj={
+            uid:$(this).parents('li').attr('uid')
+        };
+        Interface('gotoPersonInfo',obj);
+    });
+    $('.join-team').on('click','.del-btn',function(){
+        var $this=$(this);
+        var playid=$this.parents('li').attr('id');
+        jsonAjax('/Gold/Modulegroup/del_user',{id:playid},function(data){
+            if(data.status==1){
+                $this.parents('li').remove();
+            }
+        });
+    });
+    /***********左滑删除开始***********/
+	var li_x_page={
+		s:0,	//touchstart x坐标
+		m:0,	//e-s
+		e:0,	//touchmove	x坐标
+		g:0,	//global—-m
+		is_show:false,	//是否显示删除按钮
+		sy:0,	//touchstart y坐标
+		ey:0,	//touchend y坐标
+		my:0,	//ey-sy
+	};
+	$('.join-team').on('touchstart touchmove touchend','.player-list>li',function(e){
+		if($(this).attr('founderid')!=getUserid()){
+			return;
+		}
+		var ww=parseInt($('.del-btn').eq(0).width());
+		var e_, touches;
+        var itemCons=$(this).find('.item-cons');
+        var viewInfo=$(this).find('.view-info');
+        var integral=$(this).find('.integral');
+		touches = event.touches && (event.touches.length ? event.touches : [event]);
+		e_ = (event.changedTouches && event.changedTouches[0]) || (event.originalEvent && event.originalEvent.changedTouches && event.originalEvent.changedTouches[0]) || touches[0].originalEvent || touches[0];
+		switch(e.type){
+			case 'touchstart':
+				li_x_page.s=e_.pageX;
+				li_x_page.sy=e_.pageY;
+				break;
+			case 'touchmove':
+				li_x_page.ey=e_.pageY;
+				li_x_page.e=e_.pageX;
+				li_x_page.m=li_x_page.e-li_x_page.s;
+				li_x_page.my=Math.abs(li_x_page.ey-li_x_page.sy);
+				if(li_x_page.m<-ww/3&&li_x_page.my<=50){
+                    console.log(li_x_page.m);
+					$(this).find('.del-btn').show();
+					tranSlate(itemCons,li_x_page.m-ww);
+					tranSlate(viewInfo,-ww);
+					tranSlate(integral,-ww);
+					li_x_page.is_show=true;
+				}else{
+					tranSlate(itemCons,0,'ease');
+                    tranSlate(viewInfo,0,'ease');
+                    tranSlate(integral,0,'ease');
+					li_x_page.is_show=false;
+                    $(this).find('.del-btn').hide();
+				}
+				break;
+			case 'touchend':
+				if(li_x_page.is_show){
+					tranSlate(itemCons,-ww,'ease');
+				}
+				break;
+		}
+	});
+	$('body:not(.del-btn)').on('touchstart',function(e){
+		var is_del=e.target.className.indexOf('del-btn')==-1;	//点到的不是cartPro-del;则为true；否则为false
+		if(li_x_page.is_show&&is_del){	//如果当前有未隐藏的删除按钮，隐藏删除按钮
+			e.preventDefault();
+            li_x_page.is_show=false;
+            tranSlate($('.player-list li .item-cons'),0,'ease');
+            tranSlate($('.player-list li .view-info'),0,'ease');
+            tranSlate($('.player-list li .integral'),0,'ease');
+            $('.del-btn').hide();
+		}
+	});
+	function tranSlate(ele,ml,type){
+		if(type=='ease'){
+			ele.css({
+				'-webkit-transform' : 'translate3d('+ml+'px,0,0)',
+				'transform' : 'translate3d('+ml+'px,0,0)',
+				'-webkit-transition' : '-webkit-transform .3s ease-out',
+				'transition' : 'transform .3s ease-out',
+			});
+		}else{
+			ele.css({
+				'-webkit-transform' : 'translate3d('+ml+'px,0,0)',
+				'transform' : 'translate3d('+ml+'px,0,0)',
+				'-webkit-transition' : '-webkit-transform 0s',
+				'transition' : 'transform 0s',
+			});
+		}
+	}
+	/***********左滑删除结束***********/
+</script>
+</html>

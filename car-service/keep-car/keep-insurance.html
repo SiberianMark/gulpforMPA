@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>车险续保</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script src="/web/assets/js/jquery.lazyload.min.js"></script>
+    <style>
+        .insurance-ad{margin-bottom:1rem;}
+        .insurance-ad img{width:100%;}
+    </style>
+</head>
+<body>
+<div id="main"></div>
+<!--没有车辆提示框-->
+<div class="bomb-box">
+    <div class="bomb">
+        <div scl-pe="before">您暂时未设置车辆，请先设置车辆</div>
+        <div><span>取消</span><span scl-pe="before">去设置</span></div>
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script type="text/template" id="temp-data-list">
+    {{?it.data}}
+    <div class="insurance-ad">{{=it.data.welcome}}</div>
+    <div class="main">
+        {{~it.data.list:item:index}}
+        <div class="guwen" style="margin:0;" border="bottom" data-aid="{{=item.aid}}">
+            <img data-original="{{=item.logo}}" class="lazy">
+            <div class="info" aid="2">
+                <div class="name">
+                    <span>{{=item.realname}}</span>
+                    <span class="js" onclick="caculate('{{=item.aid}}')">保费计算</span>
+                    <span class="zx" onclick="consult('{{=item.aid}}')">咨询</span>
+                </div>
+                <div class="contact">
+                <span class="shouji">
+                    <i></i>
+                    <a href="tel:{{=item.mobile}}">{{=item.mobile}}</a>
+                </span>
+                </div>
+                <div class="hello" style="line-height: 1.6rem;">您好，我是您的专属顾问，您可以直接联系我！</div>
+            </div>
+        </div>
+        {{~}}
+    </div>
+    {{?}}
+</script>
+<script>
+    var data_render = getRender("temp-data-list");
+    var data_load = false;
+    var car_load = false;
+    var hasCar = false;//判断是否有车；
+    function onStart(){
+        getData();
+        getCarInfo();
+    }
+    //获取信息
+    function getData(){
+        var data = M();
+        data.userid = getUserid();
+        jsonAjax(API.API_LIST.CAR_INSURANCE_GETADVISER,data,function(res){
+            if(res.status==1){
+                $("#main").html(data_render(res));
+            }
+            LazyLoad();
+            data_load = true;
+            loadEnd();
+        })
+    }
+    //图片懒加载
+    function LazyLoad(){
+        $(".lazy").lazyload({
+            effect : "fadeIn",
+            threshold : 10,
+            placeholder:"/web/assets/image/default_ico.svg"
+        });
+    }
+
+    function caculate(aid){
+        var data = M();
+        data.aid = aid;
+        if(hasCar){
+            PageJump('gotoInsuranceCalculate',data);
+        }else{
+            $('.bomb-box').show();
+        }
+    }
+    //获取车辆信息
+    function getCarInfo(){
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETCARINFO,{'userid':getUserid()},function(data){
+            if(data.status==1){
+                hasCar = true;
+            }else{
+                hasCar = false;
+            }
+            car_load = true;
+            all_load_end();
+        });
+    }
+    //提示框点击事件
+    $('.bomb ').on('click','span',function(){
+        if($(this).index()==0){//取消
+            $('.bomb-box').hide();
+        }else if($(this).index()==1){//去设置
+            var obj = M();
+            obj.source='keep-insurance';
+            PageJump('gotoMyCar',obj);
+        }
+    })
+
+    function all_load_end(){
+        console.log(data_load,car_load);
+        if(data_load&&car_load){
+            loadEnd();
+        }
+    }
+</script>
+</html>

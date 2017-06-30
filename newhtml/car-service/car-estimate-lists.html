@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>选择车款</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/car-lists.css"/>
+</head>
+<body>
+<div class="position">
+    <div class="box car-brand transition">
+       <ul></ul>
+    </div>
+    <div class="box models transition">
+        <ul>
+
+        </ul>
+    </div>
+    <div class="box vehicle transition">
+        <ul>
+
+        </ul>
+    </div>
+</div>
+</body>
+<!--车品牌模板-->
+<script type="text/template" id="temp1">
+    {{var val=it;}}
+    {{for(var i in val){}}
+    <li class="" scl-pe="before" brandid="{{=val[i].brand_id}}" >
+        <div scl-pe="before"><img src="{{=val[i].brand_logo}}" alt=""/></div>
+        <p>{{=val[i].brand_name}}</p>
+    </li>
+    {{}}}
+</script>
+<!--车型模板-->
+<script type="text/template" id="temp2">
+    {{var str=it;}}
+    {{for(var i in str){}}
+    <li class="" scl-pe="before" modelid="{{=str[i].model_id}}">
+        <div scl-pe="before"><img src="{{=str[i].model_picture}}" alt=""/></div>
+        <p>{{=str[i].model_name}}</p>
+    </li>
+    {{}}}
+</script>
+<!--车款模板-->
+<script type="text/template" id="temp3">
+    {{var val3=it;}}
+    {{for(var i in val3){}}
+    <li class="" scl-pe="before" detailid="{{=val3[i].detail_model_id}}">
+        <p>{{=val3[i].detail_model_name}}</p>
+    </li>
+    {{}}}
+</script>
+<script type="text/javascript">
+    function onStart(){
+        getCarBrand();
+    }
+    var obj=M();
+    var render1=getRender('temp1');
+    var render2=getRender('temp2');
+    var render3=getRender('temp3');
+    var car_name='';
+    //获得车品牌
+    function getCarBrand(){
+        jsonAjax(API.API_LIST.CAR_GET_BRAND,obj,function(data){
+            if(data.status==1){
+                $('.car-brand ul').html(render1(data.data));
+                loadEnd();
+            }
+        });
+    }
+    //获得车型
+    function getCarModels(brand_id){
+        obj.brand_id=brand_id;
+        jsonAjax(API.API_LIST.CAR_GET_MODEL,obj,function(data){
+            if(data.status==1){
+                $('.models ul').html(render2(data.data));
+                $('.car-brand').addClass('left');
+                $('.models').addClass('middle');
+            }
+        });
+    }
+    //获得车款
+    function getCar(model_id){
+        obj.model_id=model_id;
+        jsonAjax(API.API_LIST.CAR_GET_DETAIL,obj,function(data){
+            if(data.status==1){
+                $('.vehicle ul').html(render3(data.data));
+                $('.models').addClass('left').removeClass('middle');
+                $('.vehicle').addClass('middle');
+            }
+        });
+    }
+    //选择车品牌
+    $('.car-brand').on('click','li',function(){
+        car_name=$(this).find('p').text()+' ';
+        var brand_id=$(this).attr('brandid');
+        setHistory('#a');
+        getCarModels(brand_id);
+
+    });
+    //选择车型
+    $('.models').on('click','li',function(){
+        car_name+=$(this).find('p').text()+' ';
+        var model_id=$(this).attr('modelid');
+        setHistory('#b');
+        getCar(model_id)
+    });
+    //选择车款
+    $('.vehicle').on('click','li',function(){
+        var obj=M();
+        car_name+=$(this).find('p').text();
+        var detailid=$(this).attr('detailid');
+        obj.detailid=detailid;
+        obj.car_name=car_name;
+        obj.source = 'pgzh';
+        PageJump('gotoReplacement',obj);
+    });
+
+    //后退调回车品牌页面
+    window.addEventListener('hashchange',function(){
+        var href=window.location.hash;
+        if(href==''){
+            $('.car-brand').removeClass('left').addClass('middle');
+            $('.models').removeClass('middle');
+            $('.anchor').removeClass(' left');
+        }else if(href=='#a'){
+            $('.models').removeClass('left').addClass('middle');
+            $('.vehicle').removeClass('middle');
+        }
+    });
+    //增加url历史记录且不刷新页面
+    function setHistory(parameter){
+        var url=window.location.href;
+        var stateObj={'url':url};
+        history.pushState(stateObj, " ", parameter);
+    }
+</script>
+</html>

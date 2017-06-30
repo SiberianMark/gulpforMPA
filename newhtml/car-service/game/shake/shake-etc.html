@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>查看场次</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/shake.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+</head>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll">
+        <div class="shake-etc"></div>
+    </div>
+    <div class="listNoData">
+        <img src="/web/assets/image/wudingdan_ico.png">
+        <p>暂无数据</p>
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/x-dot-template" id="tmpl-data">
+    {{~it.data:item:index}}
+        <div class="list" border="bottom" id="{{=item.id}}">
+            <div class="pic"><img src="/web/car-service/assets/image/game/yaoyiyao@2x2.png"></div>
+            <div class="name"><p>第{{=item.number}}场次</p><p>{{=item.start_time}} - {{=item.end_time}}</p></div>
+            <div class="num on">{{=statusArr[parseInt(item.status)]}}</div>
+        </div>
+
+    {{~}}
+</script>
+<script>
+    var page=1;
+    var render_data=getRender('tmpl-data');
+    var statusArr=['未开始','进行中','已完成'];
+    function onStart() {
+        getData();
+        _initMui();
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKETIMESLOG,{'userid':getUserid(),id:I('id',0),page:page},function(data){
+            if(data.status==1&&data.data.length>0){
+                $('.listNoData').hide();
+                if(page==1){
+                    $('.shake-etc').html(render_data(data));
+                }else{
+                    $('.shake-etc').append(render_data(data));
+                }
+                setTimeout(function(){mui('#pullrefresh').pullRefresh().setStopped(false);},200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(page==1){
+                    $('.listNoData').show();
+                }
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }
+            loadEnd();
+        });
+    }
+    $('.shake-etc').on('tap','.list',function(){
+        var obj=M();
+        obj.id=I('id',0);
+        obj.items_id=$(this).attr('id');
+        PageJumpTap('gotoShakeList',obj);
+    });
+</script>
+</html>

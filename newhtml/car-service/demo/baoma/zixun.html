@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>一键咨询</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css"/>
+    <script type="text/javascript" src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=3eEiDPduO9asSj6C2XBKj7jbH1Vdl502"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+</head>
+<body>
+<!--<div class="input-box" scl-pe="before" style="margin-top: 1rem;display: none;">-->
+    <!--<label>车牌号码</label>-->
+    <!--<div class="quyu" id="quyu">-->
+        <!--<div>-->
+            <!--<span id="license"></span>-->
+            <!--<span class="down" id="arrow"></span>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<input type="text" style="width: 50%;" id="b" readonly></div>-->
+<div id="getMap" style="display: none;"></div>
+<div class="btn-box" style="margin-top:1rem;margin-bottom: 0;">
+    <span class="btn" style="background: #fff;color: #000;background-image: url(/web/assets/image/cashier/phone_ico.png);background-size: 2.5rem 2.5rem;background-repeat: no-repeat;background-position: 10rem center">
+        <a id="allshop">全国服务热线</a>
+    </span>
+</div>
+<div class="btn-box" style="margin-top:1rem;margin-bottom: 1rem;">
+    <span class="btn" style="background: #fff;color: #000;background-image: url(/web/assets/image/cashier/phone_ico.png);background-size: 2.5rem 2.5rem;background-repeat: no-repeat;background-position: 10rem center">
+        <a id="myshop">我的专营店</a>
+    </span>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var mapLoad = false;
+    var carLoad = true;
+    var phoneLoad = false;
+    var soft_vin = I('soft_vin');
+    var userid = I('userid');
+    var vbappid = I('vbappid');
+    var longitude = I('longitude');
+    var latitude = I('latitude');
+    var map = new BMap.Map("getMap");
+    var new_point = new BMap.Point(longitude,latitude);
+    var vbappid = I('vbappid');
+    function onStart(){
+        $("#allshop").attr("href","tel:"+I('phone'));
+        //getCar();
+        getMap();
+        getMyShopPhone();
+        switch(vbappid){
+            case '2':
+                $("#myshop").text("我的特约店");
+                break;
+            case '5':
+                $("#myshop").text("我的生活馆");
+                break;
+        }
+    }
+    //获取车辆信息
+    function getCar(){
+        var data = {
+            soft_vin:soft_vin,
+            userid:userid,
+            vbappid:vbappid
+        }
+        jsonAjax(API.API_LIST.TECH_CARINFO_GETONECARINFO,data,function(res){
+            console.log(res);
+            if(res.status==1){
+                var carnum = res.data.carnum;
+                var a = carnum.substr(0,2);
+                var b = carnum.substr(2);
+                $("#license").text(a);
+                $("#b").val(b);
+            }else{
+                inputTipsText(res.info);
+            }
+            carLoad = true;
+            all_load_end();
+        });
+    }
+
+    function getMap(){
+        map.centerAndZoom(new_point,16);
+        var myGeo  = new BMap.Geocoder(); // 创建地址解析器实例
+        myGeo.getLocation(new_point, function(res){// 将地址反解析
+            getMyShopPhone(res.addressComponents.city);
+            mapLoad = true;
+            all_load_end();
+        });
+    }
+
+    //获取我的专营店电话号码
+    function getMyShopPhone(city){
+        var data = {
+            soft_vin:I('soft_vin')
+        }
+        jsonAjax(API.API_LIST.TECH_VB_MYSHOP,data,function(res){
+            console.log(res);
+            if(res.status==1){
+                if(city.search(res.data.city)!=-1){
+                    $("#myshop").attr('data','tel:'+res.data.tel);
+                }else{
+                    $("#myshop").parent().hide();
+                }
+            }
+            phoneLoad = true;
+            all_load_end();
+        });
+    }
+
+    function all_load_end(){
+        console.log(carLoad,phoneLoad);
+        if(carLoad&&phoneLoad){
+            loadEnd();
+        }
+    }
+
+    //提交信息
+    $("#myshop").on("click",function(){
+        if($(this).attr("data")==""){
+            inputTipsText(tips);
+        }else{
+            $(this).attr("href",$(this).attr("data"));
+        }
+    });
+</script>
+</html>

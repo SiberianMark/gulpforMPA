@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>报名成功</title> <!-- 2.4报名成功  -->
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+</head>
+<body style="background-color:#fff;">
+    <section class="tb-ok" >
+    </section>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="templist">
+{{ var val = it.data;}}
+    <img class="succeedimg" src="/web/assets/image/smdg/icon_weixiang_succeed.png" alt="">
+    <b>恭喜，报名成功</b>
+    <p>{{=val.notice}}</p>
+    <div class="btn-succ" border="all">完成</div>
+    <div class="tb-footer clear">
+        <span class="tf-btn btn-voucher">查看报名凭证</span>
+        <span class="tf-btn goactivity">查看我的活动</span>
+    </div>
+</script>
+<script>
+    var userid = getUserid(),
+        aid = I('id');//活动id
+    var render=getRender('templist');
+    function onStart(){
+        getData();
+        loadEnd();
+    }
+    function getData(){
+         jsonAjax(API.API_LIST.GOLD_HOME_GETSIGNSHARE,{userid:userid,aid:aid},function(data){
+                    if(data.status==1){
+                        $(".tb-ok").html(render(data));
+                    }
+                        loadEnd();
+                });
+    }
+    //点击完成
+    $('.tb-ok').on('click','.btn-succ',function(){
+        InterfaceTap('gotoCarnivalHome');
+    })
+    //查看报名凭证
+    $('.tb-ok').on('click','.btn-voucher',function(){
+        var param= M();
+        param.id=aid;
+        InterfaceTap('gotoVoucher',param);
+    })
+    //查看我的活动
+    $('.tb-ok').on('click','.goactivity',function(){
+        var obj= new Object();
+        obj.activity_id=aid;
+        Interface('gotosmdgActivityDetail',JSON.stringify(obj));
+    })
+</script>
+</html>

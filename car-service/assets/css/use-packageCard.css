@@ -1,0 +1,28 @@
+p,ul,li,input{margin:0;padding:0;}
+li{list-style: none;}
+.content{margin:0 1rem;}
+.packages-info{margin: 0 1rem;height:6.2rem;background: url(/web/car-service/assets/image/mall/taocanka_bg@2x.png) no-repeat;background-size: 100%;font-size:1.4rem; margin-top:1rem;color:#fff;}
+.packages-info>div{ padding:1.4rem 1.4rem 0 1.4rem; }
+.packages-info>div .left{float:left; padding:1rem 0;font-size:1.6rem;}
+.packages-info>div .right{float:right;padding:0.9rem 0;font-size:2rem;}
+.pakagedetail{    margin: 0 1rem;margin-top:1.5rem;}
+.pakagedetail ul{padding:0;}
+.pakagedetail ul li{height:3.8rem;padding:0 1.25rem;font-size:1.2rem;}
+.pakagedetail p{float:left;}
+.pakagedetail p:nth-child(1){width:23.33333%;}
+.pakagedetail p:nth-child(2){width:43.33333%;text-align: center;}
+.pakagedetail p:nth-child(3){width:33.33333%;}
+.pakagedetail ul li .count{width:6.8rem;height:2.4rem;float:right;position:relative;background: url(/web/car-service/assets/image/mall/kuang@2x.png) no-repeat;background-size:100%;}
+.pakagedetail ul li .count .num{display:inline-block;width:4rem;text-align: center;overflow: hidden;    height: 1.8rem;line-height: 1.8rem;vertical-align: middle;margin: 0.3rem 0.2rem;border: 0px;}
+.pakagedetail ul li .count .cutnum{display: inline-block;width: 2rem;height: 2rem;background: url(/web/car-service/assets/image/mall/ico_jia@2x.png) no-repeat;background-size: 100%;right: 0.15rem;top: 0.15rem;position: absolute;}
+
+.submit{width:100%;text-align: center;background:#FF5555; height:4.8rem; font-size:1.5rem;padding:1.65rem 0;position:fixed;bottom:0;color:#fff;}
+.modal .content{margin:16rem 2rem 0;height:14.5rem;text-align: center; border:1px solid #999;border-radius: 4px;background: #fff;font-size: 1.4rem;}
+.modal .content b,.modal .content p{line-height:3rem;}
+.modal .btn{margin-top:1rem;}
+.modal .btn div{width:50%;height:4.5rem; text-align: center;line-height: 4.5rem;overflow: hidden;vertical-align: middle;display: inline-block;}
+.modal .btn div.confirm{color:#fff;float: left;}
+.modal .btn div.confirm{color:#FF5555;float: right;}
+.wutaocanka{width: 7rem;margin: 0 auto;margin-top:17.5rem;display: none;}
+.wutaocanka img{width: 7rem;}
+.wutaocanka p{margin-top: 1.25rem;font-size: 1.4rem;color:#999999;}

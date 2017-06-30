@@ -1,0 +1,152 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>我的保单</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+    <div class="guarantee">
+        <ul class="nav flex" border="bottom">
+            <li class="flex-c cur" border="right" data-status="-1">全部</li>
+            <li class="flex-c" border="right" data-status="0">已提交</li>
+            <li class="flex-c" border="right" data-status="1">待付款</li>
+            <li class="flex-c" data-status="2">已付款</li>
+            <div class="under-line"></div>
+        </ul>
+        <div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="margin-top:4.1rem;">
+            <div class="mui-scroll">
+                <ul class="main">
+
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/template" id="temp-data-list">
+    {{~it.data:item:index}}
+    <li border="bottom" data-carid="{{=item.carid}}" data-id="{{=item.id}}" data-status="{{=item.status}}" data-aid="{{=item.aid}}" data-orderid="{{=item.orderid}}">
+        <div class="top flex">
+            <div class="pic-box">
+                <img src="/web/car-service/assets/img/ico_bao_1080.png"/>
+            </div>
+            <div class="text-box flex-c" {{?item.status==1}}border="bottom"{{?}}>
+                <div class="status">
+                    {{?item.status==0}}已提交
+                    {{??item.status==1}}待付款
+                    {{??item.status==2}}已付款
+                    {{?}}
+                </div>
+                <div>车牌：<span>{{=item.carnum}}</span></div>
+                <div limitline="1">车型：<span >{{=item.carname}}</span></div>
+                <div>保险公司：<span>{{=item.company}}</span></div>
+                {{?item.status==2}}
+                <div>保单生效期：<span>{{=item.stime}}</span></div>
+                <div><span style="display:inline-block;width:6em;"></span><span>至 {{=item.etime}}</span></div>
+                {{??item.status}}
+                <div>提交时间：<span>{{=item.time}}</span></div>
+                {{?}}
+            </div>
+        </div>
+        {{?item.status==1}}
+        <div class="bottom">
+            <div class="btn" data-orderid="{{=item.orderid}}">去付款</div>
+        </div>
+        {{?}}
+    </li>
+    {{~}}
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var status = -1;//状态 0:已提交 1:待付款 2:已付款 全部为 -1
+    var page = 1;
+    var userid = getUserid();
+    var data_render = getRender("temp-data-list");
+    var carid=0;
+    function onStart(){
+        _initMui();
+        getData();
+    }
+    //导航
+    $(".guarantee").on("click",".nav li",function(){
+        status = $(this).attr("data-status");
+        $(".guarantee .nav li").removeClass("cur");
+        $(this).addClass("cur");
+        var index = $(this).index();
+        var distance = $(this).width()*index;
+        $(".nav .under-line").animate({"left":distance+"px"},500);
+        page = 1
+        $(".main").html("");
+        getData();
+    });
+
+    //获取信息
+    function getData(){
+        var data = M();
+        data.status = status;
+        data.page = page;
+        data.userid = userid;
+        jsonAjax(API.API_LIST.CAR_INSURANCE_GETMYINSURANCE,data,function(data) {
+            if (data.status == 1) {
+                if (data.data.length <= 0) {
+                    if (pull_action == 'up') {
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if (pull_action == 'down') {
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return false;
+                }
+                if (page == 1) {
+                    $('.main').html(data_render(data));
+                } else {
+                    $('.main').append(data_render(data));
+                }
+                setTimeout(function () {
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                }, 200);
+                page++;
+                if (pull_action == 'up') {
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if (pull_action == 'down') {
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            } else {
+                if (pull_action == 'up') {
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                } else if (pull_action == 'down') {
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if (page == 1) {
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                    var html_text = '<div class="no-data">'
+                            +'<img src="/web/car-service/assets/image/keepcar/meibaodan.png">'
+                            +'<div>暂无保单</div>'
+                            +'</div>'
+                    $('.main').html(html_text);
+                }
+            }
+            loadEnd();
+        });
+    }
+
+    $(".main").on("tap","li",function(){
+        var data = M();
+        data.status = $(this).attr('data-status');
+        data.source_page = 'myinfo';
+        data.aid = $(this).attr("data-aid");
+        data.id = $(this).attr("data-id");
+        data.carid=$(this).attr('data-carid');
+        data.orderid = $(this).attr("data-orderid");
+        PageJump('gotoCarInsurance',data);
+    })
+</script>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>如何获得积分</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/member.css"/>
+
+</head>
+<body class="acquire">
+<div class="title">如何获得积分</div>
+<ul class="guizhe">
+    <li><span></span></li>
+</ul>
+<script type="text/template" id="temp">
+    {{var arr=it,len=arr.length;}}
+        <li><span>1. </span>每消费{{=arr[0].rule.money}}，可获得{{=arr[0].rule.integral}}积分</li>
+        <li><span>2. </span>每日分享一次可获得{{=arr[1].rule.integral}}积分</li>
+        <li><span>3. </span>每评价一次可获得{{=arr[2].rule.integral}}积分</li>
+        <li><span>4. </span>每签到一次，可获得{{=arr[3].rule.integral}}，连续签到{{=arr[3].rule.day}}次，可获得{{=arr[3].rule.integrals}}积分</li>
+        <li><span>5. </span>完成买车可获得{{=arr[4].rule.integral}}积分</li>
+        <li><span>6. </span>完成旧车置换可获得{{=arr[5].rule.integral}}积分</li>
+        <li><span>7. </span>转介购车可获得{{=arr[6].rule.integral}}积分</li>
+        <li><span>8. </span>完成续保可获得{{=arr[7].rule.integral}}积分</li>
+        <li><span>9. </span>关注公众号可获得{{=arr[8].rule.integral}}积分</li>
+</script>
+</body>
+<script type="text/javascript">
+    function onStart(){
+        getData();
+    }
+    function getData(){
+        var render=getRender('temp');
+        jsonAjax(API.API_LIST.CAR_SIGN_INTEGRALRULE,{wxappid: $.cookie('wxappid')},function(data){
+            if(data.status==1){
+                $('.guizhe').html(render(data.data));
+                loadEnd();
+            }
+        })
+    }
+</script>
+</html>

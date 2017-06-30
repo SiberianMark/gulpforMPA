@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>理赔指南</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" href="/web/car-service/assets/css/claims.css">
+</head>
+<body>
+    <div class="claims-wrap">
+        <div class="accident-type bgwh mgb-12 pdt-2 pgb-2">
+            <h3>选择事故类型</h3>
+            <ul class="mgl-3">
+
+            </ul>
+        </div>
+        <div class="casualties bgwh mgb-12 pdt-2 pgb-2 dn">
+            <h3>是否有人伤亡</h3>
+            <ul class="mgl-3">
+
+            </ul>
+        </div>
+         <div class="blame bgwh pdt-2 pgb-2 dn">
+             <h3>己方责任认定</h3>
+             <ul class="mgl-3">
+
+             </ul>
+         </div>
+         <div class="tj-btn off">下一步</div>
+    </div>
+    <script type="text/template" id="tmpList">
+        {{~it.data:val:index}}
+        <li aid="{{=val.id}}">{{=val.value}}</li>
+        {{~}}
+    </script>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var render = getRender('tmpList');
+
+    function onStart(){
+        getData(1,'.accident-type');
+
+    }
+
+    $(".claims-wrap").on('click','.accident-type li',function(){
+        getData(2,'.casualties');
+        $('.claims-wrap li').removeClass('claimes-current');
+        $(this).addClass('claimes-current');
+        $('.casualties').removeClass('dn');
+        $('.blame').addClass('dn').find('li').removeClass('claimes-current');
+    }).on('click','.casualties li',function(){
+        getData(3,'.blame');
+        $('.casualties li,.blame li').removeClass('claimes-current');
+        $(this).addClass('claimes-current');
+        $('.blame').removeClass('dn');
+    }).on('click','.blame li',function(){
+        $('.blame li').removeClass('claimes-current');
+        $(this).addClass('claimes-current');
+    }).on('click','li',function(){
+        $(this).each(function(){
+            if($('.accident-type ul li').hasClass('claimes-current')&&$('.casualties li').hasClass('claimes-current')&&$('.blame li').hasClass('claimes-current')){
+                $('.tj-btn').attr('class','tj-btn on');
+            }else {
+                $('.tj-btn').attr('class','tj-btn off');
+            }
+        })
+    }).on('click','.tj-btn.on',function(){
+        var obj = new Object();
+        obj.actypeid = $('.accident-type li.claimes-current').attr('aid');
+        obj.ifdieid = $('.casualties li.claimes-current').attr('aid');
+        obj.ifmydutyid = $('.blame li.claimes-current').attr('aid');
+        PageJump('gotoCGuide2',obj);
+    });
+
+
+    function getData(type,box){
+        jsonAjax(API.API_LIST.CAR_INSURANCE_PAYMONEYGUIDEOPTION,{'type':type},function(data){
+            if(data.status == 1){
+                if(type==1){
+                    $('.accident-type ul').html(render(data));
+                    loadEnd();
+                }else if(type==2){
+                    $('.casualties ul').html(render(data));
+                }else {
+                    $('.blame ul').html(render(data));
+                }
+            }
+        })
+    }
+</script>
+</html>

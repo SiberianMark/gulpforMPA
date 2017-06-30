@@ -1,0 +1,329 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>确认订单</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/determine-order.css">
+    <script src="/web/assets/js/secret.js"></script>
+    <style>
+        .my-point{height:4.4rem;line-height:4.4rem;background:#fff;font-size:1.2rem;padding-left:1.2rem;color:#f55;}
+    </style>
+</head>
+<body>
+<div class="ord-determine">
+    <div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="height:100%;">
+        <div class="mui-scroll" style="height:100%;">
+            <div class="main" style="height:100%;">
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/template" id="temp-data">
+    <div class="ord-address" border="bottom">
+        <div class="ord-below border">
+            <span class="ord-radio"></span>
+            <span>我填写地址</span>
+        </div>
+        {{?it.data.useraddress.length==0}}
+        <div class="ord-consignee">
+            <ul>
+                <li class="ord-please"><span>请填写收货人信息</span></li>
+            </ul>
+            <span class="ord-jiantou address-add"></span>
+        </div>
+        {{??}}
+        <div class="ord-consignee01" >
+            <ul>
+                <li>
+                    <span class="cn">收货人：</span>
+                    <span class="consignee-name">{{=it.data.useraddress.contact}}</span>
+                    <span class="consignee-phone">{{=it.data.useraddress.mobile}}</span>
+                </li>
+                <li class="">
+                    <span class="ca">收货地址：</span>
+                    <span class="consignee-address">
+                        {{=it.data.useraddress.provincename+it.data.useraddress.cityname+(it.data.useraddress.areaname?it.data.useraddress.areaname:'')+it.data.useraddress.address}}
+                    </span>
+                </li>
+            </ul>
+            <span class="ord-jiantou"></span>
+        </div>
+        {{?}}
+        <div class="ord-address-border"></div>
+    </div>
+
+    <div class="shop">
+        {{ for(var i in it.data.shop){}}
+        <div class="ord-shop"  border="bottom">
+            <span class="ord-shopbg"></span>
+            <span>{{=it.data.shop[i].businessname}}</span>
+        </div>
+        <div class="ord-shop-list">
+            <ul>
+                {{for(var j in it.data.shop[i].goods){}}
+                {{store_nums = it.data.shop[i].goods[j].store_nums; }}
+                <li>
+                    <div class="ord-shop-img">
+                        <img src="{{=it.data.shop[i].goods[j].ad_img}}">
+                    </div>
+                    <div class="ord-shop-info">
+                        <span class="shop-header">{{=it.data.shop[i].goods[j].goods_name}}</span>
+                        {{?it.data.shop[i].goods[j].product.specification!=null && it.data.shop[i].goods[j].product.specification!=undefined}}
+                        <span class="shop-weight">{{=it.data.shop[i].goods[j].product.specification}}</span>
+                        {{?}}
+                        <p class="clear">
+                            <span class="shop-price" data-price="{{=it.data.shop[i].goods[j].sell_price}}">{{=it.data.shop[i].goods[j].sell_price}} 积分</span>
+                            <span class="shop-num" data-num="{{=it.data.shop[i].goods[j].num}}">
+                                x{{=it.data.shop[i].goods[j].num}}
+                            </span>
+                        </p>
+                    </div>
+                </li>
+                {{}}}
+            </ul>
+            {{?it.data.shop[i].goods[j].iscart==0}}
+            <div class="ord-buy-num" border="bottom">
+                <span>购买数量</span>
+                <div class="buy-number">
+                    <span class="buy-remove">
+                        <span></span>
+                    </span>
+                    <input class="buy-how" type="tel" value="{{=it.data.shop[i].goods[j].num}}">
+                    <span class="buy-add">
+                        <span></span>
+                    </span>
+                </div>
+            </div>
+            {{?}}
+            <div class="ord-shop-buyer">
+                {{?it.data.shop[i].free_freight==0}}
+                <div class="shop-freight" border="bottom">
+                    <span>运费金额</span>
+                    <span class="freight-use freight" id="freight_1003479">￥{{=it.data.shop[i].freight}}</span>
+                </div>
+                {{?}}
+                <div class="buyer-words" border="bottom">
+                    <span>买家留言：</span>
+                    <input type="text" placeholder="选填，可填写您和卖家达成的一致要求">
+                </div>
+            </div>
+            <div class="ord-shop-all">
+                共 <span class="shop-all-num">{{=it.data.shop[i].totalNum}}</span> 件商品
+                <div class="shop-zprice">
+                    总价：
+                    <span class="shop-all-price">{{=it.data.shop[i].totalMoney}}</span>
+                    <span>积分</span>
+                </div>
+            </div>
+
+            <div class="my-point">积分共<span id="my-point">{{=it.data.integral}}</span>积分,使用<span id="use-point">{{=it.data.totalMoney}}</span>积分</div>
+        </div>
+        {{}}}
+    </div>
+    <div class="ord-buy-true" border="top">
+        <div class="buy-true">确认</div>
+        <div>总价：<span id="totalMoney">{{=it.data.totalMoney.toFixed(2)}}</span><span> 积分</span></div>
+        <div>共<span id="totalNum">{{=it.data.totalNum}}</span>件商品</div>
+    </div>
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/pub-acct/assets/js/load.foot.js"></script>
+<script src="/web/pub-acct/assets/js/pay.js"></script>
+<script>
+    var render = getRender("temp-data");
+    var goods_id = I('goods_id','');
+    var product_id = I('product_id','');
+    var useraddress_id = I('useraddress_id','');
+    var userid = getUserid();
+    var order = null; //订单信息
+    var store_nums = 0;
+    var order_token;//订单令牌
+    var integral;//我的积分
+    var price;//使用的积分
+    var quota = 0;//后台输入限制
+    var num;
+    function onStart(){
+        _initMui();
+        getData();
+    }
+
+    function getData(){
+        var data = M();
+        data.goods_id = goods_id;
+        data.product_id = product_id;
+        data.useraddress_id = useraddress_id;
+        data.userid = userid;
+        data.num = I("num");
+        jsonAjax(API.API_LIST.CAR_ORDER_CONFIRM,data,function(res){
+            if(res.status==1){
+                $("#pullrefresh .main").html(render(res));
+                order_token = res.data.order_token;
+                useraddress_id = res.data.useraddress.id;
+                integral = res.data.integral
+                for(var i in res.data.shop) {
+                    quota = res.data.shop[i].goods[0].quota
+                }
+            }
+            loadEnd();
+        })
+    }
+    //跳转到地址列表
+    $(".ord-determine").on('click','.ord-consignee01',function(){
+        var obj = M();
+        obj.source = I('source','');
+        obj.goods_id = goods_id;
+        obj.product_id = product_id;
+        obj.useraddress_id = useraddress_id?useraddress_id:'';
+        obj.num = $(".buy-how").val();
+        obj.is_bind = 1;
+        PageJump('gotoAddress',obj);
+    });
+    //跳转到地址添加页面
+    $(".ord-determine").on('click',".ord-please",function () {
+        var obj = M();
+        obj.goods_id = goods_id;
+        obj.product_id = product_id;
+        obj.num = $(".buy-how").val();
+        obj.source = I('source','');
+        PageJump('gotoAddAddress', obj);
+
+    });
+    //减少商品数量
+    $(".ord-determine").on('tap','.shop .ord-shop-list .ord-buy-num .buy-number .buy-remove',function(){
+        var bNum = parseInt($(this).siblings(".buy-how").val());
+        if (bNum > 1) {
+            bNum--;
+            num = bNum;
+            $(this).siblings(".buy-how").val(bNum);
+            updataNum(num);
+        }
+    });
+    //增加商品数量
+    $(".ord-determine").on('tap','.shop .ord-shop-list .ord-buy-num .buy-number .buy-add',function(){
+        var bNum = parseInt($(this).siblings(".buy-how").val());
+        if (bNum < store_nums) {
+            bNum++;
+            num = bNum;
+            if(bNum > quota && quota!=0){
+                inputTipsText('数量超过兑换数量!');
+                num = quota;
+            }
+            $(this).siblings(".buy-how").val(num);
+            updataNum(num);
+        } else {
+            inputTipsText('数量超过当前库存!');
+        }
+    });
+    //输入
+    $(".ord-determine").on('input','.shop .ord-shop-list .ord-buy-num .buy-number .buy-how',function(e){
+        var bNum = parseInt($(this).val());
+        var pattern = /^([1-9][0-9]*)$/;
+        if(pattern.test(bNum)){
+            if(bNum < store_nums){
+                num = bNum;
+                if(bNum > quota && quota!=0){
+                    num = quota;
+                }
+                $(this).val(num);
+                updataNum(num);
+            }else{
+                $(this).val(store_nums);
+                updataNum(store_nums);
+                inputTipsText('数量超过当前库存!');
+            }
+        }else{
+            $(this).val($(this).val().substr(0,$(this).length-1));
+            bNum = parseInt($(this).val())?parseInt($(this).val()):1;
+            num = bNum;
+            updataNum(num);
+        }
+    });
+    $(".ord-determine").on('blur','.shop .ord-shop-list .ord-buy-num .buy-number .buy-how',function(e){
+        var bNum = parseInt($(this).val())?parseInt($(this).val()):1;
+        $(this).val(bNum);
+    });
+    //更新数量
+    function updataNum(num){
+        $(".shop-num").text("x"+num);
+        $(".shop-all-num").text(num);
+        $("#totalNum").text(num);
+        price = parseFloat($(".shop-price").attr("data-price"))*num;
+        $(".shop-all-price").text(price.toFixed(2));
+        $("#totalMoney").text(price.toFixed(2));
+        $("#use-point").text(price);
+    }
+    //生成订单
+    $(".ord-determine").on("click",".ord-buy-true .buy-true",function(){
+        var data = M();
+        data.goods_id = goods_id;
+        data.product_id = product_id;
+        data.useraddress_id = useraddress_id;
+        data.userid = userid;
+        data.order_token = order_token;
+        data.num  = parseInt($(".buy-how").val());
+        if(useraddress_id==undefined){
+            inputTipsText("请输入您的地址");
+            return;
+        }
+        if(integral<price){
+            inputTipsText("您的积分不足以支持本次兑换");
+            return;
+        }
+        var s = setInterval(function () {
+        jsonAjax(API.API_LIST.CAR_ORDER_CREATEORDER,data,function(res){
+            if(res.status==1){
+                clearInterval(s);
+                PageJump('gotoMallIndex');
+            }else if(res.status==0){
+                //关闭定时器
+                clearInterval(s);
+                showLoad(res.info);
+            }else if(res.status == 2) { //异步处理订单
+                showLoad(res.info);
+                getOrderNo(res.data);
+            }else if(res.status==3){
+                clearInterval(s);
+                var param = M();
+                param.source = 'car_public';
+                PageJump('gotoDeterSetOrder',param);
+            }
+        })},2000);
+    })
+
+    //获取订单号
+    function getOrderNo(token) {
+        var t = setInterval(function () {
+            jsonAjax(API.API_LIST.ORDER_GETORDERNO, {'userid': getUserid(), 'token': token}, function (data) {
+                if (data.status == 1) {
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad('订单生成成功正在进行跳转...');
+                    $('.inputTipsText').addClass('hide');
+                    var param = M();
+                    param.source = 'car_public';
+                    PageJump('gotoDeterSetOrder',param);
+                } else if(data.status == 0){
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad(data.info);
+                }else if(data.status == 3){
+                    clearInterval(t);
+                    var param = M();
+                    param.source = 'car_public';
+                    PageJump('gotoDeterSetOrder',param);
+                }else{
+                    showLoad(data.info);
+                }
+            });
+        }, 2000);
+    }
+</script>
+</html>

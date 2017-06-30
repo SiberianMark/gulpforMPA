@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>排行榜</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" href="/web/assets/css/smdg/carnivav-lists.css"/>
+</head>
+<body>
+ <!--头部-->
+<header class="header-change" id="header">
+    <div class="types swiper-container">
+        <div class='swiper-wrapper'>
+            <!-- render2 : getRender('types') -->                
+        </div>
+    </div>
+    <div class='groups swiper-container' scl-pe="before">
+        <ul class='swiper-wrapper'>
+            <!-- render1 : getRender('groups') -->
+        </ul>
+    </div>
+    <div class="comment-submit comment-rank"><span></span></div>
+</header>
+<!--主体-->
+<section id="pullrefresh" class="mui-content mui-scroll-wrapper" style="top:10.5rem;background-color:#fff;">
+    <div class="mui-scroll">
+        <ul class="carnivav-lists see" style="padding:0;">
+            <!-- render1 : getRender('carnivav-lists') -->
+            <div class="no-consultant-prompt">
+                <div class="carnival-rank"></div>
+                <span>目前暂无该榜单，期待您的参与！</span>
+            </div>
+        </ul>
+    </div>
+</section>
+<!--悬浮栏-->
+<div class="footer">
+    <ul class="carnivav-lists">
+        <!-- render1 : getRender('footer') -->
+    </ul>
+</div>
+</body>
+<!--types模板-->
+<script type="text/template" id="types">
+    {{~it:val:i}}
+        <p class="swiper-slide {{?urlI.type==val.type||(urlI.type==-1&&i==0)}} cur{{?}}" type-id='{{=val.type}}'><span>{{=val.name}}</span></p>
+    {{~}}
+</script>
+<!--组别名模板-->
+<script type="text/template" id="groups">
+    {{~it:val:i}}
+        <li class="swiper-slide {{?urlI.groupid==val.id}} change{{?}}" groups-id="{{=val.id}}" scl-pe="before"><span >{{=val.name}}</span></li>
+    {{~}}
+</script>
+<!--其它排名-->
+<script type="text/template" id="carnivav-lists">
+    {{~it:arr:z}}
+        <li class="flex-box flex-left-center" name-id="{{=arr.userid}}">
+            {{var _rank=parseInt(arr.ranking),sex=arr.sex;}}
+            {{?z===0}}
+                <div class="one"></div>
+            {{??z===1}}
+                <div class="two"></div>
+            {{??z===2}}
+                <div class="three"></div>
+            {{??}}
+                <div>{{=_rank}}</div>
+            {{?}}
+            <div><img src="{{=arr.logo}}" alt=""/>{{=arr.model}}</div>
+            <div>
+                <img class="smUsrImg" src="{{=arr.photo}}" alt=""/>
+                {{=arr.nickname?arr.nickname:''}}
+                {{?arr.sex==1}}
+                <span></span>
+                {{??arr.sex==2}}
+                <span class="woman"></span>
+                {{?}}
+            </div>
+            <div>{{=arr.grade}}s</div>
+        </li>
+    {{~}}
+</script>
+<!--个人信息模板-->
+<script type="text/template" id="footer">
+    {{var arr=it;}}
+    <li class="flex-box flex-left-center" name-id="{{=arr.userid}}">
+        {{
+          var _rank=parseInt(arr.ranking),sex=arr.sex;
+        }}
+        <div>{{?_rank>0}}{{=_rank}}{{?}}</div>
+        <div>
+            {{?arr.logo!==''}}
+            <img src="{{=arr.logo}}" alt=""/>{{=arr.model}}
+            {{?}}
+        </div>
+        <div>
+            <img class="smUsrImg" src="{{=arr.photo}}" alt=""/>
+            {{=arr.nickname?arr.nickname:''}}
+            {{?arr.sex==1}}
+            <span></span>
+            {{??arr.sex==2}}
+            <span class="woman"></span>
+            {{?}}
+        </div>
+        {{?arr.grade!==''}}
+        <div>{{=arr.grade}}s</div>
+        {{??}}
+        <div></div>
+        {{?}}
+    </li>
+</script>
+<script type="text/javascript">
+var urlI = { 'groupid':I('groupid',0) , 'activityid':I('activityid',0) , 'type':I('type',-1),'page':1};
+function onStart(){
+    getData(true);
+};
+//活动数据
+function getData(first_Load){
+    var obj={'userid':getUserid(),'groupid':urlI.groupid,'activityid':urlI.activityid,'type':urlI.type,'page':urlI.page};
+    var render1=getRender('groups'),
+        render2=getRender('types'),
+        render3=getRender('carnivav-lists'),
+        render4=getRender('footer');
+    jsonAjax(API.API_LIST.CARNIVAL_HOME_RANKLIST,obj,function(data){
+        if ( data.status == 1 ) {
+            var _data=data.data,
+                _rank=_data.rank,
+                _person_rank=_data.person_rank;
+            if(urlI.groupid==0&&_data.group.length>0){
+                urlI.groupid = _data.group[0].id;
+            }
+            if(_data.is_hot==='0'){
+                $('.comment-submit>span').addClass('hide');
+            }
+            TitleReSet('赛事成绩'+(_data.title!=null?_data.title:''));
+            $("header .types p[type-id='"+urlI.type+"']").addClass('cur').siblings().removeClass('cur');
+            if (first_Load) {//为了不影响swiper滑动效果和页面分享内容,此处仅第一次加载时才生成group模块和分享模块.
+                $('header .groups ul').html(render1(_data.group));
+                var Gli_width= 0,G_width= $('.groups').width();
+                $('.swiper-wrapper>li').each(function(i,item){
+                    Gli_width+=1*$(item).width();
+                });
+                if(Gli_width<G_width){
+                    $('.groups').css({'width':Gli_width+'px','margin':'0 auto'});
+                }
+                $('header .types div').html(render2(_data.type));
+                var Tli_width= 0,T_width= $('.types').width();
+                console.log(Tli_width,T_width);
+                $('.swiper-wrapper>p').each(function(i,item){
+                    Tli_width+=1*$(item).width();
+                });
+                if(Tli_width<T_width){
+                    $('.types').css('width',Tli_width+'px');
+                }
+                getShare(_data.share);
+            };
+            if(_person_rank.length!==0){
+                $('.footer .carnivav-lists').html(render4(_person_rank));
+            }else{
+                $('.footer .carnivav-lists').html('');
+                $('.footer .carnivav-lists').css('padding-bottom','0')
+            }
+            var g_lenght = 'auto';// _data.group.length>6?6:_data.group;
+
+            var swiper_groups = new Swiper('#header .types', {
+                loop : false,
+                observer: true,
+                slidesPerView: g_lenght,
+                paginationClickable: true,
+                freeMode: true
+            });
+            var swiper_groups = new Swiper('#header .groups', {
+                loop : false,
+                observer: true,
+                slidesPerView: g_lenght,
+                paginationClickable: true,
+                freeMode: true
+            });
+            var len = _rank.length;
+            if(len<= 0){
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                $('.carnivav-lists').html('<div class="no-consultant-prompt"><div class="carnival-rank"></div><span>目前暂无该榜单，期待您的参与！</span></div>');
+                loadEnd();
+                return;
+            }
+            if(urlI.page==1){
+                $('#pullrefresh .carnivav-lists').html(render3(_rank));
+            }else{
+                $('#pullrefresh .carnivav-lists').append(render3(_rank));
+            }
+            $('.mui-pull-caption').show();
+            if(len< 10){
+                $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+            }
+            setTimeout(function(){
+                mui('#pullrefresh').pullRefresh().setStopped(false);
+            },200);
+            urlI.page++;
+            if(pull_action ==  'up'){
+                mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+            }
+            else if(pull_action == 'down'){
+                mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+            }
+        }else{            
+            if(pull_action == 'up'){
+                mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+            }
+            else if(pull_action == 'down'){
+                mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+            }
+            if(urlI.page==1){
+                $('.mui-pull-caption').hide();
+                mui('#pullrefresh').pullRefresh().setStopped(true);
+            }
+        }
+        loadEnd();
+    })
+};
+//切换一级选项卡
+$('#header .types').on('click','p',function() {
+    urlI.page=1
+    urlI.type = $(this).attr('type-id');
+    PageChanges();
+})
+//切换二级选项卡
+$('#header').on('click','li',function(){
+    urlI.page=1
+    urlI.groupid = $(this).attr('groups-id');
+    $(this).addClass('change').siblings().removeClass('change');
+    PageChanges();
+});
+//查看车手信息
+$('.mui-scroll>.carnivav-lists,.carnivav-lists').on('tap','li',function () {
+    console.log(1111+'====');
+    var obj = M();
+    obj.uid=$(this).attr('name-id');
+    if(obj.uid==getUserid()){
+        obj.source='home';
+    }else{
+        obj.source='rank';
+    }
+    Interface('gotoPersonInfo',JSON.stringify(obj));
+});
+//进入评论页面
+$('.comment-rank').on('click',function(){
+   var obj={
+       type:1,
+       rid:I('activityid','rank')
+   }
+    Interface('gotoCarnivalComment',JSON.stringify(obj));
+});
+//页面切换
+function PageChanges () {
+    getData(false);
+    changeBackUrlL("smdg/carnival-rank",urlI);
+}
+
+
+/*获取分享信息*/
+function getShare(share){
+    WxShare.title = share.title;
+    WxShare.desc = share.desc;
+    WxShare.imgUrl = share.img_link;
+    WxShare.link = share.share_link;
+    loadWxObject(true); //加载微信对象
+}
+</script>
+</html>

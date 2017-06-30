@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title></title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/competitiveExplanation.css">
+</head>
+<script>
+
+</script>
+<body>
+<div class="competitive">
+    <div class="regular">
+        <div class="competitiveMsg"></div>
+    </div>
+    <div class="competitiveSofa">
+        <div class="competitiveSofaImg"></div>
+        <div class="competitiveSofaTip">暂无评论，点击抢沙发</div>
+    </div>
+    <ul id="comment-list" class="comment-list"></ul>
+    <div class="competitiveCommentAdd" border="all">查看更多</div>
+    <div class="competitiveComment flex-x-about flex-y">
+        <div border="all">
+            <input name="" id="competitiveCommentMsg" placeholder="写评论..." readonly="readonly">
+        </div>
+        <div class="flex-center">
+            <div class="common competitiveCommentTo">
+                <div class="box-nums"></div>
+            </div>
+            <div class="common competitiveCommentCollect" collectstatus=""></div>
+            <div class="common competitiveCommentFabulous" fabulousstatus=""></div>
+        </div>
+    </div>
+</div>
+<div class="bs-reply" style="">
+    <textarea id="content" class="content-textarea bs-reply-text" rows="5" placeholder="该文章你怎么看?"></textarea>
+    <div class="flex-x-about">
+        <div id="bs-comment-apply" class="bs-comment-apply">提交</div>
+        <div id="bs-comment-close" class="bs-comment-close">取消</div>
+    </div>
+</div>
+</body>
+
+<script type="text/template" id="competitiveMsg">
+    <div class="competitiveVideo">
+        <video src="{{=it.data.video}}" controls="controls" poster="{{=it.data.video_img}}" type="video/mp4" preload="auto" autoplay="autoplay" webkit-playsinline>
+            您的浏览器不支持 video 标签。
+        </video>
+    </div>
+    <div class="competitiveMessage">
+        <div class="competitiveTitle">{{=it.data.title}}</div>
+        <div class="competitiveStatus">
+            <span class="collectStatus">收藏<i>{{=it.data.collection}}</i></span>
+            <span class="praiseStatus">赞<i>{{=it.data.click}}</i></span>
+        </div>
+    </div>
+    <ul class="competitiveOther">
+        {{~it.data.recommend:item:index}}
+        <li class="flex-x-about fac" border="top" id="{{=item.id}}">
+            <div class="competitiveOtherMsg flex-c">
+                <div class="competitiveOtherTitle">{{=item.title}}</div>
+                <div class="competitiveOtherStatus">
+                    <span>{{=item.title}}</span>
+                    <span>{{=getFrendlyDate(item.addtime,true)}}</span>
+                </div>
+            </div>
+            <div class="competitiveOtherImg">
+                <img src="{{=item.video_img}}" alt="">
+                {{?!empty(item.video_time)&&item.video_time!=null}}
+                <div class="competitiveOtherVideoTime">
+                    <span>{{=item.video_time.substring(3)}}</span>
+                </div>
+                {{?}}
+            </div>
+        </li>
+        {{~}}
+        <div class="competitiveOtherMore" border="all">查看更多</div>
+    </ul>
+</script>
+
+<script type="text/template" id="comment_list">
+    {{~it.data.comment:item:index}}
+    <li class="comment-item flex">
+        <img class="comment-usrImg" src="{{=item.photo}}" alt="">
+        <div class="commemt-main flex-c">
+            <div class="comment-usrName">{{=item.nickname}}</div>
+            <div class="usr-con">{{=item.comment}}</div>
+            <div class="comment-other">
+                {{=getFrendlyDate(item.add_time,true)}}
+                {{?!empty(item.add_time)&&item.add_time!=null&&parseInt(item.comment_num)==0}}
+                <span class="comment-recall" commentid="{{=item.id}}">回复</span>
+                {{??parseInt(item.comment_num)>0}}
+                <span class="comment-recall" commentid="{{=item.id}}">{{=item.comment_num}}条回复></span>
+                {{?}}
+            </div>
+        </div>
+        {{?item.is_click==0}}
+        <div class="like-box unlike-box" likebox="" id="{{=item.id}}">{{=item.hits}}</div>
+        {{??}}
+        <div class="like-box" likebox="cancel" id="{{=item.id}}">{{=item.hits}}</div>
+        {{?}}
+    </li>
+    {{~}}
+</script>
+
+<script>
+    var share=I('share');   //是否为分享,是1;否0;
+    var id=I("id");//视频id
+    var page =I('page',1);
+    var comment_status;//评论
+    var competitiveMsg = getRender('competitiveMsg');
+    var comment_list = getRender('comment_list');
+    var regularStatus = true;
+    function onStart() {
+        getData();
+        getComment();
+    }
+    function getData() {
+        jsonAjax(API.API_LIST.GOLD_SPORTS_GETVIDEOINFO,{userid: getUserid(),id: id},function(data){
+            if(data.status==1){
+                TitleReSet(data.data.title);
+                $('.competitiveMsg').html(competitiveMsg(data));
+                if(data.data.recommend.length>5){
+                    $(".competitiveOtherMore").show();
+                }
+                var comment_num = parseInt(data.data.comment);
+                if(0<comment_num&&comment_num<=99){
+                    $('.box-nums').text(comment_num);
+                }else if(comment_num>99){
+                    $('.box-nums').text("99+");
+                }
+                if(data.data.is_click=="1"){
+                    $('.competitiveCommentFabulous').addClass("competitiveCommentFabulousGet").attr("fabulousstatus", "cancel");
+                }
+                if(data.data.is_collection=="1"){
+                    $('.competitiveCommentCollect').addClass("competitiveCommentCollectGet").attr("collectstatus", "cancel");
+                }
+                WxShare.title = data.data.share.title;
+                WxShare.desc = data.data.share.content;
+                WxShare.imgUrl = data.data.share.image;
+                WxShare.link = data.data.share.link;
+                loadWxObject(true);
+                loadEnd();
+            }
+        });
+    }
+    function getComment() {
+        jsonAjax(API.API_LIST.GOLD_SPORT_COMMENTLIST,{userid: getUserid(),id: id,source: "0",page: page},function(data){
+            if(data.status==1) {
+                if (page == 1 && data.data.comment.length > 0) {
+                    $(".competitiveSofa").hide();
+                    $(".competitiveCommentAdd").show();
+                    $('.comment-list').html(comment_list(data));
+                } else if (page > 1 && data.data.comment.length > 0) {
+                    $('.comment-list').append(comment_list(data));
+                } else if (data.data.comment.length <= 0) {
+                    if (comment_status == 1) {
+                        inputTipsText("暂无更多消息");
+                        $(".comment-list").css("margin-bottom", "5.5rem");
+                        $(".competitiveCommentAdd").hide();
+                    } else {
+                        $(".competitiveSofa").show();
+                    }
+                }
+                var comment_num = parseInt(data.data.info.comment);
+                if (0 < comment_num && comment_num <= 99) {
+                    $('.box-nums').text(comment_num);
+                } else if (comment_num > 99) {
+                    $('.box-nums').text("99+");
+                }
+            }
+        });
+    }
+    //加载更多(栏目)
+    $(".competitiveMsg").on("click",".competitiveOtherMore",function () {
+        $(".competitiveOther li").removeClass("fac");
+        $(this).hide();
+    });
+    //加载更多(评论)
+    $(".competitiveCommentAdd").on("click",function () {
+        page++;
+        comment_status = 1;
+        getComment();
+    });
+    //推荐视频(栏目)
+    $(".competitiveMsg").on("click",".competitiveOther li",function () {
+        var obj = new Object();
+        obj.id = $(this).attr("id");
+        InterfaceTap('gotoSmSports', JSON.stringify(obj));
+    });
+    //收藏
+    $(".competitiveComment").on("click",".competitiveCommentCollect",function () {
+        var _this = $(this);
+        isLogin(function (ret) {
+            if(ret){
+                var action = _this.attr("collectstatus");
+                doCollectNote(id,action,_this);
+            }
+        });
+    });
+    //点赞
+    $(".competitiveComment").on("click",".competitiveCommentFabulous",function () {
+        var _this = $(this);
+        isLogin(function (ret) {
+            if(ret){
+                var action = _this.attr("fabulousstatus");
+                doLikeArticle(id,action,_this);
+            }
+        });
+    });
+    //写评论
+    $("#competitiveCommentMsg").on("click",function () {
+        isLogin(function (ret) {
+            if(ret){
+                $(".bs-reply").animate({
+                    height:"toggle"
+                },"slow");
+                $(".competitive").hide();
+            }
+        });
+    });
+    $(".bs-reply").on("click",".bs-comment-close",function () {
+        $(".bs-reply").animate({
+            height:"toggle"
+        },"slow");
+        $(".competitive").show();
+    });
+    $(".bs-reply").on("click",".bs-comment-apply",function () {
+        var comment = $('#content').val();
+        if(comment == "" || $.trim(comment) == "") {
+            inputTipsText("请输入内容！");
+            $('#content').focus();
+            return;
+        }
+        commentAdd(comment);
+    });
+    //查看评论
+    $(".competitiveCommentTo").on("click",function () {
+       var commentValue = $(".box-nums").text();
+       isLogin(function (ret) {
+           if(ret){
+               if(commentValue == ""){
+                   $(".bs-reply").animate({
+                       height:"toggle"
+                   },"slow");
+                   $(".competitive").hide();
+               }else{
+                   if(regularStatus){
+                       $('html,body').animate({scrollTop:$('.regular').height()},500);
+                       regularStatus = false;
+                   }else{
+                       $('html,body').animate({scrollTop: 0},500);
+                       regularStatus = true;
+                   }
+
+               }
+
+           }
+       });
+    });
+    //回复评论
+    $(".comment-list").on("click",".comment-recall",function () {
+        var _this=$(this);
+        var obj = new Object();
+        isLogin(function(ret){
+            if(ret){
+                obj.type = 2;
+                obj.artical_id = id;
+                obj.comment_id = _this.attr("commentid");
+                InterfaceTap('gotoCommentReply', JSON.stringify(obj));
+            }
+        });
+    });
+    //回复评论赞
+    $(".comment-list").on("click",".like-box",function () {
+        var _this = $(this);
+        isLogin(function (ret) {
+            if(ret){
+                var action = _this.attr("likebox");
+                var commentid = _this.attr("id");
+                doLikeNoteComment(commentid,action,_this);
+            }
+        });
+    });
+    function doLikeNoteComment(commentid,action,_this) {
+        jsonAjax(API.API_LIST.GOLD_NOTE_DOLIKECOMMENT,{userid: getUserid(),id: commentid,action: action,type: "2"},function(data){
+            if(data.status==1){
+                inputTipsText(data.info);
+                if(_this.attr("likebox")=="cancel"){
+                    _this.addClass("unlike-box").attr("likebox", "");
+                    var value = parseInt(_this.text()) - 1;
+                    _this.text(value);
+                }else{
+                    _this.removeClass("unlike-box").attr("likebox", "cancel");
+                    var value = parseInt(_this.text()) + 1;
+                    _this.text(value);
+                }
+            }
+        });
+    }
+    function doLikeArticle(id,action,_this) {
+        jsonAjax(API.API_LIST.GOLD_NOTE_DOLIKE,{userid: getUserid(),id: id,action: action,source: "0",type: "2"},function(data){
+            if(data.status==1){
+                inputTipsText(data.info);
+                if(_this.attr("fabulousstatus")=="cancel"){
+                    _this.removeClass("competitiveCommentFabulousGet").attr("fabulousstatus", "");
+                    var value = parseInt($(".praiseStatus i").text()) - 1;
+                    $(".praiseStatus i").text(value);
+                }else{
+                    _this.addClass("competitiveCommentFabulousGet").attr("fabulousstatus", "cancel");
+                    var value = parseInt($(".praiseStatus i").text()) + 1;
+                    $(".praiseStatus i").text(value);
+                }
+            }
+        });
+    }
+    function doCollectNote(id,action,_this) {
+        jsonAjax(API.API_LIST.GOLD_NOTE_DOCOLLECT,{userid: getUserid(),id: id,action: action,source: "0",type: "2"},function(data){
+            if(data.status==1){
+                inputTipsText(data.info);
+                if(_this.attr("collectstatus")=="cancel"){
+                    _this.removeClass("competitiveCommentCollectGet").attr("collectstatus", "");
+                    var value = parseInt($(".collectStatus i").text()) - 1;
+                    $(".collectStatus i").text(value);
+                }else{
+                    _this.addClass("competitiveCommentCollectGet").attr("collectstatus", "cancel");
+                    var value = parseInt($(".collectStatus i").text()) + 1;
+                    $(".collectStatus i").text(value);
+                }
+            }
+        });
+    }
+    function commentAdd(comment) {
+        jsonAjax(API.API_LIST.NOTE_ADD_COMMENT,{userid: getUserid(),id: id,comment: comment,type: "2",source: "0"},function(data){
+            if(data.status==1){
+                inputTipsText(data.info);
+                page = 1;
+                $('#content').val("");
+                getComment();
+                $(".bs-reply").animate({
+                    height:"toggle"
+                },"slow");
+                $(".competitive").show();
+            }
+        });
+    }
+
+
+
+</script>
+</html>

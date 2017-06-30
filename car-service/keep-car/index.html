@@ -1,0 +1,375 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>服务大厅</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <style>
+
+    </style>
+</head>
+<body>
+    <!-- pull up to load more data -->
+    <div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll">
+    <div class="car-info2">
+        <!-- tmpl-my-car -->
+    </div>
+
+    <div class="yijian">
+        <!-- tmpl-menu-up -->
+    </div>
+
+    <!-- banner  -->
+    <div class="swiper-container index-banner banner">
+        <div class="swiper-wrapper"></div>
+        <div class="swiper-pagination"></div>
+    </div>
+
+    <div class="fun">
+         <!-- tmpl-menu-down -->
+    </div>
+    <div class="yuehui">
+        <div class="title">
+            <span>会员特惠</span>
+        </div>
+        <div id="data-goods"></div>
+    </div>
+
+    </div>
+    </div>
+<!--没有车辆提示框-->
+    <div class="bomb-box">
+        <div class="bomb">
+            <div scl-pe="before">您暂时未设置车辆，请先设置车辆</div>
+            <div><span>取消</span><span scl-pe="before">去设置</span></div>
+        </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/x-dot-template" id="tmpl-menu-up">
+    {{?car_index_menu}}
+        {{~car_index_menu:item:index}}
+            {{?item.pos==1&&(item.show==1||car_index_menu[0].show==1)}}
+                <div class="item" id="{{=item.id}}">
+                    <a href="javascript:;" goto="{{=item.gt}}" disable={{=item.disable}}>
+                        <img src="{{=car_index_menu[0].icon}}{{=item.icon}}" alt="{{=item.name}}"/>
+                        <div>{{=item.name}}</div>
+                    </a>
+                </div>
+            {{?}}
+        {{~}}
+    {{?}}
+</script>
+<script type="text/x-dot-template" id="tmpl-menu-down">
+    {{?car_index_menu}}
+        {{~car_index_menu:item:index}}
+            {{?item.pos==2&&(item.show==1||car_index_menu[0].show==1)}}
+            <div class="box" id="{{=item.id}}" border="top right">
+                <a href="javascript:;" goto="{{=item.gt}}" disable={{=item.disable}}>
+                    <img src="{{=car_index_menu[0].icon}}{{=item.icon}}" alt="{{=item.name}}"/>
+                    <div>{{=item.name}}</div>
+                </a>
+            </div>
+            {{?}}
+        {{~}}
+    {{?}}
+</script>
+<script type="text/x-dot-template" id="tmpl-my-car">
+    {{?it}}
+        {{~it.data:item:index}}
+            {{?item.is_default==1}}
+            <div class="attr1">
+                    <img src="{{=item&&item.logo?item.logo:'/web/car-service/assets/image/keepcar/morentouxiang@2x.png'}}" alt="logo"/>
+                    <div class="car-type">
+                        <div style="{{=is_bind?'':'text-decoration: underline;'}}">{{=item&&item.carnum?item.carnum:'去设置'}}</div>
+                        <div>{{=item&&item.detail?item.brand+' '+item.detail:'去设置'}}</div>
+                    </div>
+            </div>
+            <div class="attr2">
+                <div>行驶里程</div>
+                <div>{{=item&&item.mileage?item.mileage+'公里':'去设置'}}</div>
+            </div>
+            {{?}}
+        {{~}}
+    {{??}}
+        <div class="attr1">
+                <img src="/web/car-service/assets/image/keepcar/morentouxiang@2x.png" alt="logo"/>
+                <div class="car-type">
+                    <div style="{{=is_bind?'':'text-decoration: underline;'}}">{{=item&&item.carnum?item.carnum:'去设置'}}</div>
+                    <div>去设置</div>
+                </div>
+        </div>
+        <div class="attr2">
+            <div>行驶里程</div>
+            <div>去设置</div>
+        </div>
+    {{?}}
+</script>
+<script type="text/x-dot-template" id="tmpl-my-goods">
+    {{~it.data:item:index}}
+        <div class="content" id="{{=item.id}}" border="top">
+            <img src="{{=item.ad_img?item.ad_img:'/web/car-service/assets/image/keepcar/morentouxiang@2x.png'}}"/>
+            <div class="right">
+                <div class="name">{{=item.name}}</div>
+                <div class="cost">
+                    <span>{{=item.introduction}}</span>
+                    <span></span>
+                </div>
+                <div class="price">&yen;{{=item.sell_price}}元</div>
+            </div>
+            <a class="btn">立即抢购</a>
+        </div>
+    {{~}}
+</script>
+<script type="text/x-dot-template" id="tmpl-data-banner">
+    {{~it.data:item:index}}
+    <div class="swiper-slide" hrefUrl="{{=item.url}}" id="{{=item.id}}">
+        <img class="swiper-lazy" data-src="{{=item.image?item.image:'/web/assets/image/default_ico.svg'}}">
+        <div class="swiper-lazy-preloader"></div>
+    </div>
+    {{~}}
+</script>
+<script>
+    var render_myCar=getRender('tmpl-my-car');
+    var render_menu_up=getRender('tmpl-menu-up');
+    var render_menu_down=getRender('tmpl-menu-down');
+    var render_goods=getRender('tmpl-my-goods');
+    var render_banner=getRender('tmpl-data-banner');
+    var menus;
+    var mySwiper=null;
+    var nickname=null;
+    var is_bind=false;
+    var mui_inited=false;
+    var first_load=true;
+    var page=1;
+    var load_end_car=load_end_menu=load_end_banner=loadData=false;
+    function all_load_end(){
+        if(load_end_car&&load_end_menu&&load_end_banner){
+            loadEnd();
+        }
+    }
+
+    function onStart(){
+        if(first_load){
+            getUserData(function(){
+                nickname=UserInfo.nickname;
+                nickname=nickname.length>12?nickname.substr(0,12)+'...':nickname;
+                if(UserInfo.mobile==''){
+                    nickname='请登录';
+                }else{
+                    is_bind=true;
+                }
+                getCarInfo();
+            });
+            first_load=false;
+        }
+        getBanner();
+        _initMui();
+    }
+
+    /*on wx sdk config ready*/
+    function onWxReady(){
+        getMenu();
+    }
+
+    /*get my car info*/
+    function getCarInfo(){
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETCARINFO,{'userid':getUserid()},function(data){
+            if(data.status==1){
+                $('.car-info2').html(render_myCar(data));
+            }else{
+                $('.car-info2').html(render_myCar());
+            }
+            if(data.data==''||data.data==null||data.data==undefined){
+                $('.bomb-box').show();
+            }
+            load_end_car=true;
+            all_load_end();
+        });
+    }
+
+    /*get banner*/
+    function getBanner(){
+        jsonAjax(API.API_LIST.CAR_INDEX_BANNER,{},function(data){
+            if(data.status==1){
+                if (mySwiper != null) {
+                    mySwiper.destroy();
+                    mySwiper = null;
+                }
+                $('.index-banner .swiper-wrapper').html(render_banner(data));
+                mySwiper = new Swiper ('.index-banner', {
+                    loop: true,
+                    autoplay: 3000,
+                    observer: true,
+                    preloadImages: false,
+                    speed: 500,
+                    pagination: '.swiper-pagination',
+                    paginationClickable: true,
+                    autoplayDisableOnInteraction: false,
+                    lazyLoading : true
+                });
+            }
+            load_end_banner=true;
+            all_load_end();
+        });
+    }
+
+    /*get menus*/
+    function getMenu(){
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETMENU,{},function(data){
+            if(data.status==1){
+                if(data.data.share){
+                    WxShare.title = data.data.share.title;
+                    WxShare.desc = data.data.share.content;
+                    WxShare.imgUrl = data.data.share.img;
+                    WxShare.link = data.data.share.linkurl;
+                    onWxShare();
+                }
+                if(data.data.menu&&data.data.menu.length>0){
+                    for(var i in data.data.menu){
+                        //console.log(i,data.data[i].serviseid);
+                        //updateMenu(data.data[i].name.trim());
+                        try{
+                            car_index_menu[Number(data.data.menu[i].serviseid)].show=1;
+                        }catch(e){}
+                    }
+                    //console.log(car_index_menu);
+                    $('.yijian').html(render_menu_up());
+                    $('.fun').html(render_menu_down());
+                    if(checkContains(3)){//加载会员特惠数据
+                        loadData=true;
+                        getData();
+                    }else{
+                        loadData=false;
+                        $('.yuehui').hide();
+                        setTimeout(function(){mui('#pullrefresh').pullRefresh().setStopped(false);},200);
+                        mui('#pullrefresh').pullRefresh().disablePullupToRefresh();
+                    }
+                }
+            }
+            load_end_menu=true;
+            all_load_end();
+        });
+    }
+
+    function JumpAfterSharing(){
+        jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,{'rid':I('pid',''),'source':1,'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+
+            }
+        })
+    }
+    /*check if array contains obj*/
+    function checkContains(key){
+        var ret=false;
+        for (var i = car_index_menu.length - 1; i >= 0; i--) {
+            if(car_index_menu[i].pos==key&&car_index_menu[i].show==1){
+                ret=true;
+                break;
+            }
+        }
+        console.log('checkContains '+key,ret);
+        return ret;
+    }
+
+    /*update menus */
+    function updateMenu(name){
+        for (var i in car_index_menu) {
+            if(i==0) continue;
+            if(car_index_menu[i].name==name){
+                car_index_menu[i].show=1;
+                break;
+            }
+        }
+    }
+
+    /*get members preferential*/
+    function getData(){
+        if(!loadData){
+            mui('#pullrefresh').pullRefresh().setStopped(false);
+            return;
+        }
+        console.log('get members preferential data...');
+        jsonAjax(API.API_LIST.CAR_GOODS_INDEX,{page:page},function(data){
+            if(data.status==1&&data.data.length>0){
+                if(page==1){
+                    $('#data-goods').html(render_goods(data));
+                }else{
+                    $('#data-goods').append(render_goods(data));
+                }
+                setTimeout(function(){mui('#pullrefresh').pullRefresh().setStopped(false);},200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                setTimeout(function(){mui('#pullrefresh').pullRefresh().setStopped(false);},200);
+            }
+        });
+    }
+
+    /*banner item click*/
+    $('.banner').on("tap", 'div.swiper-slide[hrefUrl]',function () {
+        if ($(this).attr('hrefUrl').length > 0) {
+            jsonAjax(API.API_LIST.CAR_INDEX_BANNER_CLICK,{adid:$(this).attr('id')},function(data){
+                //do something
+            });
+            var obj=M();
+            obj.link=$(this).attr('hrefUrl');
+            gotolink('link',obj);
+        }
+    });
+
+    /*carinfo on click*/
+    $('.car-info2').on('tap',function(){
+        if(UserInfo.mobile){
+            var param = M();
+            param.source = "index";
+            PageJump('gotoMyCar',param);
+        }else{
+            PageJump('gotoLogin',param);
+        }
+    });
+
+    /*service menu item on click*/
+    $('.yijian,.fun').on('tap','div',function(){
+        var g = $(this).find('a').attr('goto');
+        var d = $(this).find('a').attr('disable');
+        Boolean(d)?PageJump(g):false;
+    });
+
+    $('#data-goods').on('tap','.content',function () {
+        var obj = M();
+        obj.id=$(this).attr('id');
+        PageJump('gotoGoodDetail',obj);
+    });
+
+    //提示框点击事件
+    $('.bomb ').on('click','span',function(){
+        if($(this).index()==0){//取消
+            $('.bomb-box').hide();
+        }else if($(this).index()==1){//去设置
+            var obj = M();
+            obj.source='index';
+            PageJump('gotoMyCar',obj);
+        }
+    })
+</script>
+</html>

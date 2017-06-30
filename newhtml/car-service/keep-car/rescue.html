@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>一键救援</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=iEBTRIhxqdpxM1Mq0mTLOc1q"></script>
+</head>
+<body>
+    <div class="map" id="getMap"></div>
+    <div class="main" style="margin-top: 1rem;">
+        <div class="input-box">
+            <label>你的位置</label>
+            <input class="add" type="text" placeholder="请输入你当前的位置"  />
+        </div>
+        <div class="input-box">
+            <label>你的电话</label>
+            <input class="pho" type="text" placeholder="请输入你的手机号"/>
+        </div>
+    </div>
+    <div class="jiuyuan" id="getHelp">
+        <img src="/web/car-service/assets/image/jiuyuan200px@2x.png" alt=""/>
+    </div>
+    <div class="guwen" id="adviser" style="display:none;">
+
+    <!--</div>-->
+    <!-- <div class="shuoming">
+        <div class="title">一键拖车，全店响应</div>
+        <div class="cont">
+            1、一键拖车，10秒内将位置，车型，联系方式<br>
+            等信息发到4S服务顾问和经理<br>
+            2、服务顾问将立即联系您，安排救援
+        </div>
+    </div> -->
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var dataLoad = false;
+    var empLoad = true;
+
+    function onStart(){
+        getEmployee(API.API_LIST.CAR_UPKEEP_ONEKEYSAVEEMPLOYEE,$('#adviser'));
+        getLocation();
+    }
+
+    var position_option = {
+        enableHighAccuracy: true,
+        maximumAge: 30000,
+        timeout: 20000
+    };
+
+    function getLocation() {
+        var geolocation = new BMap.Geolocation();
+        geolocation.getCurrentPosition(function(r){
+            if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                getMap(r.point.lng,r.point.lat);
+            }
+            else{
+                inputTipsText('获取位置失败，您可以手动填写您的信息或者直接联系顾问专员');
+            }
+            dataLoad = true;
+            allLoadEnd();
+        },{enableHighAccuracy: true});
+    }
+
+    function getMap(x,y){
+        var map = new BMap.Map("getMap");
+        var new_point = new BMap.Point(x,y);
+        map.centerAndZoom(new_point,16);
+        var marker = new BMap.Marker(new_point);  // 创建标注
+        map.addOverlay(marker);  // 将标注添加到地图中
+        map.panTo(new_point);
+        var myGeo  = new BMap.Geocoder(); // 创建地址解析器实例
+        myGeo.getLocation(new_point, function(rs){// 将地址反解析
+            var addComp = rs.addressComponents;
+            var address = addComp.province + addComp.city + addComp.district + addComp.street + addComp.streetNumber;
+            $('.add').val(address);
+            $('.pho').val(UserInfo.mobile);
+            var label = new BMap.Label(address,{offset:new BMap.Size(-50,-20)});
+            label.setStyle({
+                color : "#fff",
+                fontSize : "10px",
+                background :"rgba(0,0,0,.7)",
+                border :"0",
+                padding:"2px 6px",
+                borderRadius:"6px"
+
+            });
+            marker.setLabel(label);
+        });
+    }
+
+
+
+    $('#getHelp').on('click','img',function(){
+        var phoneNum = /^1[34578]\d{9}$/;
+        var phoneValue = $('.input-box .pho').val(); // 手机号
+        var addValue = $('.input-box .add').val(); // 地址
+        var aid = $("div[aid]").attr("aid");
+        if(!phoneNum.test(phoneValue)){
+            inputTipsText('请输入正确的手机号');
+            return false;
+        }
+
+        if(addValue==''){
+            inputTipsText('请填写您所在的位置');
+            return false;
+        }
+        jsonAjax(API.API_LIST.CAR_UPKEEP_ONEKEYSAVE, {'userid': getUserid(), 'phone':phoneValue, 'address':addValue,advisorid:aid},function (res) {
+            debugger;
+            if(res.status == 1){
+                console.log('..');
+                var param = M();
+                param.type = 1;
+                changeBackUrlL("car-service/keep-car/index",'');
+                PageJump('gotoRescueSuccess',param);
+            }else {
+                inputTipsText(res.info);
+                BackKeepIndex();
+            }
+        });
+
+    });
+
+    function allLoadEnd(){
+        console.log(dataLoad,empLoad);
+        if(dataLoad&&empLoad){
+            loadEnd();
+        }
+    }
+
+</script>
+</html>

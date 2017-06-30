@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>确定金额</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+    <div class="main" style="margin-top: 1rem;">
+        <div class="input-box pr">
+            <label>消费总额</label>
+            <span class="cost">&yen;55.00</span>
+        </div>
+        <div class="input-box pr">
+            <label>支付金额</label>
+            <span class="pay">&yen;55.00</span>
+        </div>
+    </div>
+    <div class="btn-box">
+        <a class="btn">确定金额</a>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    function onStart(){
+        //Interface('gotoIndex');
+        loadEnd();
+        getEmployee();
+    }
+</script>
+</html>

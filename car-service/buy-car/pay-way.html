@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>选择支付方式</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body>
+        <div class="ovh pay-wrap">
+            <div class="head-top bdb bgwh">
+                <div class="list-sum ovh bdb">
+                    <span>总需支付金额:</span>
+                    <div class="money fr tr">￥55.0</div>
+                </div>
+                <div class="list-sum ovh pr">
+                    <input type="checkbox" checked="">
+                    <div class="discount dib">可使用20马蹄抵扣￥20.00</div>
+                    <div class="money fr tr">-￥20.0</div>
+                    <div class="available-mt">您的可使用马蹄为20MT</div>
+                </div>
+            </div>
+            <div class="pay-way bgwh">
+                <div class="list-pay list-head ovh bdb">
+                    <span>还需支付金额:</span>
+                    <div class="money fr tr">￥55.0</div>
+                </div>
+                <div class="list-pay ovh bdb pr">
+                <label for="lqian" class="db ovh">
+                    <img class="fl mgt-2" src="/web/car-service/assets/image/pay/lingqian@2x.png" alt="">
+                    <div class="lingqian db">零钱<span class="lingqian-detail">（￥299）</span></div>
+                    <div class="radios pa">
+                        <input type="radio" id="lqian" name="payWay" checked="">
+                    </div>
+
+                </label>
+                </div>
+                <div class="list-pay ovh bdb pr">
+                <label for="dika" class="db ovh">
+                    <img class="fl mgt-2" src="/web/car-service/assets/image/pay/dika@2x.png" alt="">
+                    <div class="lingqian db">嘀卡<span class="lingqian-detail">（￥478）</span></div>
+                    <div class="radios pa">
+                        <input type="radio" id="dika" name="payWay">
+                    </div>
+
+                </label>
+                </div>
+                <div class="list-pay ovh pr">
+                <label for="weixin" class="db ovh">
+                    <img class="fl mgt-2" src="/web/car-service/assets/image/pay/weixin@2x.png" alt="">
+                    <div class="lingqian db">微信支付<span class="lingqian-detail"></span></div>
+                    <div class="radios pa">
+                        <input type="radio" id="weixin" name="payWay">
+                    </div>
+
+                </label>
+                </div>
+            </div>
+            <div class="db-btn tc mgt-3 mgl-2 mgr-2">确认支付</div>
+	    </div>
+</body>
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+	function onStart(){
+		loadEnd();
+	}
+</script>
+</html>

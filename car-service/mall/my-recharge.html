@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>我的充值卡</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <script src="/web/assets/js/mui_list_data.js?v=1.0.5"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/user/purse.css">
+    <style type="text/css">
+    .my-r-head{
+        height: 6.8rem;line-height: 6.8rem;font-size: 1.4rem;color:#333;background: #fff;
+        padding-left: 1.2rem;
+    }
+    .my-r-head em{ font-style: normal;color: #f55;}
+    .my-r-head em.first{font-size: 2.8rem; }
+    .my-r-head em.last{font-size: 1.5rem; }
+    .t-recharge{float: right;margin-right:1rem;color: #fff;background:#f55;font-size: 1.3rem;height:2.6rem;line-height: 2.6rem;width:6rem;text-align: center;margin-top:2.1rem;border-radius: 4px;-webkit-border-radius: 4px;}
+    .szjl-t{position: relative;}
+    .szjl{border-left:2px solid #f55;padding-left:.5rem;}
+    </style>
+</head>
+<div class="my-r-head">
+    当前余额：<em class="first">&nbsp;&nbsp;&yen;0</em><em class="last">.00</em>
+    <span class="t-recharge">充值</span>
+</div>
+<body>
+    <div id="pullrefresh" class="mui-content mui-scroll-wrapper" style='top:6.8rem;'>
+        <div class="mui-scroll">
+            <section>
+                <nav class="szjl-t" scl-pe="after"><span class="szjl">收支记录</span></nav>
+                <ul class="dataset"></ul>
+            </section>
+        </div>
+    </div>
+</body>
+<script type="text/x-dot-template" id='tmpl-list-data'>
+    {{~it.data.log:actor:index}}
+        <li scl-pe="after">
+            <p>
+                <span>收支金额</span>
+                {{var mony = actor.amount;}}
+                <span class='note-mony' GL='{{?mony>0}}gain{{??}}loss{{?}}'>
+                    {{?mony>0}}
+                        +
+                    {{?}}
+                    {{=mony}}
+                </span>
+            </p>
+            <p>
+                <span>时<em>占位</em>间</span>
+                <span class='note-date'>{{=actor.addtime}}</span>
+            </p>
+            <p>
+                <span>类<em>占位</em>型</span>
+                <span class='note-type'>{{=actor.type}}</span>
+            </p>
+            <p>
+                <span>备<em>占位</em>注</span>
+                <span class='note-mark'>{{=actor.note}}</span>
+            </p>
+        </li>
+    {{~}}
+</script>
+<script>
+    var muiDataList=null;//mui data list obj
+    function onStart(){
+        if(muiDataList==null){
+            muiDataList = $('.dataset').MuiDataList({
+                debug:false,
+                mode : 1,
+                api:API.API_LIST.PURSE_DC,
+                api_param:{id:getUserid()},
+                dot_template:"tmpl-list-data",
+                dataName:'data.data.log',
+                pageSize:10,
+                containerIndex:0,
+                dotIndex:0,
+                beforeGet:function(){},
+                afterGet:function(data){
+                },
+                firstGet:function(data){
+                    var recharge = data.data.recharge;
+                    $('.my-r-head .first').text('￥'+recharge.toString().splitNumber(0));
+                    $('.my-r-head .last').text('.'+recharge.toString().splitNumber(1));
+                    loadEnd();
+                }
+            });
+        }
+    }
+    $('.t-recharge').on('click',function(){
+        var obj=new Object();
+        obj.oV='carsvc';
+        PageJump('gotoRecharge',obj);
+    });
+</script>
+</html>

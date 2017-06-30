@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>违章列表</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <script src="/web/car-service/assets/js/mui.min.js?v=41cb80c42a"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.min.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/exclusive-adviser.css"/>
+</head>
+<body>
+<header class="switch-box">
+    <ul class="lists-data">
+
+    </ul>
+    <div class="switch-right"></div>
+    <div class="switch-left"></div>
+    <ul class="flex-box flex-box-left-center record-nav" scl-pe="before">
+        <li scl-pe="before" class="underline">全部</li>
+        <li scl-pe="before" >待处理</li>
+        <li scl-pe="before" >正在处理</li>
+        <li >历史违章</li>
+    </ul>
+</header>
+<section id="pullrefresh" class="mui-content mui-scroll-wrapper balance-information " style="top:15.7rem;background-color:#efefef;">
+    <div class="mui-scroll">
+        <div class="record-box ">
+            <ul class="record-lists">
+                <div class="no-record"><span>本车辆目前没有违章记录</span></div>
+            </ul>
+        </div>
+    </div>
+</section>
+</body>
+<script type="text/template" id="temp1">
+    {{var val=it.data;}}
+    {{for(var i in val){}}
+    <li id="id{{=i}}" cid="{{=val[i].cid}}" type="{{=val[i].type}}">
+        {{
+        var str=val[i].carnum;
+        var carnum1=str.slice(0,2);
+        var carnum2=str.slice(2,str.length).toUpperCase();
+        }}
+        <p>{{=carnum1}} {{=carnum2}}</p>
+        {{?val[i].detail==null||val[i].detail==''}}
+        <p>{{=val[i].brand}}  {{=val[i].model}}</p>
+        {{??}}
+        <p>{{=val[i].brand}}  {{=val[i].model}}  {{=val[i].detail}}</p>
+        {{?}}
+    </li>
+    {{ }}}
+</script>
+<script type="text/template" id="temp2">
+    {{var list_data=it.data.violation;}}
+    {{for(var i in list_data){}}
+    <li>
+        <div>
+            <div class="gradient"></div>
+            <div class="data-box" scl-pe="before">
+                <p class="flex-box flex-box-left-center" scl-pe="before"><span>{{=list_data[i].year}}</span><span>{{=list_data[i].week}}</span><span>{{=list_data[i].hours}}</span></p>
+                <div class="flex-box flex-box-left-right-center">
+                    <div><span></span>{{=list_data[i].area}}</div>
+                    {{?list_data[i].handled==0}}
+                    <div class="untreated">未处理</div>
+                    {{??list_data[i].handled==1||list_data[i].handled==2}}
+                    <div class="untreated" style="display: none;">未处理</div>
+                    {{?}}
+                </div>
+                <div class="peccancy-content">
+                    <p scl-pe="before">{{=list_data[i].act}}</p>
+                    <p class="flex-box flex-box-left-right-center"><span>罚款{{=list_data[i].money}}</span><span >扣分{{=list_data[i].fen}}</span></p>
+                </div>
+            </div>
+        </div>
+    </li>
+    {{}}}
+</script>
+<script type="text/javascript">
+    function onStart(){
+        getHeadData();
+        _initMui();
+        getData();
+    }
+    var type=0;//列表状态0-全部 1-待处理 2-正在处理 3-历史违章记录
+    var lastid=0;
+    var length=0;//车辆数量
+    //    var num=length;//切换汽车
+    var soft_vin= I('soft_vin');
+    var vbappid = I('vbappid');
+    var userid = I('userid');
+    var wid = I('index');//该汽车在列表中的位置
+    var html='<div class="no-record"><span>本车辆目前没有违章记录</span></div>';
+    var length1;
+    var state=false;
+    //获取头部信息
+    function getHeadData(){
+        var render=getRender('temp1');
+        jsonAjax(API.API_LIST.TECH_UPKEEP_GETCARALL,{userid:userid,vbappid:vbappid},function(data){
+            if(data.status==1){
+                if(data.data.length>0){
+                    length=data.data.length;
+                    $('.lists-data').html(render(data));
+                    $('#id'+wid).addClass('show');
+                }
+                if($('#id'+wid).attr('type')==0){
+                    inputTipsText('该地区不支持查询')
+                }
+                if(length>1){
+                    setTimeout(function(){
+                        for(var i=0;i<length;i++){
+                            $('#id'+i).addClass('transition');
+                        }
+                        for(var j=0;j<wid;j++){
+                            $('#id'+j).addClass('left');
+                        }
+                    },500);
+                }
+                loadEnd();
+            }
+        });
+    }
+
+    //获取列表数据
+    function getData(){
+        var obj=M();
+        obj.userid=I('userid');
+        obj.status=type;
+        obj.lastcid=lastid;
+        obj.soft_vin=soft_vin;
+        var render=getRender('temp2');
+        jsonAjax(API.API_LIST.TECH_UPKEEP_GETCARVIOLATION, obj, function (data) {
+            if (data.status == 1) {
+                length1=data.data.violation.length;
+                if(state){
+                    if(length1<=1){
+                        $('.record-lists').html(html);
+                    }
+                }
+                state=false;
+                console.log(state);
+                if(data.data.violation.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(lastid==0){
+                    $('.record-lists').html(render(data));
+                }else{
+                    $('.record-lists').append(render(data));
+                }
+                $('.mui-pull-caption').show();
+                if(data.data.violation.length< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                lastid=data.data.violation[data.data.violation.length-1].id;
+            }else{
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh(true);
+                }
+                if(lastid==0){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+            }
+            loadEnd();
+        });
+    }
+
+    //切换车辆
+    $('.switch-right').on('click',function(){
+        length1=0;
+        lastid=0;
+        wid++;
+        if(wid>length-1){
+            inputTipsText('已经是最后一辆车哦~');
+            wid=length-1;
+            return false;
+        }
+        $('#id'+(wid-1)).addClass('left').removeClass('show');
+        $('#id'+wid).addClass('show');
+//        type1= $('#id'+wid).attr('type');
+        if($('#id'+wid).attr('type')==0){
+            inputTipsText('该地区不支持查询')
+        }
+        soft_vin=$('#id'+(wid)).attr('soft_vin');
+        getData();
+        if(length1<=1){
+            $('.record-lists').html(html);
+        }
+    });
+    $('.switch-left').on('click',function(){
+        length1=0;
+        lastid=0;
+        wid--;
+        if(wid<0){
+            inputTipsText('这是第一辆车哦~');
+            wid=0;
+            return false;
+        }
+        $('#id'+(wid+1)).removeClass('left show');
+        $('#id'+wid).addClass('show').removeClass('left');
+//        type1= $('#id'+wid).attr('type');
+        if($('#id'+wid).attr('type')==0){
+            inputTipsText('该地区不支持查询')
+        }
+        soft_vin=$('#id'+(wid)).attr('soft_vin');
+        console.log(cid);
+        getData();
+        if(length1<=1){
+            $('.record-lists').html(html);
+        }
+    });
+    //切换查询状态
+    $('.record-nav').on('click','li',function(){
+        lastid=0;
+        state=true;
+        $('.record-nav li').each(function(i,item){
+            item.className='';
+        });
+        $(this).addClass('underline');
+        var index=$(this).index();
+        if(index==0){
+            type=0;
+            getData();
+        }else if(index==1){//待处理
+            type=1;
+            getData();
+        }else if(index==2){//正在处理
+            type=2;
+            getData();
+        }else if(index==3){//历史违章
+            type=3;
+            getData();
+        }
+    });
+</script>
+</html>

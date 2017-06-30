@@ -1,0 +1,41 @@
+@charset "utf-8";
+input,textarea{border:none;}
+p,input,textarea,h1,h2,h3,h4,h5,h6,span,i,img,ul,li,ol{margin:0;padding:0;}
+h1,h2,h3,h4,h5,h6{font-weight: 700;}
+li{list-style: none;}
+/*flex-box布局*/
+.flex-box{display:-webkit-box;display:-webkit-flex;display:flex;}
+.flex-box-center-top{-webkit-box-pack:center;-webkit-justify-content: center;justify-content: center;}
+.flex-box-left-center{-webkit-box-align:center;-webkit-align-items: center; align-items: center;}
+
+/*选择车型页面样式*/
+
+.position{width:100%;
+    overflow-x:hidden;position:fixed;left: 0;top:0;height:100%;}
+.box{width:100%;}
+.one-class{width:100%;height:2.5rem;padding:0 1.5rem;font-size:1.2rem;color:#333;line-height: 2.5rem;}
+.box ul{width:100%;background-color:#fff;}
+.box ul>li{width:100%;height:5rem;padding:0 1.2rem;display:-webkit-box;display:-webkit-flex;display:flex;
+    -webkit-box-align:center;-webkit-align-items: center; align-items: center;  }
+.box ul>li:before{border:none;border-bottom:1px solid #ddd;}
+.box li div{width:3.5rem;height:3.5rem;-webkit-border-radius:50%;border-radius:50%;text-align: center;line-height: 3.5rem;}
+.box li div:before{border:1px solid #ddd;-webkit-border-radius:50%;border-radius:50%;}
+.box li div img{width:3rem;height:3rem;-webkit-border-radius:50%;border-radius:50%;}
+.box li p{font-size:1.5rem;margin:0 0 0 1.3rem;}
+.models li p,.vehicle li p{margin:0;
+}
+
+/*锚点样式*/
+.anchor{ position:fixed;right:0;top:4rem;z-index: 200;}
+.anchor>a{font-size:1.2rem;color:#007aff;display:block;text-align:center;width:3rem;height:1.8rem;line-height: 1.8rem;}
+/*公用样式*/
+.models,.vehicle,.car-brand{position:absolute;left:100%;top:0;}
+.models{z-index: 20;}
+.vehicle{z-index: 30;}
+.car-brand{left:0;z-index: 10;}
+div.transition{-webkit-transition:left 0.3s linear;transition:left 0.3s linear;}
+div.middle{left:0}
+div.left{left:-100%;}
+
+
+

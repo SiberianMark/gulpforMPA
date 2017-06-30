@@ -1,0 +1,134 @@
+span,p,li,ul,header,section,body,div{
+    margin:0;
+    padding:0;
+}
+ul,li{
+    list-style: none;
+}
+.statements-header{
+    width:100%;
+    height:4.4rem;
+    padding:0 1rem;
+    background-color:#fff;
+}
+.statements-header:before{
+    border:none;
+    border-bottom:1px solid #dddddd;
+}
+.statements-header>div{
+    width:100%;
+    overflow: hidden;
+}
+.nav{
+    width:auto;
+    font-size: 1.4rem;
+    color:#333;
+}
+.nav>li{
+   -webkit-box-flex:1;
+    -webkit-flex:1;
+    flex:1;
+    height: 4.4rem;
+    line-height: 4.4rem;
+    text-align: center;
+}
+.nav>li.border{
+    border-bottom:0.2rem solid #f55;
+    color:#f55;
+}
+.statements-section{
+    top:4.4rem;
+}
+.statements-box{
+    width:100%;
+    margin-top:0.5rem;
+    background-color:#fff;
+}
+.statements-order{
+    width:100%;
+    height:3.5rem;
+    padding:0 1rem;
+}
+.statements-order:before{
+    border:none;
+    border-bottom:1px solid #ddd;
+}
+.statements-info{
+    padding:0 1rem;
+    font-size: 1.1rem;
+}
+.statements-info>div{
+    margin-top:1rem;
+}
+.item-name>span{
+    display: block;
+    font-size: 1.3rem;
+}
+.item-name>span:last-child{
+    color:#f55;
+}
+.coupon{
+    width:100%;
+    background-color:#f8f8f8;
+    color:#999;
+    padding:1.5rem 0.5rem;
+}
+.coupon:before{
+    border-color:#eee;
+    -webkit-border-radius: 0.5rem 0.5rem;
+    border-radius: 0.5rem 0.5rem;
+}
+.coupon>div>span{
+    display: block;
+}
+.coupon>div:last-child{
+    margin-top:1rem;
+}
+.statements-submit{
+    width:100%;
+    height:4.9rem;
+    margin-top:1.5rem;
+    padding-left:1rem;
+    font-size: 1.4rem;
+}
+.statements-submit:before{
+    border:none;
+    border-top:1px solid #ddd;
+}
+.statements-submit>div{
+    text-align: center;
+    line-height: 4.9rem;
+}
+.statements-submit>div>span{
+    color:#f55;
+}
+.submit{
+    width:12.5rem;
+    color:#fff;
+}
+.submit.red{
+   background-color:#f55;
+}
+.submit.hui{
+    background-color:#cdcdcd;
+}
+.submit.cheng{
+    background-color:#fd9724;
+}
+/***q缺省页**/
+.no-record{
+    width:100%;
+    height:17rem;
+    background-color:#eee;
+    background:url('/web/car-service/assets/image/search@2x.png') center no-repeat;
+    background-size:6.6rem 7rem;
+}
+.no-record>span{
+    display:block;
+    float:left;
+    margin:13rem 0 0 0;
+    width:100%;
+    text-align:center;
+    color:#666;
+}
+

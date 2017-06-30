@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>填写里程</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+    <div class="fill-step">
+        <ul>
+            <li class="cur">填里程</li>
+            <li>选方案</li>
+            <li>下订单</li>
+        </ul>
+        <div class="picture">
+            <div class="cur"></div>
+            <div></div>
+            <div class="last"></div>
+            <img src="/web/car-service/assets/image/car@2x.png" alt=""/>
+        </div>
+    </div>
+    <div class="chose-type pr" id="chose-type">
+        <img src="/web/assets/image/default_ico.png" alt=""/>
+        <span>请选择车辆</span>
+    </div>
+    <div class="chose-btn">
+        <div class="count flex-box">
+
+            <div class="number box-item" scl-pe="before">
+                <input type="text" value="" maxlength="6" name="mileage" style="font-size: 1.4rem;width:100%;height:4rem;padding:1rem 0 ;text-align: center;color:#333;" placeholder="请输入您爱车的里程"/>
+            </div>
+            <div class="wenzi">公里</div>
+        </div>
+        <div class="btn-box">
+            <a class="btn red" >去看保养方案</a>
+        </div>
+        <div class="btn-box">
+            <a class="btn white"  style="color:#4a96fd;">查看保养手册</a>
+        </div>
+    </div>
+    <!--没有设置车辆时的提示框-->
+    <div class="bomb-box">
+        <div class="bomb">
+            <div scl-pe="before">您暂时未设置车辆，请先设置车辆</div>
+            <div><span>取消</span><span scl-pe="before">去设置</span></div>
+        </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var mileage;
+    var carID;
+
+    function onStart(){
+        getDate();
+    }
+
+    function getDate(){
+        var datas = {
+            userid:getUserid(),
+            carid:I('carid','0'),
+            source:1
+        };
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETONECARINFO,datas,function (res) {
+            if(res.status == 1){
+                $('.chose-type').html('<img src="' +res.data.logo+'">'+'<span>'+(res.data.brand==null?'':res.data.brand)+' '+(res.data.model==null?'':res.data.model)+' '+(res.data.detail==null?'':res.data.detail)+'</span>').attr('carid',res.data.carid);
+                $('.number input').val(res.data.mileage);
+                mileage = res.data.mileage;
+                carID = res.data.carid;
+
+            }else {
+                $('.bomb-box').show();
+
+            }
+            loadEnd();
+        });
+    }
+
+
+    $('.number input').bind('input propertychange', function() {
+        mileage = $(".number input").val();
+    });
+
+    $('.btn-box .btn.red').on('click',function(){
+        var obj = M();
+        obj.car_id = $('.chose-type').attr('carid');
+        obj.mileage = $('.number input').val();
+        if(!obj.car_id){
+            inputTipsText('请选择车辆');
+            return;
+        }
+        if(obj.mileage>1000000||obj.mileage<1){
+            inputTipsText('请输入不大于1000000的整数字');
+            return;
+        }
+        PageJump('gotoChoseProject',JSON.stringify(obj));
+    });
+
+    $('.btn-box .btn.white').on('click',function(){
+        var obj = M();
+        obj.car_id = $('.chose-type').attr('carid');
+        obj.mileage = $('.number input').val();
+        if(!obj.car_id){
+            inputTipsText('请选择车辆');
+            return;
+        }
+        if(obj.mileage>1000000||obj.mileage<1){
+            inputTipsText('请输入不大于1000000的整数字');
+            return;
+        }
+        PageJump('gotoMyManual',JSON.stringify(obj));
+    });
+    $('input[name="mileage"]').on('input',function(){
+        //只能输入数字
+        var pattern6=/^[1-9]{1}[0-9]*$/g;
+        var value=$(this).val();
+        if(!pattern6.test(value)){
+            $(this).val(value.slice(0,(value.length-1)));
+        }
+
+    });
+ /*   $(".sub").on('click',function(){
+        if(mileage!=0){
+            mileage--;
+        }
+        $(".number input").val(mileage)
+    });
+
+    $(".add").on('click', function () {
+        mileage++;
+        $(".number input").val(mileage)
+    });*/
+
+    $('#chose-type').on('click',function(){
+        var obj = M();
+        obj.source = 'fillM';
+        obj.car_id = carID;
+        PageJump('gotoMyCar',JSON.stringify(obj));
+    })
+    //没有设置默认车辆时的提示框点击事件
+    $('.bomb').on('click','div>span',function(){
+        var index=$(this).index();
+       if(index===0){//取消
+          $('.bomb-box').hide();
+       }else if(index===1){//去设置
+          var obj = M();
+          obj.source = 'fillM';
+          obj.car_id = carID;
+          PageJump('gotoMyCar',JSON.stringify(obj));
+       }
+    })
+</script>
+</html>

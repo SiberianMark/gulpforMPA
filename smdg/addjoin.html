@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>邀请好友加入</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+</head>
+<body style="background-color:#fff;">
+    <section class="tb-code" >
+    </section>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="templist">
+{{ var val = it.data;}}
+    <b>方式1：扫描二维码加入</b>
+    <img class="codeimg" src="{{=val.code_h5}}" alt="">
+    <p>邀请好友扫码加入（每2分钟自动更新）</p>
+    <b>方式2：车队口令</b>
+    <div></div>
+    <ul class="arms clear">
+        <li border="right"></li>
+        <li border="right"></li>
+        <li border="right"></li>
+        <li border="right"></li>
+        <li border="right"></li>
+        <li></li>
+    </ul>
+    <p>邀请好友输入口令加入（每2分钟自动更新）</p>
+</script>
+<script>
+var tid = I('tid','35'),
+    userid =getUserid(),
+    render=getRender('templist');
+    function onStart(){
+        getData();
+        loadEnd();
+    }
+     //获取数据并渲染
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_MODULEGOROUP_JOINTEAM,{userid:userid,tid:tid},function(data){
+            if(data.status==1){
+               var arms = String(data.data.arms); //字符串
+                $('.tb-code').prepend(render(data));
+                for(var i = 0; i < 6; i++){
+                    $(".arms li:eq("+ i +")").html(arms.substring(i,i+1));
+                }
+            }
+                loadEnd();
+        });
+    }
+</script>
+</html>

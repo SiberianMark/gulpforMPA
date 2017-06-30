@@ -1,0 +1,289 @@
+@charset "utf-8";
+
+* {
+	margin: 0;
+	padding: 0;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+input, textarea {
+	-webkit-user-select: text;
+	user-select: text;
+	-webkit-appearance: none;
+	outline: none;
+}
+html {
+	-webkit-text-size-adjust: 100%;
+	-ms-text-size-adjust: 100%
+}
+body {
+	font-family: "微软雅黑";
+	color: #333;
+	word-break: break-all;
+}
+ul, ol, li {
+	list-style: none;
+}
+a {
+	text-decoration: none;
+	-webkit-tap-highlight-color: rgba(255, 0, 0, 0);
+}
+
+/*清除浮动*/
+.clear:after, .clear:before {
+	display: table;
+	content: " ";
+}
+.clear:after {
+	clear: both;
+}
+
+/* flex 弹性布局 */
+.flex, .flex-top, .flex-x, .flex-y, .flex-center, .flex-x-about {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: flex;
+}
+
+/* 设置弹性布局 */
+.flex-c {
+	-webkit-box-flex: 1;
+	-webkit-flex: 1;
+	flex: 1;
+}
+
+/* 作为子元素占等比1 */
+.flex-x, .flex-center {
+	-webkit-box-pack: center;
+	-webkit-justify-content: center;
+	justify-content: center;
+}
+
+/* 子元素X轴居中 */
+.flex-y, .flex-center {
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	align-items: center;
+}
+
+/* 子元素Y轴居中 */
+.flex-top {
+	-webkit-box-direction: normal;
+	-webkit-box-orient: vertical;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+}
+
+/* 子元素垂直排列 */
+.flex-x-about {
+	-webkit-box-pack: justify;
+	-webkit-justify-content: space-between;
+	justify-content: space-between
+}
+
+/*子元素x左右分布*/
+.main-box {
+	position: relative;
+}
+.station {
+	background: #fff;
+	overflow: auto;
+	width: auto;
+	border-top: 1px #ebecf2  solid;
+	border-left: 1px #ebecf2  solid;
+}
+.station>div {
+	width:6.6%;
+	height: 48px;
+	float: left;
+	color: #333;
+	font-size: 14px;
+	border-right: 1px #ebecf2  solid;
+	border-bottom: 1px #ebecf2  solid;
+	box-sizing: border-box;
+	text-align: center;
+	position: relative;
+	-webkit-box-direction: normal;
+	-webkit-box-orient: vertical;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+}
+.station>div:nth-child(15n+1){
+	width: 7.6%;
+}
+.fhead{
+	background-color: #fbfcfd;
+}
+.station .current-cell .more {
+	color: #fff;
+}
+.station>div .more {
+	display: none;
+	color: #000;
+	font-size: 12px;
+	position: absolute;
+	bottom: 2px;
+	right: 5px;
+}
+.current-cell {
+	background-color: #3f3fde;
+	color: #fff !important;
+}
+.car.gr {
+	background: green;
+}
+.car.rd {
+	background: red;
+}
+.car.gy {
+	background: gray;
+}
+.car {
+	overflow: hidden;
+	position: absolute;
+	float: left;
+	width: 6.6%;
+	height: 40px;
+	color: #fff;
+	font-size: 14px;
+	text-align: center;
+	-webkit-box-direction: normal;
+	-webkit-box-orient: vertical;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	transition: width .3s ease .1s;
+	-moz-transition: width .3s ease .1s; /* Firefox 4 */
+	-webkit-transition: width .3s ease .1s; /* Safari and Chrome */
+	-o-transition: width .3s ease .1s; /* Opera */
+}
+.hide {
+	display: none !important;
+}
+.show-box {
+	padding: 10px 30px;
+	background: rgba(0, 0, 0, 0.6);
+	border-radius: 8px;
+	-webkit-border-radius: 8px;
+	position: absolute;
+	display: none;
+}
+.car-in-box {
+	position: relative;
+	width: 120px;
+	height: 60px;
+	color: #fff;
+	font-size: 14px;
+	text-align: center;
+	-webkit-box-direction: normal;
+	-webkit-box-orient: vertical;
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	margin-bottom: 10px;
+}
+.car-in-box.gr {
+	background: green;
+}
+.car-in-box.rd {
+	background: red;
+}
+.main-box .title {
+	font-weight: bold;
+	font-size: 20px;
+}
+.wkf {
+	margin: 15px 0;
+	color: #64667e;
+	font-size: 12px;
+}
+.wkf-tips span{
+	display: inline-block; 
+	height: 31px; 
+	line-height: 31px;
+	text-indent: 25px;
+	position: relative;
+}
+.wkf-tips span:before{
+	content: '';
+	height: 15px;
+	width: 15px;
+	display: block;
+	position: absolute;
+	top: 8px;
+	left: 3px;
+}
+.wkf-tips .gr:before {
+	background: green;
+}
+.wkf-tips .rd:before {
+	background: red;
+}
+.wkf-tips .gy:before {
+	background: gray;
+}
+.wkf .form-data, .wkf .wkstation {
+	font-size: 14px;
+	display: inline-block;
+}
+.wkf .wkstation {
+	margin-right: 80px;
+}
+.wkf .wkstation>span {
+	margin-right: 20px;
+}
+.wkf .wkstation .wk {
+	display: inline-block;
+}
+.wkf .wkstation .wk>span {
+	display: inline-block;
+	cursor: pointer;
+	padding: 0 10px;
+	margin-right: 10px;
+	background: #fff;
+	text-align: center;
+	border: 1px solid  #ccc;
+	width: auto;
+	height: 30px;
+	line-height: 30px;
+}
+.wkf .wkstation .wk>span.active {
+	color: #f5b617;
+	border-color: #f5b617;
+	background-color:  rgba(245,182,23,0.1);
+}
+.wkf .form-data>span {
+	margin-right: 20px;
+}
+.wkf .form-data>input {
+	border: 1px solid #ccc;
+	width: 120px;
+	height: 30px;
+}
+.wkf .form-data .search {
+	cursor: pointer;
+	width: 100px;
+	text-align: center;
+	display: inline-block;
+	border: 1px solid #f5b617;
+	height: 30px;
+	line-height: 30px;
+	background: #f5b617;
+	color: #fff;
+}
+.main-box .tongji ul {
+	display: block;height: 65px;margin-top: 10px;
+}
+.main-box .tongji li {
+	display: block;
+	float: left;
+	border-top: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	padding: 5px;
+	background: #fff;
+	min-width: 88px;
+}
+.main-box .tongji li p {
+	text-align: center;
+}
+.main-box .tongji li p:nth-of-type(2){
+	color: blue;font-weight: bold;
+}

@@ -1,0 +1,155 @@
+.onceConsult .ImChange {
+  /*专属顾问页面样式*/
+}
+.onceConsult .ImChange .my-consultant {
+  position: relative;
+}
+.onceConsult .ImChange .my-consultant .title {
+  background: #eeeeee;
+  margin: 1rem;
+  font-size: 1.4rem;
+  color: #333333;
+  border-left: 0.2rem solid #ff4e00;
+  height: 1.4rem;
+  line-height: 1.4rem;
+  padding-left: 0.75rem;
+}
+.onceConsult .ImChange .guwen {
+  width: 100%;
+  background: #ffffff;
+  margin: 0;
+}
+.onceConsult .ImChange .guwen > div:nth-child(1) {
+  width: 5.5rem;
+  height: 5.5rem;
+  margin: 1.25rem 1.5rem;
+}
+.onceConsult .ImChange .guwen > div:nth-child(1) > img {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+.onceConsult .ImChange .guwen > div:nth-child(1):before {
+  border: 2px solid #ccc;
+  border-radius: 50%;
+}
+.onceConsult .ImChange .guwen .info .name {
+  margin: 2.1rem 0 1rem 0;
+  font-size: 1.6rem;
+  color: #333333;
+}
+.onceConsult .ImChange .guwen .info .name i.zx {
+  width: 4rem;
+  height: 2.2rem;
+  display: inline-block;
+  background-size: cover;
+  vertical-align: middle;
+  margin-left: 1rem;
+}
+.onceConsult .ImChange .guwen .info .contact {
+  font-size: 1.2rem;
+  color: #ff4e00;
+  margin: 1rem 0;
+}
+.onceConsult .ImChange .shouji span {
+  margin-right: 1rem;
+}
+.onceConsult .ImChange .contact span:before {
+  border: none;
+  border-bottom: 1px solid #ff4e00;
+}
+.onceConsult .ImChange .weixin {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+  /*-webkit-touch-callout:inherit;*/
+  -webkit-touch-callout: default;
+  -moz-touch-callout: default;
+  -ms-touch-callout: default;
+  touch-callout: default;
+}
+.onceConsult .ImChange .hello {
+  padding: 0.5rem 0;
+  color: #dddddd;
+}
+.onceConsult .ImChange .hello:before {
+  border: none;
+  border-top: 1px solid #dddddd;
+}
+.onceConsult .ImChange .big-box {
+  padding: 1rem 0;
+  background: #ffffff;
+  text-align: center;
+}
+.onceConsult .ImChange .big-box:before {
+  border: none;
+  border-top: 1px solid #dddddd;
+}
+.onceConsult .ImChange .big-box > div {
+  font-size: 1.4rem;
+  height: 3rem;
+  line-height: 3rem;
+}
+.onceConsult .ImChange .big-box > div > span {
+  display: inline-block;
+  width: 2.4rem;
+  height: 100%;
+  vertical-align: middle;
+}
+.onceConsult .ImChange .big-box > div:nth-child(1) > span {
+  background: url('/web/car-service/assets/image/tousu@2x.png') center no-repeat;
+  background-size: auto 1.5rem;
+}
+.onceConsult .ImChange .big-box > div:nth-child(2) > span {
+  background: url('/web/car-service/assets/image/ico_pingjia@2x.png') center no-repeat;
+  background-size: auto 1.5rem;
+}
+.onceConsult .ImChange .big-box > div:nth-child(3) > span {
+  background: url('/web/car-service/assets/image/fenxiang@2x.png') center no-repeat;
+  background-size: 1.7rem 1.5rem;
+}
+.onceConsult .ImChange .big-box div:before {
+  border: none;
+  border-right: 1px solid #dddddd;
+  border-left: 1px solid #dddddd;
+}
+.onceConsult .ImChange .big-box div img {
+  width: 1.4rem;
+  text-align: center;
+  margin-right: 0.75rem;
+}
+.onceConsult .ImChange .call-number > span {
+  display: inline-block;
+}
+.onceConsult .ImChange .call-number > span:nth-child(2n-1) {
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: middle;
+}
+.onceConsult .ImChange .call-number > span:nth-child(1) {
+  background: url("/web/car-service/assets/image/phone_ico.png") no-repeat center center;
+  background-size: 1.6rem 1.5rem;
+}
+.onceConsult .ImChange .call-number > span:nth-child(3) {
+  background: url("/web/car-service/assets/image/chat_ico.png") no-repeat center center;
+  background-size: 1.6rem 1.5rem;
+}
+.onceConsult .ImChange .call-number > span:nth-child(2n) {
+  color: #ff8a00;
+}
+.onceConsult .ImChange .call-number > span:nth-child(2) {
+  margin: 0  2.5rem 0 0;
+}
+.onceConsult .ImChange .phone > a {
+  color: #4a96fd;
+  text-decoration: underline;
+}
+.onceConsult .ImChange .select {
+  color: #fd5353;
+  font-size: 1.5rem;
+  float: right;
+}
+.onceConsult .ImChange i {
+  font-style: normal;
+}

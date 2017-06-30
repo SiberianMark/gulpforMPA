@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+		<meta charset="UTF-8">
+		<script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+		<script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+		<script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+		<title>TA发表的</title>
+		<!-- ↑ 顶部共用 ↑ -->
+		<link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+</head>
+<style>
+* {
+	margin:0;padding:0;
+}
+	#pullrefresh {
+		background:#fff;
+	}
+
+	ul {
+		padding:0 1rem;
+	}
+	ul li {
+		/*height:10rem;*/
+		width: 100%;
+		padding:1.25rem 0;
+	}
+	ul li>.box {
+		/*width:65%;*/
+		position:relative;
+		font-size:1.5rem;
+		height:7.6rem;
+		/*float:left;*/
+	}
+	ul li>.box .warp{
+		overflow: hidden;
+		text-overflow: ellipsis;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+	}
+	ul li>.pic {
+		/*float:right;*/
+		/*height:100%;*/
+		width:11.5rem;
+		height: 7.6rem;
+		overflow:hidden;
+		margin-left: 1.3rem;
+		text-align:right;
+	}
+	ul li>.pic img {
+		width:100%;
+		height:100%;
+	}
+	ul li .foot {
+		position:absolute;
+		bottom:0;left:0;
+		font-size:0.8rem;
+		color:#999;
+	}
+</style>
+<body>
+	<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+      <div class="mui-scroll">
+	      <ul>
+
+	      </ul>
+      </div>
+  </div>
+</body>
+<script type="text/template" id='detail'>
+{{for(i in it.data.article){ }}
+	<li border="bottom" class="clear flex" typeid={{=it.data.article[i].id}}>
+		<div class="box flex-c">
+			<div class="warp">{{=it.data.article[i].title}}</div>
+			<div class="foot">
+				<span>阅读{{=it.data.article[i].pv}}</span>
+				<span style="padding-left:1rem">{{=getFrendlyDate(it.data.article[i].update_time,true)}}</span>
+			</div>
+		</div>
+		{{?it.data.article[i].image!=''}}
+			<div class="pic flex-y">
+				<img src="{{=it.data.article[i].image}}" />
+			</div>
+		{{?}}
+	</li>
+{{ } }}
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+var page=1;//分页;
+var render=getRender('detail');
+var uid=I("uid");
+var obj=M();
+var nowtime=(new Date()).getTime();
+var sendtime=[];//发布时间
+var time_str=[];
+var d_time=[];//时间差
+var oFirse=true;
+function onStart(){
+	_initMui();
+	getData();
+};
+function getData(){
+	jsonAjax(API.API_LIST.CHECK_ARTICLE, {'userid':uid,'page':page}, function (data) {
+		if(data.status==1){
+			WxShare.title=data.data.share.title;
+      		WxShare.imgUrl=data.data.share.img_link;
+      		WxShare.link=data.data.share.share_link;
+      		WxShare.desc=data.data.share.desc;
+      		loadWxObject(true); //获取微信分享对象
+      		if(data.data.article.length<=0){
+      			if(pull_action=="up"){
+      				mui("#pullrefresh").pullRefresh().endPullupToRefresh(true);
+      			}else if(pull_action=="down"){
+      				mui("#pullrefresh").pullRefresh().endPulldownToRefresh();
+      			}
+      			if(oFirst){
+					$("ul").html("");
+      			}
+      			return;
+      		}
+      		oFirst=false;
+      		if(page==1){
+      			$("ul").html(render(data));
+      		}else{
+      			$("ul").append(render(data));
+      		}
+      		$("#mui-pull-caption").show();
+      		if(data.data.article.length<10){
+      			$(".mui-pull-bottom-pocket .mui-pull-caption").text("没有更多了");
+      		};
+      		setTimeout(function(){
+      			mui("#pullrefresh").pullRefresh().setStopped(false);
+      		},200);
+      		page++;
+      		if(pull_action=="up"){
+      			mui("#pullrefresh").pullRefresh().endPullupToRefresh();
+      		}else if(pull_action=="down"){
+      			mui("#pullrefresh").pullRefresh().endPulldownToRefresh();
+      		}
+      		//跳转TA发布的
+			$("ul").on("click tap","li",function(){
+				obj.id=$(this).attr("typeid");
+				Interface('gotoBrandNote',obj);
+			});
+		}else{
+			if(pull_action == 'up'){
+            	mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+        	}else if(pull_action == 'down'){
+            	mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+        	};
+        	if(page==1){
+	            $('.lottery-empty').show().parents('.buy-records').css('background','none');
+	            $('.mui-pull-caption').hide();
+	            mui('#pullrefresh').pullRefresh().setStopped(true);
+        	};
+		}
+	loadEnd()
+	});
+}
+</script>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>本店地址</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=C93b5178d7a8ebdb830b9b557abce78b"></script>
+</head>
+<body>
+        <div class="map-wrap ovh">
+            <div class="head-map bdb bgwh" id="allmap">
+
+            </div>
+            <div class="address-detail mgt-2">
+                <div class="shop-name">广汽本田安信店</div>
+                <p class="locate mgt-2">地址：宝安大道嘉进隆前海汽车城A04-1号</p>
+                <p class="tel">电话：0755-26460111，0755-86227333</p>
+            </div>
+            <div class="db-btn tc mgl-2 mgr-2">开始导航</div>
+            <div class="modal" id="modal-Pop">
+                <div class="map-items">
+                    <div class="map-list tc">腾讯地图</div>
+                    <div class="map-list pop-cancel tc mgt-2">取消</div>
+                </div>
+            </div>
+	    </div>
+</body>
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    $(".db-btn").click(function(){
+        $("#modal-Pop").show();
+    });
+    $(".pop-cancel").click(function(){
+        $("#modal-Pop").hide();
+    });
+	function onStart(){
+		loadEnd();
+	}
+    // 百度地图API功能
+    var map = new BMap.Map("allmap");
+    var point = new BMap.Point(116.331398,39.897445);
+    map.centerAndZoom(point,12);
+
+    var geolocation = new BMap.Geolocation();
+    geolocation.getCurrentPosition(function(r){
+        if(this.getStatus() == BMAP_STATUS_SUCCESS){
+            var mk = new BMap.Marker(r.point);
+            map.addOverlay(mk);
+            map.panTo(r.point);
+            console.log('您的位置：'+r.point.lng+','+r.point.lat);
+        }
+        else {
+            console.log('failed'+this.getStatus());
+        }
+    },{enableHighAccuracy: true})
+</script>
+</html>

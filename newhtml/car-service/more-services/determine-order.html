@@ -1,0 +1,332 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>确认订单</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/server-order.css">
+    <!-- ↑ 顶部共用 ↑ -->
+</head>
+<body>
+<div class="ord-list">
+</div>
+<div class="couBox">
+
+</div>
+<div class="ord-determine clear">
+    <div class="ord-txt">实付款:<span>&yen;<span id="totalMoney">0.00</span></span></div>
+    <div class="ord-sub">确认</div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/pub-acct/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id="temp-ord">
+    <dl border="bottom" id="{{=it.id}}">
+        <dt border="bottom"><span>{{=it.businessname}}</span></dt>
+        <dd border="bottom">
+            <div class="ord-ddname">{{=it.name}}</div>
+            <div class="ord-ddprice">&yen;{{=it.sell_price}}</div>
+        </dd>
+        <dd border="bottom">
+            <div class="ord-ddl">数量</div>
+            <div class="ord-ddr ord-buy clear">
+                <span class="buy-add"></span>
+                <span class="buy-num" max="{{=it.store_nums}}">{{=it.num}}</span>
+                <span class="buy-remove"></span>
+            </div>
+        </dd>
+        {{?it.product}}
+        <dd border="bottom">
+            <div class="ord-ddl">规格</div>
+            <div class="ord-ddr">
+                {{=it.product.specification}}
+            </div>
+        </dd>
+
+        {{?}}
+        <dd>
+            <div class="ord-ddl">订单金额</div>
+            {{ var total = it.sell_price * it.num;}}
+            <div class="ord-ddr ord-total">&yen;{{=total}}</div>
+        </dd>
+    </dl>
+    {{?it.privilege.length>0}}
+    <dl style="margin-top: 1rem">
+        <dd>
+            <div class="ord-ddl">优惠券</div>
+            <div class="ord-ddr more">{{=it.privilege[0].title}}</div>
+        </dd>
+    </dl>
+    {{?}}
+</script>
+<script type="text/template" id="temp-con">
+    <div class="inpBox">
+        <div class="title" border="bottom">店铺优惠券</div>
+        <div id="shop_count" type="1">
+            <div class="cpBox">
+                {{~it.privilege:item:index}}
+                    {{?item.can_use==1}}
+                        <div class="ipn {{?index==0}}chose{{?}}" aid="{{=item.aid}}" amount="{{=item.amount}}" border="bottom">{{=item.title}}</div>
+                    {{?}}
+                {{~}}
+            </div>
+            <div class="ipn" aid="0" canuse="1" amount="0">不使用优惠券</div>
+        </div>
+        <div class="close1" border="top"><div class="no">取消</div><div class="yes">确定</div></div>
+    </div>
+</script>
+<script>
+var _id = I('id',0);
+var _num = I('num',1);
+var _product_id = I('product_id',0);
+var _price = 0;
+var _total = 0;
+var order = null;
+var oAid = 0; //选中优惠券ID
+var oAmount = 0; //选中优惠券抵扣金额
+var oSPrice = 0; //商品价格
+var oPrice = 0; //商品支付价格
+var render = getRender('temp-ord');
+var render2 = getRender('temp-con');
+
+//页面加载完回调方法
+function onStart() {
+    OrderConfirm();
+}
+
+function OrderConfirm(){
+    jsonAjax(API.API_LIST.ORDER_CONFIRMSERVER,{'userid':getUserid(),'id':_id,'product_id':_product_id},function function_name (res) {
+        if( res.status == 1 ){
+            oSPrice = parseFloat(res.data.sell_price);
+            if(res.data.is_bind!=1){
+                var obj = M();
+                obj.id = _id;
+                obj.product_id = _product_id;
+                obj.redirect  = 'CarServiceGoodsOrder';
+                PageJumpTap('gotoBindMobile',obj);
+                return;
+            }
+            res.data.num = _num;
+            _price = res.data.sell_price;
+            $(".ord-list").html(render(res.data));
+            $(".couBox").html(render2(res.data));
+            Summation();
+            if($('.ord-ddname').text().length>20){
+                $('.ord-ddname').css('line-height','2rem');
+            }
+            if(res.data.privilege.length>0){ // 如果有可优惠券
+                oAid = res.data.privilege[0].aid;
+                oPrice = oSPrice - parseFloat(res.data.privilege[0].amount);
+                if(oPrice<0){
+                    oPrice = 0;
+                }
+                $('#totalMoney').text(oPrice.toFixed(2));
+            }
+        }
+        loadEnd();
+    })
+
+}
+
+$('.ord-sub').on('click',function() {
+    var sub_obj = {} ;
+    sub_obj.userid = getUserid();
+    sub_obj.id = _id;
+    sub_obj.num = _num;
+    sub_obj.coupon_id = oAid;
+    if(_product_id!=0){
+        sub_obj.product_id = _product_id;
+    }
+    jsonAjax(API.API_LIST.ORDER_CREATE_SERVER,sub_obj,function function_name (data) {
+        if (data.status == 1) {
+            order = data.data;
+            $.cookie('shop_num', 0, {expires: 30, path: '/'});
+            $.cookie('shop_goodid', 0, {expires: 30, path: '/'});
+            if (is_weixn(true)) {
+                //获取微信支付参数
+                //wxPay(data.data, 1);
+                var obj = M();
+                var go_param = M();
+                go_param.orderid=order.orderid;
+                go_param.merge_no=order.merge_no;
+                go_param.source='carServerOrder';
+                obj.orderid = order.orderid;
+                obj.merge_no = order.merge_no;
+                obj.source = 'carServerOrder';
+                obj.go_action="gotoOrderSList";
+                obj.from_page='carsvcMall';
+                // if(order.order_type==2){
+                //    obj.go_action="gotoSend";
+                // }
+                obj.go_param=go_param;
+                PageJumpTap('gotoCashier',obj);
+                //InterfaceTap('gotoCashier',obj);
+            } else {
+                //DOTO: APP端购买
+                if (data.data.orderid == 0) {
+                    data.data.orderid = data.data.merge_no;  //合并订单号赋值给订单id
+                }
+                if (data.data.merge_no == '') {
+                    data.data.merge_no = 0;
+                }
+                event_link(API.SERVER_URL + 'sdp/' + API.API_LIST.ORDER_ORDERPAY + '?userid=' + getUserid() + '&order_type=' + data.data.order_type + '&orderid=' + data.data.orderid + '&merge_no=' + data.data.merge_no);
+            }
+            unableAll();
+        } else if(data.status == 2) { //异步处理订单
+            showLoad(data.info);
+            getOrderNo(data.data);
+        }else {
+            buy = 0;
+            inputTipsText(data.info);
+        }
+    })
+    // body...
+})
+
+
+
+//获取订单号
+function getOrderNo(token) {
+    var t = setInterval(function () {
+        jsonAjax(API.API_LIST.ORDER_GETORDERNO, {'userid': getUserid(), 'token': token}, function (data) {
+            if (data.status == 1) {
+                //关闭定时器
+                clearInterval(t);
+                showLoad('订单生成成功正在进行跳转...');
+                $('.inputTipsText').addClass('hide');
+                order = data.data;
+                $.cookie('shop_num', 0, {expires: 30, path: '/'});
+                $.cookie('shop_goodid', 0, {expires: 30, path: '/'});
+                if (is_weixn(true)) {
+                    //获取微信支付参数
+                    //wxPay(data.data, 1);
+                    var obj = M();
+                    var go_param = M();
+                    go_param.orderid=order.orderid;
+                    go_param.merge_no=order.merge_no;
+                    go_param.source='carServerOrder';
+                    obj.orderid = order.orderid;
+                    obj.merge_no = order.merge_no;
+                    obj.source = 'carServerOrder';
+                    obj.go_action="gotoOrderSList";
+                    obj.from_page='carsvcMall';
+                    if(order.order_type==2){
+                        obj.go_action="gotoSend";
+                    }
+                    obj.go_param=go_param;
+                    PageJumpTap('gotoCashier',obj);
+                } else {
+                    //DOTO: APP端购买
+                    if (data.data.orderid == 0) {
+                        data.data.orderid = data.data.merge_no;  //合并订单号赋值给订单id
+                    }
+                    if (data.data.merge_no == '') {
+                        data.data.merge_no = 0;
+                    }
+                    event_link(API.SERVER_URL + 'sdp/' + API.API_LIST.ORDER_ORDERPAY + '?userid=' + getUserid() + '&order_type=' + data.data.order_type + '&orderid=' + data.data.orderid + '&merge_no=' + data.data.merge_no);
+                }
+                unableAll();
+            } else if(data.status == 0){
+                //关闭定时器
+                clearInterval(t);
+                showLoad(data.info);
+            }else{
+                showLoad(data.info);
+            }
+        });
+    }, 2000);
+}
+
+function unableAll () {
+    // body...
+}
+
+$('.ord-list').on('click','.buy-remove',function () {
+    EditNum(-1);
+});
+$('.ord-list').on('click','.buy-add',function () {
+    EditNum(1);
+});
+function EditNum (_add) {
+    _num = parseInt($('.buy-num').html());
+    var max_num = parseInt($('.buy-num').attr('max'));
+    _num = _num + parseInt(_add);
+    if(_num<1){
+        _num = 1;
+        inputTipsText('数量不能再少了!');
+    }
+    if(_num>max_num){
+        _num = max_num;
+        inputTipsText('库存不够了!');
+    }
+    $('.buy-num').html(_num);
+    Summation();
+    getNewPri();
+}
+function Summation() {
+    _total = toDecimal(_num * _price) ;
+    $(".ord-total").html(_total);
+    $("#totalMoney").html(_total);
+
+}
+function toDecimal(x) {
+    var f = parseFloat(x);
+    if (isNaN(f)) {
+        f = 0;
+    }
+    var f = Math.round(x*100)/100;
+    var s = f.toString();
+    var rs = s.indexOf('.');
+    if (rs < 0) {
+        rs = s.length;
+        s += '.';
+    }
+    while (s.length <= rs + 2) {
+        s += '0';
+    }
+    return s;
+}
+function changeUrl(){
+    changeBackUrlL("pub-acct/brand-recommend");
+}
+
+    $('.ord-list').on('click','.more',function(){
+        $('.couBox').show();
+    });
+
+    $('.couBox').on('click','.ipn',function(){
+        $('.ipn').removeClass('chose');
+        $(this).addClass('chose');
+    }).on('click','.close1 .yes',function(){
+        $('.couBox').hide();
+        $('.more').text($('.chose').text());
+        oAid = $('.chose').attr('aid');
+        oPrice = oSPrice*_num  - parseFloat($('.chose').attr('amount'));
+        if(oPrice<0){
+            oPrice = 0;
+        }
+        $('#totalMoney').text(oPrice.toFixed(2));
+    }).on('click','.close1 .no',function(){
+        $('.couBox').hide();
+    });
+
+    function getNewPri(){
+        jsonAjax(API.API_LIST.DOLD_PRIVILEGE,{'id':_id,'product_id':_product_id,'num':_num,'userid': getUserid()},function function_name (res) {
+            if( res.status == 1 ){
+                $(".couBox").html(render2(res.data));
+                if(res.data.privilege.length>0){ // 如果有可优惠券
+                    $('.more').text(res.data.privilege[0].title);
+                    oAid = res.data.privilege[0].aid;
+                    oPrice = oSPrice*_num - parseFloat(res.data.privilege[0].amount);
+                    if(oPrice<0){
+                        oPrice = 0;
+                    }
+                    $('#totalMoney').text(oPrice.toFixed(2));
+                }
+            }
+        })
+    }
+
+</script>
+</html>

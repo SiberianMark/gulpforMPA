@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>竞技详情</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/assets/css/smdg/competitive-details.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+</head>
+<body class="competitive-wrap">
+    <div class="pic-wrap regular flex-y" sportsid>
+        <img class="thumbnail" style="margin:0 auto;display:block;width:100%;" src="/web/assets/image/default_ico.svg" alt="">
+        <img class="playV" src="/web/assets/image/smdg/playbtn@2x.png" alt="">
+    </div>
+    <!-- <div class="tabs-view"> -->
+    <ul class="tabs-list flex-x-about">
+        <li class="flex-c" index="1">竞技讲解</li>
+        <li class="flex-c" index="2">竞技介绍</li>
+        <!-- <li class="flex-c" index="3">竞技之星</li> -->
+    </ul>
+    <div id="pullrefresh" class="mui-scroll-wrapper tabs-con" style="margin-top:25.3rem;" index>
+        <div class="mui-scroll">
+            <div class="tabs-content"></div>
+        </div>
+    </div>
+    <div class="tabs-introduce" style="display:none;"></div>
+    <!-- </div> -->
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id='explain-datalist'>
+    <div class="competitive-explain mui-scroll" >
+        {{~it.data.content:item:index}}
+            <a class="explainItem" linkid="{{=item.id}}">
+                <div class="vedio-imgs">
+                    <img src="{{=item.video_img}}" alt="">
+                    <img class="vedios-btns" src="/web/assets/image/smdg/playbtn@2x.png" alt="">
+                </div>
+                <div class="explain-info">
+                    <p class="explain-title">{{=item.title}}</p>
+                    <p class="explain-time">{{=item.addtime}}</p>
+                </div>
+            </a>
+        {{~}}
+    </div>
+</script>
+<script type="text/template" id='introduce-datalist'>
+    <div class="competitive-introduce" style="font-size:1.4rem;">
+        {{var div=document.createElement('div');div.innerHTML=it.data.content;var con=div.innerText || div.textContent;}}
+        <div class="introduce-cons">{{=it.data.content}}</div>
+    </div>
+</script>
+<script type="text/template" id='star-datalist'>
+    <div class="competitive-star carnivav-lists" style="padding:0;">
+        {{~it.data.content:item:index}}
+            <li class="flex-y" uid="">
+                {{?item.ranking==0&&page==1}}
+                <div class="ranks one"></div>
+                {{??item.ranking==1&&page==1}}
+                <div class="ranks two"></div>
+                {{??item.ranking==2&&page==1}}
+                <div class="ranks three"></div>
+                {{??}}
+                <div class="ranks">{{=index+1}}</div>
+                {{?}}
+                <div class="car-logo"><img src="{{=item.logo}}" alt="">{{=item.model}}</div>
+                <div class="car-infos">
+                    <img class="smUsrImg" src="{{=item.photo}}" alt="">
+                    <strong>{{=item.name}}</strong>
+                    <span class="{{=(item.sex==1)?'':'women'}}"></span>
+                </div>
+               <div class="car-grade">{{=item.grade}}s</div>
+            </li>
+        {{~}}
+    </div>
+</script>
+<script>
+    var ac_id=I('id','17'),
+        share=I('share'),
+        userid=getUserid(),
+        explain_tml=getRender('explain-datalist'),
+        introduce_tml=getRender('introduce-datalist'),
+        star_tml=getRender('star-datalist'),
+        page=1,
+        firstClick=true,
+        arr_type=I('arr',1),//默认为竞技，2为赛车
+        status=I('index',1);
+    function onStart(){
+        _initMui();
+        $('.tabs-list li').each(function(){
+            if(status==$(this).attr('index')){
+                $(this).addClass('cur');
+            }
+            if(status==2){
+                $('.tabs-introduce').show();
+                $('#pullrefresh').hide();
+            }else {
+                $('.tabs-introduce').hide();
+                $('#pullrefresh').show();
+            }
+        });
+        getData();
+        changeUrlParas(status);
+    }
+    function changeUrlParas(typeid){
+        var obj=M();
+        obj.id = ac_id;
+        obj.index = typeid;
+        changeBackUrlL("smdg/competitive-detail",obj);
+    }
+    function getData(){
+        jsonAjax('/gold/Sports/index',{status:status,page:page,id:ac_id,arr:arr_type,userid:getUserid()},function(data){
+            if(data.status==1){
+                TitleReSet(data.data.info.home.title||'竞技详情');
+                WxShare.title=data.data.share.title;
+                WxShare.imgUrl=data.data.share.image;
+                WxShare.link=data.data.share.link;
+                WxShare.desc=data.data.share.conment;
+                loadWxObject(true); //获取微信分享对象
+                if(!$.isEmptyObject(data.data.info.home)){
+                    $('.pic-wrap .thumbnail').attr('src',data.data.info.home.video_img);
+                    $('.pic-wrap').attr('sportsid',data.data.info.home.id);
+                }
+                if(status==1){
+                    if(data.data.content.length <= 0){
+                        if(pull_action ==  'up'){
+                            mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                        }
+                        else if(pull_action == 'down'){
+                            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                        }
+                        return;
+                    }
+                    if(page == 1){
+                        $('.tabs-content').html(explain_tml(data));
+                    }else{
+                        $('.tabs-content').append(explain_tml(data));
+                    }
+                    setTimeout(function(){
+                        mui('#pullrefresh').pullRefresh().setStopped(false);
+                    },200);
+                    page++;
+                    if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    $('.mui-pull-caption').show();
+                }else if (status==2){
+                    $('.tabs-introduce').html(introduce_tml(data));
+                }else if(status==3) {
+                    if(data.data.length <= 0){
+                        if(pull_action ==  'up'){
+                            mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                        }
+                        else if(pull_action == 'down'){
+                            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                        }
+                        loadEnd();
+                        return;
+                    }
+                    if(page == 1){
+                        $('.tabs-content').html(star_tml(data));
+                    }else{
+                        $('.tabs-content').append(star_tml(data));
+                    }
+                    setTimeout(function(){
+                        mui('#pullrefresh').pullRefresh().setStopped(false);
+                    },200);
+                    page++;
+                    if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                }else{
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                }
+            }
+        });
+        $('.mui-pull-caption').show();
+        loadEnd();
+    }
+    $('.tabs-list').on('click','li',function(e){
+        if(!firstClick){
+            return;
+        }
+        status=$(this).attr('index');
+        $(this).addClass("cur").siblings().removeClass("cur");
+        $('.tabs-content').html('');
+        $('.tabs-introduce').html('');
+        $(".regular").show();
+        if(status==2){
+            $('.tabs-introduce').show();
+            $('#pullrefresh').hide();
+        }else {
+            // $(".regular").hide();
+            $('.tabs-introduce').hide();
+            $('#pullrefresh').show().css("margin-top","25.3rem");
+        }
+        page=1;
+        $(".mui-scroll").css({'transform': 'translate3d(0px, 0px, 0px) translateZ(0px)'});
+            getData();
+        changeUrlParas(status);
+        $('.mui-pull-caption').hide();
+        firstClick=false;
+        setTimeout(function(){
+            firstClick=true;
+        },300);
+    });
+    $('.regular').on('click',function(){
+        var obj={id:$(this).attr('sportsid')};
+        Interface('gotoSmSports',obj);
+    });
+    $('.tabs-content').on('tap','.competitive-star li',function(){
+        var obj={uid:$(this).attr('uid')};
+        Interface('gotoEntryInfo',obj);
+    });
+    $('.tabs-content').on('tap','.explainItem',function(){
+        var obj={id:$(this).attr('linkid')};
+        Interface('gotoSmSports',obj);
+    });
+    $("#pullrefresh").on("scroll",function(e){
+        if(e.originalEvent.detail.lastY<0){
+            $(".regular").fadeOut();
+            $("#pullrefresh").css({
+                "margin-top":"3.3rem",
+                "transition":"margin-top 0.5s",
+                "-webkit-transition":"margin-top 0.5s"
+            });
+        }else if(e.originalEvent.detail.lastY>0){
+            $(".regular").fadeIn();
+            $("#pullrefresh").css({
+                "margin-top":"25.3rem",
+                "transition":"margin-top 0.5s",
+                "-webkit-transition":"margin-top 0.5s"
+            });
+        }
+    });
+</script>
+</html>

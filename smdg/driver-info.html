@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/load.head3.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/assets/css/smdg/driver-info.css">
+</head>
+<body>
+    <section class='clear' border='top' id='head'>
+
+    </section>
+    <article>
+        <div class="Records">
+            <img src="/web/assets/image/smdg/csaijilu@2x.png"/>
+        </div>
+        <header>
+            <ul class='clear'>
+                <li border="right" class='first-box'>场次</li>
+                <li border="right">赛事</li>
+                <li border="right">组别</li>
+                <li border="right">成绩</li>
+                <li border="right">排名</li>
+                <li>积分</li>
+            </ul>
+        </header>
+        <div id="pullrefresh" class="mui-content mui-scroll-wrapper balance-information ">
+          <div class="mui-scroll">
+            <div id="wrap-box">
+
+            </div>
+          </div>
+        </div>
+    </article>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id='driver-section'>
+    <div>
+        <div class='per-info clear'>
+            <img src='{{=it.data.message.photo?it.data.message.photo:"/web/assets/image/default_ico.svg"}}' alt="">
+            <div>
+                <p class='sex'>{{=it.data.message.nickname}}
+                  {{?it.data.message.sex==0||it.data.message.sex==null}}
+                    <img style='display:none' src=''/>
+                  {{??}}
+                    <img src='/web/assets/image/smdg/24px@{{=it.data.message.sex}}x.png'/>
+                  {{?}}
+                </p>
+                /*<p>嘀嘀号:{{=it.data.message.userid}}</p>*/
+            </div>
+        </div>
+        <div class='per-integral'>
+            <p>
+            {{?it.data.message.score==null}}
+            <span>0</span>
+            {{??}}
+            <span>{{=it.data.message.score}}</span>
+            {{?}}
+            </p>
+        </div>
+    </div>
+    <div border="left">
+    {{?(it.data.car) instanceof Array == false}}
+        <img src="{{=it.data.car.image}}">
+        <p><img src='{{=it.data.car.logo}}'/>{{=it.data.car.model}}</p>
+    {{?}}
+    </div>
+</script>
+<script type="text/template" id='driver-article'>
+    {{for(var i=0;i<it.data.record.length;i++){ }}
+    <ul>
+        <li border="right" class='first-box'>{{=it.data.record[i].title}}</li>
+        {{?it.data.record[i].type==0}}
+          <li border="right">直线加速</li>
+        {{??it.data.record[i].type==1}}
+          <li border="right">绕桩</li>
+        {{??it.data.record[i].type==2}}
+          <li border="right">挑战赛</li>
+        {{?}}
+        <li border="right">{{=it.data.record[i].name}}</li>
+        <li border="right" style='color:#ff6600'>{{=it.data.record[i].grade}}s</li>
+        <li border="right" style='color:#ff6600'>{{=it.data.record[i].ranking}}</li>
+        <li>{{=it.data.record[i].score}}</li>
+    </ul>
+    {{}}}
+</script>
+
+<script>
+    var page=I('page',1);//页码
+    var render_section=getRender('driver-section');//个人(车辆)信息
+    var render_article=getRender('driver-article');//参赛记录
+    var uid=I('uid',getUserid());
+    var oFirst = true;
+
+    function onStart(){
+      _initMui();
+      if(is_weixn(true)&&share_ornot==0){
+          downloadApp('body','bottom');
+      }
+      $("#wrap-box").on('click',".gotoHome",function(){
+        Interface('gotoCarnivalHome');
+      });
+      getData();
+      if(uid!=getUserid()){
+        $('.gotoHome').hide();
+      };
+      loadEnd();
+
+    }
+    function getData(){
+        jsonAjax('gold/home/entryrecord', {'userid':uid,'page':page}, function (data) {
+         if(data.status==1){
+            WxShare.title=data.data.share.title;
+            WxShare.imgUrl=data.data.share.img_link;
+            WxShare.link=data.data.share.share_link;
+            WxShare.desc=data.data.share.desc;
+            $('#head').html(render_section(data));
+            $('title').text(data.data.message.nickname);
+            loadWxObject(true); //获取微信分享对象
+            if(data.data.record.length <= 0){
+                $('.Records,header').hide();
+                $('#pullrefresh').css('margin-top','19.8rem');
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(oFirst){
+                  $('#wrap-box').html('<div class="nullRcord"><img src="/web/assets/image/smdg/jilu@2x.png"><p>目前还没参赛记录哦~</p><div><span class="gotoHome" scl-pe="before">去报名并参赛</div></div>');
+                }
+                return;
+            }
+            oFirst=false;
+            if(page==1){
+                $('#wrap-box').html(render_article(data));
+            }else{
+                $('#wrap-box').append(render_article(data));
+            }
+            $('.mui-pull-caption').show();
+            if(data.data.record.length<10){
+                $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+            }
+            setTimeout(function(){
+                mui('#pullrefresh').pullRefresh().setStopped(false);
+            },200);
+            page++;
+            if(pull_action ==  'up'){
+                mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+            }
+            else if(pull_action == 'down'){
+                mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+            }
+          }else{
+              if(pull_action == 'up'){
+                  mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+              }
+              else if(pull_action == 'down'){
+                  mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+              }
+              if(page==0){
+                  $('.mui-pull-caption').hide();
+                  mui('#pullrefresh').pullRefresh().setStopped(true);
+              };
+          };
+      });
+    };
+</script>
+</html>

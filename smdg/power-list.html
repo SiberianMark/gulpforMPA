@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>战力值榜单</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+</head>
+<body>
+    <!-- 榜单列表 -->
+    <ul class="ranking-list fleet-list" ></ul>
+    <div class="btn-jion power-btn">加入车队</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="templist">
+{{ var val = it.data;}}
+{{~val.res:i:index}}
+<li>
+    {{?index < 3}}
+    <span class="trophy"></span>
+    {{??}}
+    <span class="trophy">{{=index+1}}</span>
+    {{?}}
+    <img class="teamlogo" src="{{=i.logos}}" alt="">
+    <span class="team-name">{{=i.name}}</span>
+    <span class="integral"><b class="jifennum">{{=i.count}}</b></span>
+</li>
+{{~}}
+{{?val.info}}
+<li class="not-on" scl-pe="before">
+    {{?val.info.rank == 0}}
+    <span class="trophy">未上榜</span>
+    {{??}}
+    <span class="trophy">{{=val.info.rank}}</span>
+    {{?}}
+    <img class="teamlogo" src="{{=val.info.logos}}" alt="">
+    <span class="team-name">{{=val.info.name}}</span>
+    <span class="integral"><b class="jifennum">{{=val.info.count}}</b></span>
+</li>
+{{?}}
+</script>
+<script>
+
+    var tid = I('tid','278'),
+        userid = getUserid(),
+        render=getRender('templist');
+    function onStart(){
+        getData();//渲染数据
+        if(I('source') == 'succ'){
+            inputTipsText('已加入车队');
+        }
+        loadEnd();
+    }
+  function getData() {
+        jsonAjax("gold/modulegroup/teamSort",{tid:tid}, function (data) {
+            if (data.status == 1) {
+                $('.fleet-list').html(render(data));
+            }
+            loadEnd();
+        });
+    }
+     //加入车队
+    $('.btn-jion').on('click',function(){
+        var param = M();
+        param.tid = tid;
+        param.share = I('share');
+        isLogin(function(ret){
+            if(ret){
+                InterfaceTap('gotoTeamInfo',param);
+            }
+        })
+    });
+</script>
+</html>

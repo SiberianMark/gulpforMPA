@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>我的会员</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js?v=5c01d7aff0"></script>
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" href="/web/car-service/assets/css/member.css"/>
+    <style type="text/css">
+        .mui-scroll-wrapper{min-height:90%;}
+    </style>
+</head>
+<body>
+<header class="index-header " id="scoll-hide">
+    <div class="header-info flex-top flex-y">
+
+    </div>
+    <div class="member-interest">
+        <div scl-pe="before" class="flex-x-center"><span>会员权益</span><span>更多 ></span></div>
+        <ul class="flex-y">
+        </ul>
+    </div>
+</header>
+<section class="index-section">
+
+    <!--<div class="member-exclusive">-->
+        <div scl-pe="before">会员专享</div>
+        <div class=" mui-content mui-scroll-wrapper" id="pullrefresh" scl-pe="before">
+            <div class="mui-scroll">
+                <ul class="shop-data clear">
+                    <div class="no-record"><span>暂无积分商品</span></div>
+                </ul>
+            </div>
+        </div>
+    <!--</div>-->
+</section>
+<script type="text/template" id="temp1">
+    {{var str=it;}}
+    <div><img class="lazy" src="{{=str.rankicon}}" alt=""/><p>{{=str.rankname}}</p></div>
+    <ul class="flex">
+        <li scl-pe="before">积分：<span>{{=str.integral}}</span></li>
+        <li scl-pe="before" class="ter">会员说明</li>
+    </ul>
+</script>
+<script type="text/template" id="temp2">
+    {{var arr=it,l=arr.length;}}
+    {{var len=l>4?4:l;}}
+    {{for(var i=0;i<len;i++){}}
+    <li><img class="lazy" src="{{=arr[i].icon}}" alt=""/><p>{{=arr[i].name}}</p></li>
+    {{}}}
+</script>
+<script type="text/template" id="temp3">
+    {{var Arr=it,l=Arr.length;}}
+    {{for(var z=0;z<l;z++){}}
+    <li scl-pe="before" data-shop-id="{{=Arr[z].id}}"><img class="lazy" src="{{=Arr[z].img}}" alt=""/>
+        <p>{{=Arr[z].name}}<span scl-pe="before" style="display: none;">积分可以抵扣￥10</span></p>
+        <span><span>{{=Arr[z].sell_price}}-{{=Arr[z].max_price}}</span>积分</span>
+    </li>
+    {{}}}
+    {{?l<3}}
+        {{for(var j=0;j<3-l;j++){}}
+        <li style="background-color:#eee;">
+           <div></div>
+            <p></p>
+            <span><span></span></span>
+        </li>
+        {{}}}
+    {{?}}
+</script>
+</body>
+<script type="text/javascript">
+    function onStart(){
+        _initMui();
+        getHeadInfo();
+        getData();
+    }
+    var page= 1,jsonEnd_1=jsonEnd_2=false,share_height;//分页
+    function getHeadInfo(){
+        var render2=getRender('temp2'),
+                render1=getRender('temp1');
+        jsonAjax(API.API_LIST.CAR_USER_MYMEMBER,{userid:getUserid()},function(data){
+            if(data.status==1){
+                jsonEnd_1=true;
+                var _data=data.data;
+                if(_data.equities.length>0){
+                    $('.member-interest>ul').html(render2(_data.equities));
+                }
+                $('.header-info').html(render1(_data));
+                jsonAllEnd();
+
+            }else{
+//                inputTipsText(data.info)
+            }
+        })
+    }
+    function getData(){
+        var render3=getRender('temp3');
+        jsonAjax(API.API_LIST.CAR_SIGN_GETGOODS,{wxappid: $.cookie('wxappid'),type:1,typeid:0,page:page},function(data){
+            if(data.status==1){
+                var len=data.data.length;
+                jsonEnd_2=true;
+                jsonAllEnd();
+                if(len<= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                }
+                if(page==1){
+                    $('.shop-data').html(render3(data.data));
+                }else{
+                    $('.shop-data').append(render3(data.data));
+                }
+                $('.mui-pull-caption').show();
+                if(len< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(page==1){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+//                inputTipsText(data.info)
+            }
+        })
+    }
+    //图片分屏延迟加载
+    function LazyLoad(){
+        $("img.lazy").lazyload({
+            effect : "fadeIn",
+            threshold : 10,
+            placeholder:"/web/assets/image/default_ico.svg"
+        });
+    }
+
+    /*加载完毕*/
+    function jsonAllEnd() {
+        if (jsonEnd_1||jsonEnd_2) {
+            LazyLoad();
+            loadEnd();
+        }
+    }
+    //积分商城滚动效果
+    $("#pullrefresh").on("scroll",function(e){
+        if($(".share-info").length==1){
+            share_height = $(".share-info").height();
+        }else{
+            share_height = 0;
+        }
+        console.log(e.originalEvent.detail.lastY)
+        if(e.originalEvent.detail.lastY<0){
+            if($(".share-info").length==1){
+                $(".share-info").fadeOut();
+            }
+            $("#scoll-hide").fadeOut();
+            $("#pullrefresh").css({
+                'margin-top': '4rem',
+                'transition':'margin-top 0.5s ease'
+            });
+        }else{
+            if($(".share-info").length==1){
+                $(".share-info").fadeIn();
+            }
+            $("#scoll-hide").fadeIn();
+            $("#pullrefresh").css({
+                'margin-top': '37.25rem',
+                'transition':'margin-top 0.5s ease'
+            });
+        }
+    });
+    //查看会员详情
+    $('.header-info').on('click','div',function(){
+        PageJumpTap('gotoMemberLevel',{});
+    });
+    //查看会员说明
+    $('.header-info').on('click','li',function(){
+        var index=$(this).index();
+        if(index==0){
+            PageJumpTap('gotoIntegralSign',{});
+        }else if(index==1){
+            PageJumpTap('gotoMemberExplain',{});
+        }
+
+    });
+    //查看会员权益
+    $('.member-interest span').eq(1).on('click',function(){
+        PageJumpTap('gotoMemberInterest',{});
+    });
+    //查看商品详情
+    $('.shop-data').on('tap','li',function(){
+        var id=$(this).attr('data-shop-id'),obj={
+            id:id,
+            source:'mall'
+        };
+        PageJumpTap('gotoMallGoodsDetail',obj);
+    })
+</script>
+</html>

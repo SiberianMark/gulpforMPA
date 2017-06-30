@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <title>车队信息</title>
+    <!-- ↑ 顶部共用 ↑ -->
+    <!-- <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/personal-info.css"> -->
+    <style>
+      body{background:#fff;}
+      .pumeg0,.pumeg1,.pumeg2{padding-left:0.8rem;width:90%;margin:1.5rem 5% 0 5%;height:4rem;line-height:4rem;background:rgb(237,237,237);font-size:1.5rem;border:none;border-radius:0.4rem;display:none;}
+      .wrap{width:90%;margin:3rem 5% 0 5%;height:4rem;line-height:4rem;background:rgb(245,183,22);font-size:1.5rem;color:#fff;text-align:center;border-radius:0.4rem;}
+    </style>
+</head>
+<body>
+  <input type="text" class="pumeg0" placeholder="请输入名称" />
+  <input type="text" class="pumeg1" placeholder="请输入名称" />
+  <input type="text" class="pumeg2" placeholder="请输入口号" />
+  <div class="wrap">保存</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+var title=I("title"),
+  tid=I("tid"),
+  tname,// 车队名
+  tasy,// 车队口号
+  notice,// 车队公告
+  status;// 是否队长
+function onStart(){
+  jsonAjax(API.API_LIST.TEAM_LIST, {'tid':tid,'userid':getUserid()}, function (data) {
+    if(data.status==1){
+      status = data.data.status;
+      tasy = data.data.slogan;
+      tname = data.data.name;
+      notice = data.data.comment;
+      if(title == 0) {
+        $(".pumeg0").show();
+        $("title").text("车队公告");
+        $(".pumeg0").val(notice);
+      }
+      else if(title==1) {
+        $(".pumeg1").show();
+        $("title").text("车队名称");
+        $(".pumeg1").val(tname);
+      }
+      else if(title==2) {
+        $(".pumeg2").show();
+        $("title").text("车队口号");
+        $(".pumeg2").val(tasy);
+      };
+    }
+    console.log(tname,tasy,notice);
+  });
+  $(".wrap").on("click",function(){
+    if(title == 0) {
+      notice = $(".pumeg0").val();
+    }
+    else if(title==1) {
+      tname = $(".pumeg1").val();
+    }
+    else if(title==2) {
+      tasy = $(".pumeg2").val();
+    };
+    jsonAjax(API.API_LIST.TEAM_LIST, {'tid':tid,'tname':tname,'comment':notice,'tasy':tasy,'userid':getUserid()}, function (data){
+      if(data.status==1){
+        setTimeout(function(){
+          if(status==0){
+            var obj=M();
+            obj.tid=tid;
+            Interface('gotoFleetInfo',obj);
+          }else{
+            return false;
+          };
+        },3000);
+        if(status==0){
+          inputTipsText(data.info);
+        }else{
+          inputTipsText("非队长无法修改");
+        };
+      };
+    });
+  });
+  loadEnd();
+};
+</script>
+</html>

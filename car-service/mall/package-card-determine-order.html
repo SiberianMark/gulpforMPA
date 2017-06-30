@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>确认订单</title>
+		<script src="/web/car-service/assets/js/load.meta.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/web/car-service/assets/js/load-head.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/package-card-determine-order.css" />
+	</head>
+
+	<body>
+		<div id="Order_box">
+
+		</div>
+		<div class="ord-determine">
+			<div class="ord-txt">实付款：
+				<span id="totalMoney">0.00</span>
+			</div>
+
+			<div class="ord-sub">确认</div>
+		</div>
+	</body>
+
+	<script type="text/template" id="Order_template">
+		<div>
+			<div class="ord-notes">{{=it.notes}}</div>
+		</div>
+
+		<div>
+			<div class="ord-title">{{=it.title}}</div>
+			<div class="ord-price">{{=it.price}}</div>
+		</div>
+		<div scl-pe='before'>
+			<div>数量</div>
+			<div class="ord-buy">
+				<div class="buy-remove"></div>
+				<div class="buy-num" max_num="{{=it.remain_quantity}}">1</div>
+				<div class="buy-add"></div>
+			</div>
+
+		</div>
+		<div scl-pe='before'>
+			<div>订单金额</div>
+			<div class="ord-total"></div>
+		</div>
+	</script>
+	<script type="text/javascript">
+		function onStart() {
+
+			//计算总价
+			function Calculation_total() {
+				$(".ord-total").add($(".ord-txt>span")).html(
+					(parseFloat($(".ord-price").html()) * parseInt($(".buy-num").html())).toFixed(2)
+				)
+			};
+
+			//异步获取订单号
+			function getOrderNo_async(token) {
+				var t = setInterval(function() {
+					jsonAjax(API.API_LIST.ORDER_GETORDERNO, {
+						'userid': getUserid(),
+						'token': token
+					}, function(data) {
+						console.log("异步获取订单", data)
+						if(data.status == 1) {
+							clearInterval(t);
+							inputTipsText('订单生成成功正在进行跳转...');
+							gotoCashier(data.data);
+
+						} else if(data.status == 0) { //关闭定时器
+							clearInterval(t);
+							inputTipsText(data.info);
+							setTimeout(function() {
+								history.go(-1);
+							}, 2000);
+
+						} else {
+							inputTipsText(data.info);
+							setTimeout(function() {
+								history.go(-1);
+							}, 2000);
+						}
+					})
+				}, 2000)
+			};
+
+			//获取订单号
+			function getOrderNo(package_card_id, buy_num, u_p_id) {
+
+				console.log(package_card_id, buy_num, u_p_id);
+
+				var obj = {};
+				obj.userid = getUserid();
+				var URL;
+
+				if(u_p_id) { //来自我的套餐卡
+					obj.user_card_id = u_p_id;
+					URL = API.API_LIST.CAR_CARD_CREATEORDER;
+
+				} else { //来自商城
+					obj.package_card_id = package_card_id;
+					obj.quantity = buy_num;
+					URL = API.API_LIST.CAR_CARD_CREATESHOPORDER;
+
+				}
+
+				jsonAjax(URL, obj, function(data) {
+					console.log("提交信息", data);
+					if(data.status == 1) { //获取成功
+						gotoCashier(data.data);
+					} else if(data.status == 2) { //异步处理订单
+						inputTipsText(data.info);
+						getOrderNo_async(data.data);
+					} else { //请求失败
+						inputTipsText(data.info);
+						setTimeout(function() {
+							history.go(-1);
+						}, 2000);
+
+						//						window.location.reload()
+
+					}
+				})
+
+			}
+
+			//跳转支付
+			function gotoCashier(order) {
+				var obj = M();
+				var go_param = M();
+
+				go_param.orderid = order.orderid;
+
+				obj.orderid = order.orderid;
+				obj.merge_no = "";
+				obj.source = 'carsvcMall';
+				obj.go_action = "gotoMyPackageCard";
+				obj.from_page = 'carsvcMall';
+				obj.go_param = go_param;
+
+				PageJumpTap('gotoCashier', obj);
+			};
+
+			jsonAjax(API.API_LIST.CAR_CARD_CONFIRMORDERSHOW, {
+				card_id: I("package_card_id"),
+			}, function(data) {
+				console.log(data);
+				if(data.status) {
+
+					if(parseInt(data.data.remain_quantity) > 0) { //库存>0
+
+						$("#Order_box").html(getRender('Order_template')(data.data));
+						//						console.log(I("u_p_id"))
+						if(I("u_p_id")) {
+							$(".buy-num").attr("max_num", 1);
+						}
+
+						//绑定数量add
+						$(".buy-add").on("click", function() {
+							var max_num = parseInt($(".buy-num").attr("max_num"));
+
+							var buy_num = parseInt($(".buy-num").html());
+
+							if(parseInt($(".buy-num").html()) < max_num) {
+								$(".buy-num").html(
+									buy_num + 1
+								)
+
+							} else {
+								inputTipsText("最多购买" + max_num + "张", 1000);
+							};
+
+							Calculation_total();
+						});
+						//绑定数量remove
+						$(".buy-remove").on("click", function() {
+							var buy_num = parseInt($(".buy-num").html());
+
+							if(parseInt($(".buy-num").html()) > 1) {
+								$(".buy-num").html(
+									buy_num - 1
+								)
+
+							} else {
+								inputTipsText("至少购买1张", 1000);
+							};
+
+							Calculation_total();
+						});
+
+						//绑定确认按钮
+						$(".ord-sub").one("click", function() {
+							var package_card_id = I("package_card_id");
+							var buy_num = parseInt($(".buy-num").html());
+							var u_p_id = I("u_p_id");
+
+							console.log(package_card_id, buy_num, u_p_id);
+							if(u_p_id) {
+								getOrderNo(package_card_id, 1, u_p_id);
+							} else {
+								getOrderNo(package_card_id, buy_num);
+							}
+						})
+						Calculation_total();
+					} else { //库存<=0
+						inputTipsText("该套餐卡库存不足");
+						//						inputTipsText(data.info);
+						setTimeout(function() {
+							history.go(-1);
+						}, 2000);
+
+						//						$("#Order_box").html(getRender('Order_template')(data.data));
+						//						$(".buy-num").html("0")
+						//						$(".ord-sub").css("background-color", "#ddd")
+
+					}
+
+				} else {
+					inputTipsText(data.info);
+					setTimeout(function() {
+						history.go(-1);
+					}, 2000);
+				}
+
+			})
+
+			loadEnd();
+		}
+	</script>
+
+</html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>编辑车辆</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=6k8EkQ4GBKCBqiDixvyzGpK462AoF7mM"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.min.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.picker.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.poppicker.css"/>
+    <script src="/web/car-service/assets/js/mui.min.js"></script>
+    <script src="/web/car-service/assets/js/mui.picker.js"></script>
+    <script src="/web/car-service/assets/js/mui.poppicker.js"></script>
+    <script src="/web/car-service/assets/js/license.data.js"></script>
+    <script src="/web/car-service/assets/js/chose_car.js"></script>
+</head>
+<body>
+    <!--<div class="fill-tips">请根据《机动车行驶证》仔细填写</div>-->
+    <div class="main" style="padding:2rem 0 0 0;">
+        <div class="input-box">
+            <label>车牌号码</label>
+            <div class="quyu" id="quyu">
+                <div><span id="license">粤A</span><span class="down" id="arrow"></span></div>
+            </div>
+            <input type="text" value="加载中。。。" placeholder="" style="width: 50%;" name="carNum" maxlength="5"/>
+        </div>
+        <div class="input-box" style="display: none;">
+            <label>发动机号</label>
+            <input type="text" value="加载中。。。" placeholder="请输入完整的发动机号" name="engineno" maxlength="7"/>
+            <span class="warn"></span>
+        </div>
+        <div class="input-box" style="display: none;">
+            <label>车身架号</label>
+            <input type="text" value="加载中。。。" placeholder="请输入完整的车身架号" name="vin" maxlength="17"/>
+            <span class="warn"></span>
+        </div>
+        <div class="input-box" id="choseCar">
+            <label>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系</label>
+            <span id="res" style="color:#333;">加载中。。。</span>
+            <input type="hidden" name="brandid" id="brandid" placeholder="请选择你爱车的车型" verify/>
+            <input type="hidden" name="modelid" id="modelid"/>
+            <input type="hidden" name="detailid" id="detailid"/>
+            <span class="arrow"></span>
+        </div>
+        <!--<div class="input-box">-->
+            <!--<label>备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</label>-->
+            <!--<input type="text" value="加载中。。。" placeholder="如张三的车" name="remark"/>-->
+        <!--</div>-->
+        <div class="input-box" style="padding-right: 1rem;color:#999;">
+            <label>里&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;程</label>
+            <input type="text" value="加载中。。。" placeholder="请输入行驶里程" name="mileage" maxlength="6" style="color:#333;"/>公里
+        </div>
+    </div>
+    <!--<div class="tips">所填信息为当地交管局查询所需，你的信息将被严格保密</div>-->
+    <div class="btn-box">
+        <a class="btn" id="save">修改并保存</a>
+    </div>
+
+    <div class="mask"></div>
+    <div class="show-content" style="display: none;">
+        <img src="/web/car-service/assets/image/chejiahao@2x.png"/>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    function onStart(){
+        //Interface('gotoIndex');
+        if(I('source1')==2){
+            $('#license').text(decodeURI(I('car_region')));//车地区
+            $("input[name='carNum']").val(I('car_number'));//车牌号
+            $("input[name='engineno']").val(I('engine_nimber'));//发动机号
+            $("input[name='vin']").val(I('car_body_number'));//车身机架号
+            $("input[name='mileage']").val(decodeURIComponent(I('milenge')));//里程
+            var car=decodeURIComponent(I('car')).split('=');
+            $('#res').text(car[0]+' '+car[1]+' '+car[2]);//车系
+            $('#res').css('color','#333');
+            $("input[name='brandid']").val(I('brandid'));//车品牌id
+            $("input[name='modelid']").val(I('modelid'));//车型id
+            $("input[name='detailid']").val(I('detailid'));//车款id
+        }else{
+            getData();
+        }
+        loadEnd();
+    }
+
+    choseLicense('license','quyu');
+    //choseCar('choseCar','res','brandid','modelid','detailid');
+    $('#choseCar').on('click',function(){
+        var obj=M();
+        obj.source=I('source');
+        obj.source4=1;
+        obj.car_Id=I('carid');
+        obj.car_region=$('#license').html();//车地区
+        obj.car_number=$("input[name='carNum']").val();//车牌号
+        obj.engine_nimber=$("input[name='engineno']").val();//发动机号
+        obj.car_body_number=$("input[name='vin']").val();//车身机架号
+        obj.milenge=$("input[name='mileage']").val();//里程
+        PageJumpTap('gotoCarLosts',obj)
+    });
+
+    //弹出
+    $(".warn").on('click',function(){
+        $(".mask,.show-content").show();
+    });
+
+    $(".show-content").on('click',function(){
+        $(".mask,.show-content").hide();
+    });
+
+    function getData(){
+        var carid = I('carid');
+        datas = {
+            carid:carid,
+            source:1
+        }
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETONECARINFO,datas,function (res) {
+            if(res.status == 1){
+                var carNum = res.data.carnum;
+                $('#license').text(carNum.substring(0,2));
+                $("input[name='carNum']").val(carNum.substring(2,carNum.length));
+                $("input[name='engineno']").val(res.data.engineno);
+                $("input[name='vin']").val(res.data.vin);
+                $("#res").text(res.data.brand+" "+(res.data.model==null?'':res.data.model)+" "+(res.data.detail==null?'':res.data.detail));
+                $("input[name='brandid']").val(res.data.brandid);
+                $("input[name='modelid']").val(res.data.modelid);
+                $("input[name='detailid']").val(res.data.detailid);
+                $("input[name='remark']").val(res.data.remark);
+                $("input[name='mileage']").val(res.data.mileage);
+            }else{
+                inputTipsText(res.info);
+            }
+        });
+    }
+
+    $("#save").on('click',function(){
+        //验证车牌号
+        var pattern1 = /^[\u4e00-\u9fa5]{1}[a-zA-Z]{1}[a-zA-Z_0-9]{5}$/;
+        //验证发动机号
+        var pattern2 = /^[A-Z_0-9]{7}$/;
+        //验证车架号
+        var pattern3 = /^[A-Z_0-9]{17}$/;
+
+        var carNum = $('#license').text()+$("input[name='carNum']").val();
+        var vin = $("input[name='vin']").val();
+        var engineno = $("input[name='engineno']").val();
+        var brandid = parseInt($("input[name='brandid']").val());
+        var modelid = parseInt($("input[name='modelid']").val());
+        var detailid = parseInt($("input[name='detailid']").val());
+        //var remark = $("input[name='remark']").val();
+        var mileage = parseFloat($("input[name='mileage']").val());
+        //验证
+        if(!pattern1.test(carNum)){
+            inputTipsText('请输入正确的车牌号');
+            return false;
+        }
+
+//        if(!pattern2.test(engineno)){
+//            inputTipsText('请输入正确的发动机号');
+//            return false;
+//        }
+//
+//        if(!pattern3.test(vin)){
+//            inputTipsText('请输入正确的车架机号');
+//            return false;
+//        }
+
+        for(var i=0;i<$("input[verify]").length;i++){
+            if(empty($("input[verify]").eq(i).val())){
+                inputTipsText($("input[verify]").eq(i).attr('placeholder'));
+                return false;
+            }
+        }
+
+        //验证里程
+        if(mileage>1000000||mileage<0){
+            inputTipsText('请输入不大于1000000的整数字');
+            return false;
+        }
+
+        var datas = {
+            carid:I('carid')?I('carid'):I('car_id'),
+            userid:getUserid(),
+            carnum:carNum,//车牌号码
+            vin:vin,//车架号
+            engineno:engineno,//发动机号
+            brandid:brandid,//车品牌id
+            modelid:modelid,//车型id
+            detailid:detailid,//车款id
+            //remark:remark,//备注
+            mileage:mileage//行驶里程
+        }
+
+        jsonAjax(API.API_LIST.CAR_CARINFO_EDITCAR,datas,function (res) {
+            if(res.status == 1){
+                inputTipsText("修改成功");
+                var param = M();
+                param.source = I('source');
+                PageJump('gotoMyCar',param);
+            }else{
+                inputTipsText(res.info);
+            }
+        });
+    });
+    $('input[name="mileage"]').on('input',function(){
+        //只能输入数字
+        var pattern6=/^[1-9]{1}[0-9]*$/g;
+        var value=$(this).val();
+        if(!pattern6.test(value)){
+            $(this).val(value.slice(0,(value.length-1)));
+        }
+
+    });
+</script>
+</html>

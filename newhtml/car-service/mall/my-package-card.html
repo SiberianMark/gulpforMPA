@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>我的套餐卡</title>
+		<script src="/web/car-service/assets/js/load.meta.js?v=37fc4c585f" type="text/javascript"></script>
+		<script src="/web/car-service/assets/js/load-head.js?v=a0f791163c" type="text/javascript"></script>
+		<script src="/web/car-service/assets/js/chose_car.js?v=11b9147205" type="text/javascript"></script>
+		<link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/mui.picker.css" />
+		<link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/mui.poppicker.css" />
+		<script src="/web/car-service/assets/js/mui.min.js?v=41cb80c42a" type="text/javascript"></script>
+		<script src="/web/car-service/assets/js/mui.picker.js?v=81933de995" type="text/javascript"></script>
+		<script src="/web/car-service/assets/js/mui.poppicker.js?v=8bce2da9e5" type="text/javascript"></script>
+		<script src="/web/car-service/assets/js/license.data.js?v=ea58ef2292" type="text/javascript"></script>
+		<link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/my-package-card.css" />
+	</head>
+
+	<body>
+
+		<div id="Use_rule">
+			<img src="/web/car-service/assets/image/mall/ico_guize@2x.png" />
+			<p>使用规则</p>
+		</div>
+
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+
+				<ul id="card_box">
+
+				</ul>
+
+			</div>
+
+		</div>
+		<div class="null_ico">
+
+		</div>
+		<div class="modal">
+			<div class="modal-content">
+				<div class="modal-content-inner">
+					<p>你的车牌号码</p>
+					<div scl-pe='before'>
+
+						<div id="License_plate_prefix">京A</div>
+						<div id="arrow" class="down">▼</div>
+
+						<input id="License_plate_number" type="text" placeholder="请输入车牌号" maxlength="5" />
+
+					</div>
+				</div>
+				<ul class="modal-content-buttons" scl-pe='before'>
+					<li class="modal-content-button" scl-pe='before'>取消</li>
+					<li class="modal-content-button" scl-pe='before'>确定</li>
+				</ul>
+
+			</div>
+		</div>
+
+		<script type="text/template" id="Use_rule_template">
+			{{~it:value}}
+			<li class="card" package_card_id={{=value.package_card_id}} u_p_id={{=value.u_p_id}} car_no={{=value.car_no}} status={{=value.status}}>
+				<div class="left">
+					<p>{{=value.title}}</p>
+					<ul>
+						{{~value.item:item}} {{? value.status == 1}}
+						<li>{{=item.name}}：剩余0/{{=item.quantity}}次</li>
+						{{??}}
+						<li>{{=item.name}}：剩余{{=item.remain_quantity}}/{{=item.quantity}}次</li>
+						{{?}} {{~}}
+					</ul>
+				</div>
+				<div class="right" scl-pe='before'>
+					<p>￥{{=value.price}}</p>
+					<p>去</p>
+				</div>
+
+			</li>
+			{{~}}
+		</script>
+		<script type="text/javascript">
+			//绑定车牌
+			function Bound_license_plate(u_p_id) {
+				$(".modal").addClass("fade").attr("u_p_id", u_p_id)
+			};
+
+			//去购买
+			function To_buy(package_card_id, u_p_id) {
+				var obj = {
+					package_card_id: package_card_id,
+					u_p_id: u_p_id
+				}
+
+				jsonAjax(API.API_LIST.CAR_CARD_CONFIRMORDERSHOW, { //获取库存
+					card_id: package_card_id
+				}, function(data) {
+					if(data.status) { //获取库存成功
+						if(parseInt(data.data.remain_quantity) > 0) {
+							PageJump("gotoPackageCardOrder", obj)
+						} else {
+							inputTipsText("该套餐卡已售罄");
+						}
+					} else { //获取库存失败
+						inputTipsText(data.info);
+					}
+				})
+			};
+
+			//去使用
+			function To_use(u_p_id) {
+				var obj = {
+					u_p_id: u_p_id,
+				}
+				PageJump("gotoUsePackageCard", obj)
+			};
+
+			function onStart() {
+
+				//绑定选择车牌号前缀插件
+				choseLicense("License_plate_prefix", "License_plate_prefix", true);
+				//选择车牌号前缀插件.点击背景恢复箭头
+				$("body").on("tap", ".mui-backdrop", function() {
+					document.getElementById('arrow').className = 'down';
+				});
+				//绑定车牌.取消
+				$(".modal-content-button").eq(0).on("tap", function() {
+					$(".modal").removeClass("fade").attr("u_p_id", "")
+				})
+
+				//绑定车牌.确定
+				$(".modal-content-button").eq(1).on("tap", function() {
+
+					var card_id = $(".modal").attr("u_p_id")
+					var car_no = $("#License_plate_prefix").text() + " " + $("#License_plate_number").val()
+
+					if(car_no.length != 8) {
+						inputTipsText("车牌号格式不正确", 1000);
+					} else {
+						jsonAjax(API.API_LIST.CAR_CARD_BINDCARDNO, {
+							card_id: card_id,
+							car_no: car_no,
+						}, function(data) {
+							if(data.status) {
+								//绑定成功，跳转使用
+								To_use(card_id)
+							} else {
+								//绑定失败
+								inputTipsText(data.info, 1000);
+							}
+						})
+
+					}
+				})
+
+				//绑定车牌.限制输入
+
+				//初始化mui
+				_initMui();
+
+				//如果登陆
+				is_login(function(ret){
+					if(ret){
+						mui('#pullrefresh').pullRefresh().pullupLoading();
+					}
+				})
+				loadEnd();
+
+				(function() { //来自支付页面
+					var obj = {}
+					obj.userid = getUserid()
+					obj.orderid = I("orderid")
+
+					if(obj.orderid) {
+						console.log("来自支付页面", obj)
+						jsonAjax(API.API_LIST.CAR_CARD_PAYCALLBACK, obj, function(data) {
+							console.log("支付结果", data)
+
+							inputTipsText(data.info, 1000);
+
+						})
+
+					} else {
+						//						console.log("无orderid")
+					}
+
+				})()
+
+			} //绑定使用规则
+			$("#Use_rule").on("tap", "*", function() {
+				PageJump("gotoPreview", {
+					code: $("#Use_rule").attr("code")
+				})
+			})
+
+			var page = 1
+
+			function getData() {
+				mui('#pullrefresh').pullRefresh().setStopped(true);
+
+				console.log(page, pull_action,'++')
+
+				jsonAjax(API.API_LIST.CAR_CARD_CARDLIST, {
+					userid: getUserid(),
+					//						userid: 1002030,
+					p: page
+				}, function(data) {
+
+					//如果获取成功
+					if(data.status) {
+						console.table(data.data.list)
+							//渲染数据
+						$("#Use_rule").attr("code", data.data.code)
+						if(data.data.list.length > 0) {
+							if(page == 1) {
+								$("#card_box").html(getRender('Use_rule_template')(data.data.list))
+
+							} else {
+								$("#card_box").append(getRender('Use_rule_template')(data.data.list))
+							}
+
+							page++;
+							if(pull_action == 'up') {
+								if(data.data.list.length < 8) {
+									mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+								} else {
+									mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+								}
+
+							} else if(pull_action == 'down') {
+								if(data.data.list.length < 8) {
+									mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+								} else {
+									mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+								}
+
+								mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+							}
+
+						} else {
+							if(page == 1) {
+								$(".null_ico").show()
+								$(".mui-pull-bottom-pocket").removeClass("mui-visibility")
+							}
+
+							if(pull_action == 'up') {
+								mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+							} else if(pull_action == 'down') {
+								mui('#pullrefresh').pullRefresh().endPulldownToRefresh(true);
+							};
+
+							//							return false;
+						}
+
+					} else {
+						inputTipsText("获取列表失败", 1000);
+						$(".null_ico").show();
+					}
+
+					setTimeout(function() {
+						mui('#pullrefresh').pullRefresh().setStopped(false);
+					}, 200);
+				})
+
+			};
+
+			//按钮。去购买|去使用
+			$("#card_box").on("tap", ".card>.right>p:nth-of-type(2)", function(event) {
+				_this_card_data = {}
+				_this_card_data.u_p_id = $(this).parents(".card").attr("u_p_id")
+				_this_card_data.package_card_id = $(this).parents(".card").attr("package_card_id")
+				_this_card_data.status = $(this).parents(".card").attr("status")
+				_this_card_data.car_no = $(this).parents(".card").attr("car_no")
+					//如果使用
+
+				if(_this_card_data.status == 2 || _this_card_data.status == 3) {
+
+					//如果没有绑定
+					if(_this_card_data.car_no == "null") {
+						Bound_license_plate(_this_card_data.u_p_id)
+					} else {
+						//跳转使用
+						To_use(_this_card_data.u_p_id)
+					}
+
+				} else if(_this_card_data.status == 4) {
+					//已失效 跳转购买
+					To_buy(_this_card_data.package_card_id)
+				} else {
+					//领取后跳转购买
+					To_buy(_this_card_data.package_card_id, _this_card_data.u_p_id)
+				}
+			});
+
+			//限制输入
+			$("#License_plate_number").on("input", function() {
+
+				//					$(this).val(
+				//						$(this).val().replace(/[^\w&=]|_/ig, '').toUpperCase()
+				//					);
+				var pattern5 = /^[a-zA-Z0-9]*$/;
+				var value = $(this).val();
+				if(value.isExistChinese()) {
+					$(this).val('');
+					return false;
+				}
+				if(!pattern5.test(value)) {
+					$(this).val(value.slice(0, (value.length - 1)));
+				}
+				//$(this).val($(this).val().toUpperCase())
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>Demo</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/assets/jquery.image.resize/jquery.image.resize.css">
+    <script src="/web/assets/jquery.image.resize/jquery.image.resize.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <style>
+        .file-box{
+            height:10rem;
+        }
+        .file-box img{
+            float:left;
+        }
+        .file-box span{
+            float:left;
+            position:relative;
+            background:gold;
+            border:medium solid #fff;
+            font-size:4rem;
+            display:inline-block;
+            width:10rem;
+            height:10rem;
+            color:#fff;
+            line-height:9rem;
+            text-align:center;
+        }
+        .file-box span #cameraInput{
+            position:absolute;
+            width:10rem;
+            height:10rem;
+            z-index:10;
+            opacity: 0;
+            top:0;
+            left:0;
+        }
+    </style>
+</head>
+<body>
+    <div class="file-box">
+        <span>
+            +
+            <input type="file" id="cameraInput"/>
+        </span>
+    </div>
+
+    <div class="imageResizeBox none" id="imageResizeBox">
+        <div class="topBox"></div>
+        <div class="middleBox">
+            <div class="leftMiddleBox"></div>
+            <div class="centerMiddleBox" id="centerMiddleBox">
+                <img src="" id="targetImage">
+            </div>
+            <div class="rightMiddleBox"></div>
+        </div>
+        <div class="bottomBox">
+            <div class="imageResizeBtn shrinkBtn" id="shrinkBtn">缩小</div>
+            <div class="imageResizeBtn enlargeBtn" id="enlargeBtn">放大</div>
+            <div class="imageResizeBtn cancelBtn" id="cancelBtn">取消</div>
+            <div class="imageResizeBtn confirmBtn" id="confirmBtn">确定</div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    function onStart(){
+        loadEnd();
+        ImageResize('#cameraInput',{
+            enlargeTime:1.2,
+            shrinkTime:0.8,
+            resizeWidth:120,
+            resizeHeight:120,
+            maxTime:5
+        },function (dataURL) {
+            $(".file-box").prepend("<img src='"+dataURL+"'>");
+            //postImage(dataURL);
+        });
+    }
+</script>
+</html>

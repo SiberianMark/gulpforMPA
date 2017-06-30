@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="/web/car-service/assets/css/confirm-packageCard.css">
+	<script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+	<title>确认套餐卡</title>
+	<script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+</head>
+
+<body>
+	<div class="content">
+		<script type="text/template" id="card-detail">
+			<div class="packages-info" id={{=it.data.id}}>
+				<div>
+					<div class="left">
+						<b>{{=it.data.title}}</b>
+					</div>
+					<div class="right">￥<span>{{=it.data.price}}</span></div>
+					<div class="right"></div>
+				</div>
+			</div>
+			<div class="pakagedetail">
+				<ul>
+				{{var val=it.data.item}}
+				{{~it.data.item:item:index}}
+					<li i_id={{=item.i_id}}>
+					<p>{{=item.name}}</p>
+					<div class="count">使用<span class="used">{{=item.quantity-item.remain_quantity}}</span>次，剩余<span class="surplus">{{=item.remain_quantity}}</span>次</div></li>
+				{{~}}
+				</ul>
+			</div>
+			
+		</script>
+	</div>
+	<div class="submit">确认</div>
+	<div class="wutaocanka">
+		<img src="/web/car-service/assets/image/mall/ico_wutaocangka@2x.png" alt="">
+		<p>暂无套餐卡~</p>
+	</div>
+</body>
+<script>
+	var card_id=I('card_id');
+	var cardDetailRender=getRender('card-detail');
+	var type=1;//套餐卡ID类型 1用户使用 2商家表示商家分享，用于区别是否为商家分享
+	function onStart(){
+		getShare();
+		getCardDtail();
+		loadEnd();
+	}
+	$('.submit').on('click',function(){
+		// window.opener=null;
+		// window.open('','_self');
+		// self.close();	
+		WeixinJSBridge.call('closeWindow');
+	});
+	function getCardDtail(){
+		var obj=M();
+		obj.card_id=card_id;
+		obj.type=type;
+		obj.userid=getUserid();
+		jsonAjax(API.API_LIST.CAR_CARD_CARDDETAILED,obj,function(data){
+			if(data.status==1){
+				console.log(data);
+				$('.content').html(cardDetailRender(data));
+			}else{
+				$('.wutaocanka').css('display','block');
+				$('.submit').css('display','none');
+			}
+		})
+	}
+	function getShare(){
+		var obj=M();
+		obj.userid=getUserid();
+		obj.package_card_id=card_id;
+		jsonAjax(API.API_LIST.CAR_CARD_SHARE,obj,function(data){
+			if(data.status==1){
+				WxShare.title=data.data.title;
+				WxShare.imgUrl=data.data.images;
+				WxShare.desc=data.data.content;
+				WxShare.link=data.data.url;
+				//WxShare.linkUrl=data.data.share_url;//分享到其他平台时可用
+				loadWxObject(true);  //加载微信对象
+				console.log(WxShare);
+			}
+		});
+	}
+	function JumpAfterSharing(){//微信分享回调函数
+		var obj=M();
+		obj.userid=getUserid();
+		obj.rid=card_id;
+		obj.source=4;
+		jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,obj,function(data){
+			if(data.status==1){	
+				console.log(data);
+			}else{
+				inputTipsText(data.info);
+			}
+		});
+	}
+</script>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>特色服务</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+</head>
+<body>
+
+
+    <div class="wrap special-wrap">
+        <div class="tips"></div>
+        <div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="margin-top: 3rem;">
+            <div class="mui-scroll">
+                 <ul id="list">
+                      <!--tmpl-->
+                 </ul>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script type="text/template" id="tmpl">
+    {{~it:item:index}}
+    <li>
+        <a class="db pr" href="{{=item.url}}">
+            <img class="pa" src="{{=item.img?item.img:'/web/assets/image/default_ico.png'}}">
+            <span class="text pa">{{=item.server_name}}</span>
+        </a>
+    </li>
+    {{~}}
+</script>
+<script>
+    var render = getRender('tmpl');
+    var page = 0;
+    var LoadShare = false;
+    var LoadDate = false;
+	function onStart(){
+        getData();
+        _initMui();
+	}
+
+    function allloadEnd(){
+        if(LoadDate&&LoadShare){
+            loadEnd();
+
+        }
+    }
+    function onWxReady(){
+        getShare();
+    }
+
+    function getShare () {
+        jsonAjax(API.API_LIST.CAR_REFFERAL_FEATURESHARE,{'userid':getUserid()},function (res) {
+            if(res.status==1){
+                WxShare.title = res.data.title;
+                WxShare.desc = res.data.content;
+                WxShare.imgUrl = res.data.img;
+                WxShare.link = res.data.link;
+                onWxShare();
+                LoadShare = true ;
+                allloadEnd();
+            }
+        })
+        // body...
+    }
+
+    function getData(){
+        var datas = {
+            p:page
+        }
+        jsonAjax(API.API_LIST.CAR_REFFERAL_FEATURE,datas,function(res){            
+            LoadDate = true ;
+            allloadEnd();
+            if(res.data.length <= 0){
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                return false;
+            }
+
+            $(".tips").text(res.name);
+            if(page == 0){
+                $("#list").html(render(res.data));
+            }else{
+                $("#list").append(render(res.data));
+            }
+
+            $("a").on('tap',function(){
+                redirect($(this).attr('href'));
+            })
+
+            setTimeout(function(){
+                mui('#pullrefresh').pullRefresh().setStopped(false);
+            },200);
+
+            page++;
+            if(pull_action ==  'up'){
+                mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+            }
+            else if(pull_action == 'down'){
+                mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+            }
+        })
+
+    }
+</script>
+</html>

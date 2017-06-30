@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>选择车款</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js?v=5c01d7aff0"></script>
+</head>
+<body>
+	    <div class="wrap" style="position:fixed;height:100%;">
+	        <div class="car-list-con car-break">
+	        	<ul class="car-list">
+                </ul>
+	        </div>
+            <div class="car-list-con car-models">
+                <ul class="car-list"></ul>
+            </div>
+            <div class="car-list-con car">
+                <ul class="car-list"></ul>
+            </div>
+	        <div class="swiper_banner">
+	        	<div class="swiper-container index-banner">
+	                <div class="swiper-wrapper"></div>
+	                <div class="swiper-pagination"></div>
+	            </div>
+                <div class="del"></div>
+	        </div>
+	    </div>
+	<!--<div class="suspension-menu" style="display:none;">-->
+	    <!--<div class="sus-list">-->
+	        <!--<span id="sus-mall-icon" border="bottom"><i class="sus-icon sus-cal-icon">购车计算器</i></span>-->
+	        <!--<em class="triangle-down"></em>-->
+	    <!--</div>-->
+	    <!--<img  src="/web/car-service/assets/image/float-menu.png" class="sus-cal">-->
+	<!--</div>-->
+</body>
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<!--车品牌模板-->
+<script type="text/template" id="tmpl-car-brank">
+    {{var val=it;}}
+    {{for(var i in val){}}
+    <li  aid="{{=val[i].id}}" scl-pe="before">
+        <span class="ovh">
+            {{?val[i].logo==null||val[i].logo==''}}
+            <div class="fl" style="display: none"><img class="lazy" src="{{=val[i].logo}}"></div>
+            {{??}}
+             <div class="fl"><img class="lazy" src="{{=val[i].logo}}"></div>
+             {{?}}
+            <div class="middle">{{=val[i].brand}}</div>
+        </span>
+    </li>
+    {{}}}
+</script>
+<!--车型模板-->
+<script type="text/template" id="tmpl-car-modles">
+    {{var val=it;}}
+    {{for(var i in val){}}
+    <li  aid="{{=val[i].id}}" scl-pe="before">
+        <span class="ovh">
+            <div class="fl"><img class="lazy" src="{{=val[i].logo}}"></div>
+            <div class="middle">{{=val[i].carmodel}}</div>
+        </span>
+    </li>
+    {{}}}
+</script>
+<!--车款模板-->
+<script type="text/template" id="tmpl-car">
+    {{var val=it;}}
+    {{for(var i in val){}}
+    <li  aid="{{=val[i].id}}" scl-pe="before">
+        <span class="ovh">
+             <!--<div class="fl"><img class="lazy" src="{{=val[i].logo}}"></div>-->
+            <div class="middle" style="margin:0;">{{=val[i].model}}</div>
+        </span>
+    </li>
+    {{}}}
+</script>
+<script type="text/template" id="tmpl-data-ad">
+    {{~it.data:item:index}}
+    <div class="swiper-slide" hrefUrl="{{=item.url}}" adid="{{=item.id}}">
+        <img class="swiper-lazy" data-src="{{=item.image?item.image:'/web/assets/image/default_ico.png'}}">
+        <div class="swiper-lazy-preloader"></div>
+    </div>
+    {{~}}
+</script>
+<script>
+//    $(document).ready(function(){
+//        $(".sus-cal-icon").click(function(){
+//            PageJump('gotoCalculator');
+//        });
+//        $(".del").click(function(){
+//            $(this).parent().remove();
+//        });
+//    });
+	var swiper_banner = null;
+    var swiper_pop = null;
+    var swiper_tag = null;
+	var render_ad = getRender('tmpl-data-ad');
+	var render_car_brank = getRender('tmpl-car-brank');//车品牌
+    var render_car_models=getRender('tmpl-car-modles');//车型
+    var render_car=getRender('tmpl-car');//车款
+    var cid=0;//车品牌id
+    var models_id=0;//车型id
+    var car_name;//选择车名;
+    var type=false;
+    var type1=false;
+	function onStart(){
+        if(I('source')=='ff'||I('source')=='buyJs'||I('source')=='eval'){
+            $('.swiper_banner').hide();
+//            $('.suspension-menu').hide();
+            $('.car-break').addClass('car-middle');
+            getCarBrandList()
+        }else{
+            $('.car-models').addClass('car-middle').css('height','70%');
+            getCarModelsList();
+        }
+        getbnaner();
+	}
+    $('.sus-cal').on('click',function(){
+        $('.sus-list').show();
+    });
+    $(".sus-list").click(function(){
+        PageJump('gotoCalculator');
+    });
+    $(".del").click(function(){
+        $(this).parent().remove();
+    });
+	/*获取广告图片*/
+    function getbnaner(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_BUYCARAD,{}, function (data) {
+            if (data.status == 1) {
+                if (swiper_banner != null) {
+                    swiper_banner.destroy();
+                    swiper_banner = null;
+                }
+                if(data.data.length>0){
+                    $('.index-banner .swiper-wrapper').html(render_ad(data));
+                    swiper_banner = new Swiper('.index-banner', {
+                        loop: true,
+                        autoplay: 3000,
+                        observer: true,
+                        preloadImages: false,
+                        speed: 500,
+                        pagination: '.swiper-pagination',
+                        paginationClickable: true,
+                        autoplayDisableOnInteraction: false,
+                        lazyLoading : true
+                    });
+                    $('div.swiper-slide[hrefUrl]').on("click", function () {
+                        if ($(this).attr('hrefUrl').length > 0) {
+                            var adid=$(this).attr('adid');
+                            var obj = new Object();
+                            obj.link=$(this).attr('hrefUrl');
+                            collectClick(adid,obj);
+                        }
+                    });
+                }else {
+                    $('.swiper_banner .del').remove();
+                    console.log(data.info);
+                }
+                LazyLoad();
+                loadEnd();
+            }else {
+                $('.swiper_banner .del').remove();
+            }
+        });
+    }
+    // 获取车品牌列表
+    function getCarBrandList() {
+        jsonAjax(API.API_LIST.CAR_BUYCAR_CARBRAND,{}, function (data) {
+            if (data.status == 1) {
+                $('.car-break .car-list').html(render_car_brank(data.data));
+                LazyLoad();
+                loadEnd();
+            }else{
+                inputTipsText(data.info);
+            }
+        });
+    }
+    // 获取车型列表
+    function getCarModelsList() {
+        jsonAjax(API.API_LIST.CAR_BUYCAR_CARMODEL,{brandid:cid}, function (data) {
+            if (data.status == 1) {
+                $('.car-models .car-list').html(render_car_models(data.data));
+                LazyLoad();
+                loadEnd();
+            }else{
+                $('.car-models .car-list').html('');
+                inputTipsText(data.info);
+            }
+        });
+    }
+    // 获取车款列表
+    function getCarList() {
+        jsonAjax(API.API_LIST.CAR_BUYCAR_CARDETAIL,{modelid:models_id}, function (data) {
+            if (data.status == 1) {
+                $('.car .car-list').html(render_car(data.data.detail));
+                LazyLoad();
+                loadEnd();
+            }else{
+                inputTipsText(data.info+',请您重新选择车型');
+                $('.car .car-list').html('');
+            }
+        });
+    }
+    function LazyLoad(){
+        $("img.lazy").lazyload({
+            effect : "fadeIn",
+            threshold : 10,
+            placeholder:"/web/assets/image/default_ico.svg"
+        });
+    }
+    setTimeout(function(){
+        $('.car-list-con').each(function(i,item){
+            $(item).addClass('car-transition');
+        });
+    },300);
+
+    //选择车型品牌
+    $('.car-break').on('click','.car-list > li',function(){
+        setHistory('#abc');
+        cid=$(this).attr('aid');
+        car_name=$(this).find('.middle').text();
+        getCarModelsList();
+        $('.car-models').addClass('car-middle');
+        type=true;
+    });
+    //选择车型
+    $('.car-models').on('click','.car-list > li',function(){
+        models_id=$(this).attr('aid');
+        if(I('source')=='ff'||I('source')=='buyJs'||I('source')=='eval'){
+            setHistory('#abd');
+            car_name+=$(this).find('.middle').text();
+            getCarList();
+            $('.car').addClass('car-middle');
+            type1=true;
+        }else{
+            var obj=M();
+            obj.car_id=models_id;
+            console.log(obj);
+            PageJump('gotoBaojia', obj);
+        }
+    });
+    //选择车款
+    $('.car').on('click','.car-list > li',function(){
+        car_name+=$(this).find('.middle').text();
+        var obj = M();
+        obj.detailname = car_name;
+        obj.source = I('source');
+        obj.detailid = $(this).attr('aid');
+        obj.carid = I('carid');
+        obj.getcardtime = I('getcardtime');
+        obj.mileage = I('mileage');
+        obj.model = decodeURIComponent(I('model'));
+        obj.price = I('price');
+        obj.contacts = decodeURIComponent(I('contacts'));
+        obj.sex = I('sex');
+        obj.phone = I('phone');
+
+         if(I('source')=='buyJs'){
+            PageJump('gotoCalculator', obj);
+         }else if(I('source')=='ff'){
+            PageJump('gotoFillFriendInfo',obj);
+         }else if(I('source')=='eval'){
+             obj.car_name=decodeURIComponent(I('car_name'));
+            PageJump('gotoEvaluation',obj);
+         }
+    });
+    //后退调回车品牌页面
+    window.addEventListener('hashchange',function(){
+        var href=window.location.hash;
+        if(href==''){
+            if(type){
+                getCarBrandList();
+
+            }
+            $('.car-models').removeClass('car-middle');
+            $('.car').removeClass('car-middle');
+        }else if(href=='#abc'){
+            if(type1){
+                getCarModelsList();
+            }
+            $('.car').removeClass('car-middle');
+        }
+
+    });
+    //增加url历史记录且不刷新页面
+    function setHistory(parameter){
+        var url=window.location.href;
+        var stateObj={'url':url};
+        history.pushState(stateObj, " ", parameter);
+    }
+
+</script>
+</html>

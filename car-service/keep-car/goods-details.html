@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>商品详情</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body>
+    <div class="wrap cushion-wrap">
+    </div>
+    <div class="cs-db-btn tc">立即购买</div>
+</body>
+<script type="text/template" id='temp-det'>
+    <div class="swiper_banner">
+        <div class="swiper-container index-banner">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" hrefUrl="">
+                    <img class="swiper-lazy" src="{{=it.ad_img}}">
+                    <!-- <div class="swiper-lazy-preloader"></div> -->
+                </div>
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+    {{        
+        var ArrPrice = [];
+        var maxPrice = '0.00' ;
+        var minPrice = '0.00' ;
+    }}
+    {{~it.arr:Arr:index}}
+    <div class='product_id' id='{{=Arr.product_id}}' list='{{=ReSort(Arr.specification)}}' price='{{=Arr.price}}'></div>
+    {{
+        ArrPrice.push(Arr.price);
+    }}
+    {{~}}
+    {{
+        if(it.arr.length>0){
+            maxPrice =  Math.max.apply(null,ArrPrice).toFixed(2);
+            minPrice =  Math.min.apply(null,ArrPrice).toFixed(2);
+        }
+        console.log(maxPrice,minPrice,it.arr,it.arr.length);
+    }}
+    <div class="seat-info bgwh">
+        <h3>{{=it.name}}</h3>
+        <p class="price-range dib mgt-2">
+
+            {{?it.arr.length>0}}
+                <span>&yen;{{=minPrice}}</span>~<span>{{=maxPrice}}</span>
+            {{??}}
+                <span>&yen;{{=it.sell_price}}</span>
+            {{?}}
+        </p>
+        <!-- <span class="car-tips dib">适用所有车型</span> -->
+        <div class="solded mgt-3">已售{{=it.sale}}笔</div>
+        <s>原价￥{{=it.original_price}}</s>
+    </div>
+    {{?it.privilege==1}}
+    <div class="hasDraw bgwh">
+        <p class="car-text">
+            <img src="/web/car-service/assets/image/mall/ico_youhuiquan@2x_13.png"> 点击进入领取优惠券
+        </p>
+    </div>
+    {{?}}
+    <!--
+    <div class="choseColor bgwh">
+        <div class="title">选择颜色</div>
+        <ul>
+            <li style="background-color:#ff8a00"></li>
+            <li style="background-color:#009cff"></li>
+            <li style="background-color:#04BE02"></li>
+            <li class="active" style="background-color:#ffffff"></li>
+        </ul>
+    </div>
+    -->
+
+    {{ for (var i in it.temp) { }}
+    {{ var item = it.temp[i] ;}}
+    <div class="choseSize bgwh" choseid='{{=i}}'>
+        <div class="title" border="top">选择{{=item.key_name}}</div>
+        <ul class='clear'>
+            {{ for (var j in item.list){ }}
+            {{ var list = item.list[j] ;}}
+                <li choselistid='{{=j}}'>{{=list}}</li>
+            {{ } }}
+        </ul>
+    </div>
+    {{ } }}
+
+    <div class="seat-info bgwh">
+        <p class="car-text" border="top">{{=it.introduction}}</p>
+    </div>
+
+    <div class="mgt-2 push-up tc bgwh"><img style="display:none;" src="/web/car-service/assets/image/jiantou2.png" alt="">点击查看图文详情</div>
+    <div class="content">
+
+        {{?it.details!=null}}
+            {{=it.details.decodeHtml()}}
+        {{?}}
+    </div>
+    
+</script>
+<script>
+    var render = getRender('temp-det');
+    var product_id = 0;  //当前选中的规格的对应ID,若没有规格或没有完全选齐规格项,则为0;
+    var product_list = ''; //当前选中的所有规格项ID的组合字符串,以','分隔,如:'1273,1274'.
+    var arr = M();          //当前产品所有可能的规格的对象.
+    function onStart(){
+        GetDetails();
+    }
+
+    /*on wx sdk config ready*/
+    function onWxReady(){
+        jsonAjax(API.API_LIST.CAR_INTEGRAL_USERSHARE,{'id':I('id'),'userid':getUserid()},function(data){
+            if(data.status==1){
+                WxShare.title = data.data.title;
+                WxShare.desc = data.data.content;
+                WxShare.imgUrl = data.data.img;
+                WxShare.link = data.data.url;
+                onWxShare();
+            }
+        });
+    }
+
+    function JumpAfterSharing(){
+        jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,{'rid':I('id',''),'source':6,'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+            }
+        })
+    }
+    /*获取广告图片*/
+    function getBanner() {
+        swiper_banner = new Swiper('.index-banner', {
+            loop: true,
+            autoplay: 3000,
+            observer: true,
+            preloadImages: false,
+            speed: 500,
+            pagination: '.swiper-pagination',
+            paginationClickable: true,
+            autoplayDisableOnInteraction: false,
+            lazyLoading : true
+        });
+    }
+
+    $('.cushion-wrap').on("click",".choseColor ul li,.choseSize ul li",function(){
+        if($(this).hasClass('active')||$(this).hasClass('no')){
+            return;
+        }
+        $('.choseColor ul li,.choseSize ul li').removeClass('no');
+        $(this).parent().children('.active').removeClass('active');
+        $(this).addClass('active');
+        var pro_len = GetProductID (); //pro_len表示当前选中的规格项的数量.此方法还会更新product_id,product_list.
+        var chose_len = $('.choseSize').length; //
+        //console.log(pro_len,product_list,product_id,$('.product_id[list="'+product_list+'"]').attr('price'));
+        if(pro_len==chose_len){//相等则表示已经选中所有种类的规格.则更新价格           
+            $('.price-range').html('<span>&yen;'+$('.product_id[list="'+product_list+'"]').attr('price')+'</span>'); 
+        }
+        $.each(arr,function(i,item){
+            var ItemProArr = item.specification.split(',');
+            var NowProArr = product_list.split(',');
+            var difnum = chose_len; //循环所有可能组合,该值每个组合与当前选中组合的ID有差异的个数值.
+            $.each(NowProArr,function(j,proid){
+                if(ItemProArr.indexOf(proid)>=0){
+                    difnum--;
+                }
+            })
+            //如果等于0, 说明当前选中组合与当前循环中的组合一致. 不处理.
+            //如果等于1, 说明当前选中组合与当前循环中的组合只有一个值不一样, 需要判断当前循环中的组合是否没有库存.如无库存要禁止用户选到这个组合.
+            //如果大于1, 说明当前选中组合与当前循环中的组合有多个值不一致, 也不处理.
+
+            if(difnum==1&&item.store_num==0){
+                $.each(ItemProArr,function (k,proid) {
+                    if(!$('.cushion-wrap ul li[choselistid="'+proid+'"]').hasClass('active')){
+                        $('.cushion-wrap ul li[choselistid="'+proid+'"]').addClass('no');
+                    }
+                });
+            }
+        });
+
+
+    }).on('click','.hasDraw',function(){
+        var obj = M();
+        obj.is_goods = 1; //0 普通商品 1会员特惠商品 写死
+        obj.goodsid = I('id','');
+        PageJumpTap('gotoMallDrawShop',obj);
+    });
+
+    $('.cushion-wrap').on('click','.push-up',function (argument) {
+        $(this).hide();
+        $('.content').show();
+        $('body').animate({scrollTop:$('.content').offset().top},1000);
+    });
+
+    function GetDetails () {
+        console.log('GetDetails');
+        jsonAjax(API.API_LIST.CAR_GOODS_DETAILS,{'userid':getUserid(),'id':I('id',0)},function (res) {
+            console.log(res.data);
+            if(res.status==1){
+                TitleReSet(res.data.name);
+                $(".cushion-wrap").html(render(res.data));
+                arr = res.data.arr;
+                WxShare.title = res.data.title;
+                WxShare.desc = res.data.desc;
+                WxShare.imgUrl = res.data.imgUrl;
+                WxShare.link = res.data.linkurl;
+                onWxShare();
+                //getBanner();
+                loadEnd();
+            }
+        })
+    }
+
+    $('.cs-db-btn').on('click',function () {
+        var pro_li = GetProductID ();
+        if(pro_li!=$('.choseSize').length){
+            inputTipsText('请选择产品规格');
+            return ;
+        }
+        var obj = M();
+        obj.id = I('id',0);
+        obj.product_id = product_id;
+        console.log(obj)
+        PageJumpTap('gotoDeterOrder',obj);
+    });
+
+    //计算当前选中的所有选中的规格项的情况.
+    function GetProductID () {
+        product_list = '';
+        var pro_li = 0;
+        $('.choseSize').each(function () {
+            $(this).find('ul li').each(function () {
+                if($(this).attr('class')=='active'){
+                    pro_li ++ ;
+                    if(product_list!=''){
+                        product_list += ',';
+                    }
+                    product_list += $(this).attr('choselistid');
+                }
+            });
+        });
+        product_list = ReSort(product_list);
+        if($('.product_id[list="'+product_list+'"]').length>0){
+            product_id = $('.product_id[list="'+product_list+'"]').attr('id');
+        }else{
+            product_id = 0;
+        }
+        return pro_li;
+    }
+
+    function ReSort(str){
+        var elements = str.split(',');
+        var r_str = "" ;
+        for(var i=0;i<elements.length-1;i++){
+            for(var j=0;j<elements.length-i-1;j++){
+                if(parseInt(elements[j])>parseInt(elements[j+1])){
+                    var swap=elements[j];
+                    elements[j]=elements[j+1];
+                    elements[j+1]=swap;
+                }
+            }
+        }
+        for (var i=0;i<elements.length;i++) { 
+            if(i!=0){
+                r_str += ',';
+            }
+            r_str += elements[i];
+        };
+        return r_str; 
+    }
+ 
+</script>
+</html>

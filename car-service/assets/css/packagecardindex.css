@@ -1,0 +1,393 @@
+html,body{height: 100%;}
+body{position: relative;}
+
+/*buy-car*/
+/*index.html*/
+.car-list-con{overflow-y: scroll;height:35rem;background-color:#eee;}
+.car-list{max-height: 40rem;}
+.car-list li{padding: 0 1rem 0 1.7rem;font-size: 1.6rem;margin-bottom: 1px;background-color: #fff; position: relative }
+.car-list li span{display: block;height: 5rem;line-height: 5rem;background: url('/web/car-service/assets/image/back2x.png') no-repeat center;background-position: 100% 50%;color: #333;background-size: 2.2rem;}
+.car-list li span .middle{margin-left: 4rem;}
+.car-list li span img{width: 3.5rem;height: 3.5rem;border-radius: 50%;vertical-align: middle;}
+.suspension-menu{bottom: 20rem;}
+.sus-icon{margin-left: 0;}
+.sus-cal-icon {
+    background: url('/web/car-service/assets/image/jisuanqi2x.png') left center no-repeat;
+    background-size: 2.8rem 2.8rem;
+    background-position: 0 .8rem;
+}
+.swiper_banner{
+    position: fixed;
+    bottom: 0;width: 100%;display: block;left: 0;overflow: hidden;height: 12rem;}
+.swiper_banner .del{position: absolute;top: 0;right: 0;width: 2rem;height: 2rem;background: url('/web/car-service/assets/image/close_ico.png') no-repeat center center;z-index: 9;border-radius: 50%;margin: .5rem;}
+/*.swiper-slide{position:absolute;z-index: 10;}*/
+.index-banner img{width: 100%;height: auto;display: block;height: 12rem;}
+.car-list>li:before{border:none;border-bottom:1px solid #ddd;}
+.swiper-pagination-bullet-active{background: #ff5555;}
+.wrap{
+    /*position: fixed;*/
+    width: 100%;
+    /*height: 100%;*/
+    overflow-x: hidden;  }
+.car-break,.car-models,.car{width:100%;position:absolute;left:100%;top:0;height:100%;}
+div.car-transition{-webkit-transition:left 0.3s linear;transition:left 0.3s linear;}
+div.car-middle{left:0;}
+
+
+
+
+/*car-baojia.html*/
+/*.baojia-wrap .banner-top img{height: 13.5rem;}*/
+.car-detail{display:inline-block;height: 10.25rem;margin:0 auto 2rem;padding: 2rem 0;}
+.car-detail .car-name{margin-bottom: 1rem;}
+.car-detail .price-range span{color: #333333;font-size: 2rem;}
+.car-detail .zhidao-range{font-size: 1.2rem;margin-top: .75rem;color: #999999;}
+.car-detail .zhidao-range img{position: absolute;right: -40px;bottom: 0;height: 2.6rem;}
+.baojia-detail h3{height: 3.5rem;font-weight: normal;margin-left: 1.5rem;line-height: 3.5rem;}
+.baojia-detail h3 span{padding-left: .75rem;font-size: 1.4rem;color: #333;border-left: 4px solid #ff5555;}
+.baojia-detail ul li{padding-left: 1.5rem;height: 8rem;
+   display:-webkit-box;display:-webkit-flex;display:flex;
+}
+.baojia-con{margin-top: 1.6rem;margin-bottom: 1.6rem;-webkit-box-flex:1;-webkit-flex:1;flex:1;}
+.baojia-con .title{font-size:1.4rem;color:#333;margin-bottom: 1rem;
+  overflow:hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+}
+.baojia-price{font-size: 1.6rem;color: #333;}
+.zhidao-price{font-size: 1.2rem;color: #999;}
+.baojia-detail .btn-group{margin:.9rem auto;padding:0 1.25rem;border-left: 1px solid #ddd;}
+.baojia-detail .btn-group .btn:first-child{margin-bottom: 1rem;}
+.baojia-detail .btn-group .btn{width: 6rem;height: 2.6rem;line-height:2.6rem;text-align: center;color: #fff;background: #ff5555;border-radius: 6px;font-size: 1.2rem;}
+/*无数据提示样式*/
+.no-record{width:100%;height:44rem;background:url('/web/assets/image/wudingdan_ico.png') center no-repeat;
+    background-size:8.7rem 8.7rem;background-color:#eee;
+}
+.no-record>span{display:block;float:left;margin:26rem 0 0 0;width:100%;text-align:center;color:#666;}
+
+
+/*reserve-drive.html*/
+.delText{width: 2rem;height: 2rem;background: url('/web/car-service/assets/image/close_ico.png') no-repeat;top: 50%;right: 0;background-size: 2rem;-webkit-transform:translateY(-50%);transform:translateY(-50%);z-index: 1;}
+.msg-contact{position: relative;border-radius:5px;}
+.msg-ph{background: #fff;margin-left: 1rem;margin-right: 1rem;height: 4.2rem;line-height: 4.2rem;}
+.msg-ph input{font-size: 1.4rem;height:100%;}
+.bd-radius{border-radius: 0.3rem;}
+.ph-contact{margin-right: 3.5rem;}
+.tj-btn{margin: 1.5rem 1rem 0;text-align: center;background: #ff5555;color: #fff;height: 4.1rem;line-height: 4.1rem;border-radius: 5px;}
+.pop-cover {height: 8rem;width: 20rem;background-color: #eee;transform: translate(-50%,-50%);top: 40%;left: 50%;position: absolute;border-radius: 10px;line-height: 8rem;font-size: 1.4rem;}
+.service{margin-top: 1.5rem;}
+.service img{width: 5.5rem;height: 5.5rem;border-radius: 50%;margin: 1.25rem 1.5rem 0 1.5rem;}
+.service .service-detail{margin-left: 8.5rem;padding-top: 2.1rem;}
+.service .service-detail .service-name{font-size: 1.6rem;color: #333;}
+.service .service-detail .service-contacts{font-size: 1.2rem;color: #ff8a00;padding-bottom: 1.25rem;}
+.service-contacts:before{border:none;border-bottom: 1px solid #ddd;}
+.choose-car:before,.bd-radius:before,.before:before{border:1px solid #ddd;-webkit-border-radius: 5px 5px ;border-radius:5px 5px;}
+.service-contacts span{font-size: 1.2rem;color: #ff8a00;height:2rem;line-height: 2rem;}
+.service-contacts .phone{background: url('/web/car-service/assets/image/phone_ico.png') no-repeat;background-position:left center;background-size:1.4rem 1.2rem;}
+.service-contacts .weixin{background: url('/web/car-service/assets/image/chat_ico.png') no-repeat;background-position:left center;background-size:1.4rem 1.2rem;}
+.service-contacts i{font-style: normal;text-decoration: underline;padding:0 0 0 1.5rem;}
+.weixin i{padding:0 0 0 2rem;}
+.greet{padding: 1rem 0;font-size: 1.2rem;color: #333;}
+.choose-car{background-image: url('/web/car-service/assets/image/back2x.png');background-position: 100% 50%;background-repeat: no-repeat;background-size: auto 2rem;}
+.sex{font-size: 1.2rem;color: #999;}
+.sex input[type="radio"]{background: url('/web/car-service/assets/image/no_sel_btn.png') no-repeat center center;background-size:auto 1.5rem;border-radius: 50%; }
+.sex label input{width:2.2rem;height:2rem;}
+#sex-man,#sex-female{margin-top: -.5rem;}
+.sex input[type="radio"].selected{background: url('/web/car-service/assets/image/sel_btn.png') no-repeat center center;background-size:auto 1.5rem;}
+
+/*advisory-price.html*/
+.tips{font-size: 1.2rem;color: #999;padding: 1rem 0;}
+.tips:before{content: "——";width: 1.25rem;margin-right: 1rem;}
+.tips:after{content: "——";width: 1.25rem;margin-left: 1rem;}
+
+/*calculator.html*/
+.current{color: #ff5555;}
+.current .triangle{width: 0;height: 0;position: absolute;border-width: 1rem 1.2rem 0;border-style: solid;border-color: #fff transparent transparent;top: 100%;left: 50%;z-index: 999;}
+.tabs-menu{font-size: 1.4rem;color: #333;height: 4.2rem;line-height: 4.2rem;}
+.tabs-menu .divide-line{width: 1px;height: 1.25rem;top: 50%;left: 50%;background: #ddd;-weblit-transform:translate(-50%,-50%); transform:translate(-50%,-50%);}
+.tabs-con .con-list{background: #ff5555;color: #fff;}
+.tabs-con .con-list span{margin-top:3.4rem;}
+.tabs-con .con-list span.cons{margin-top:6.25rem;-webkit-transform:translateY(-50%);-moz-transform:translateY(-50%);transform:translateY(-50%); }
+.tabs-con .con-list .total_money{margin-top: 1.5rem;}
+.tabs-con .con-list .total_money span{ font-size: 2.4rem;}
+.tabs-con .con-list .spend-detail{margin-bottom: 2.5rem;margin-top: 2.5rem;}
+.tabs-con .con-list .spend-detail li p:last-child{margin-top: 1.25rem;}
+.tabs-con .con-list .count-component {width: 9.9rem;border:1px solid #ddd;border-radius: 5px;font-size: 1.4rem;color: #999;height: 3rem;margin-top: .6rem;line-height: 3rem;}
+.count-component a{width: 2.8rem;height: 3rem;line-height: 2.5rem;display: block;text-align: center;font-size: 2rem;color: #999;position: absolute;top: 0;}
+.count-component a:nth-of-type(1){left: 0;}
+.count-component a:nth-of-type(2){right: 0;color: #ff5555;}
+.count-component .countval_box{margin-left: 3rem;margin-right: 3rem;border-left: 1px solid #ddd;border-right: 1px solid #ddd;}
+.count-component .countval_box input{width: 100%;}
+.cal-wrap .msg-ph{height: 4.2rem;line-height: 4.2rem;font-size: 1.4rem;color: #999;}
+.cal-wrap .items li{height: 4.2rem;line-height: 4.2rem;padding-left: 1rem;padding-right: 1rem;position: relative;}
+.cal-wrap .items li.head{height: 5rem;line-height: 5rem;background: url('/web/car-service/assets/image/jiantou1.png') no-repeat center center;background-position: 98% 50%;background-size: 2.5rem 2.5rem;}
+.cal-wrap .item-list input{width: 7rem;}
+.cal-wrap .item-list .change{font-size: 1.4rem;color: #ff8a00;margin-left: 1.5rem;position: absolute;right: 1rem;}
+.cal-wrap input.checkbox{width: 2.2rem;height: 2.2rem;background: url('/web/car-service/assets/image/no_sel_btn.png') no-repeat center center;background-size:auto 2.2rem;border-radius: 50%;vertical-align: middle;}
+.cal-wrap input.checkbox:checked{background: url('/web/car-service/assets/image/sel_btn.png') no-repeat center center;background-size:auto 2.2rem;}
+.cal-wrap i.condition{font-style: normal;font-size: 1rem;color: #ccc;}
+.cal-wrap .msg-ph{padding-left: 1rem;padding-right: 1rem;margin-left: 0;margin-right: 0;border-radius: 0;}
+
+/*confirm-money.html*/
+.amount-wrap .msg-ph{background: #fff;margin-left: 1rem;margin-right: 1rem;border-radius: 5px;height: 4.2rem;line-height: 4.2rem;padding-left: 1rem;color: #999;}
+.amount-wrap .msg-ph label{padding-left: 1rem;color: #333;}
+.amount-wrap .msg-ph label:before{position: absolute;left: 0;content: "￥"}
+.amount-wrap .msg-ph input{padding-left: 1rem;width: 5rem;font-size: 1.4rem;}
+.amount-wrap .ph-num{margin-right: 2rem;}
+.amount-wrap .ph-yzm{margin-right: 3.4rem;}
+.amount-wrap .color-red{color: #fe5e5e!important;}
+.amount-wrap .db-btn{background: #ff5555;padding: 1rem 0;margin-bottom: 1.55rem;color: #fff;border-radius: 5px;font-size: 1.5rem;}
+
+/*location.html*/
+.map-wrap{position: relative;font-size: 1.4rem;color: #333;}
+.map-wrap .head-map{height: 15rem;}
+.map-wrap .address-detail{padding: 0 1rem;}
+.map-wrap .address-detail .shop-name{border-left: 3px solid #ff5555;padding-left: .75rem;}
+.map-wrap .address-detail p{padding-left: .75rem;color: #999;}
+.map-wrap .db-btn{background: #ff5555;padding: 1.2rem 0;margin-bottom: 1.55rem;color: #fff;border-radius: 5px;margin-top: 2.5rem;font-size: 1.5rem;}
+.map-wrap .map-items{width: 90%;position: absolute;bottom: 1rem;left: 5%;}
+.map-wrap .map-items .map-list{width: 100%;padding: 1rem 0;background-color: #fff;border-radius: 5px;}
+
+/*pay-way.html*/
+.pay-wrap{font-size: 1.4rem;color: #333;}
+.pay-wrap .head-top .list-sum{margin:0 1rem;height: 4.2rem;padding-top: 1rem;}
+.pay-wrap .head-top .list-sum:last-child{height: 5.9rem;padding-left: 3.5rem;}
+.list-sum .money,.list-pay .money{color: #ff8e00;}
+.list-sum input[type="checkbox"]{background: url('/web/car-service/assets/image/no_sel_btn.png') no-repeat center center;position: absolute;left: 0;top: 1rem;width: 2rem;height: 2rem;background-size: 2rem 2rem;}
+.list-sum input[type="checkbox"]:checked{background: url('/web/car-service/assets/image/sel_btn.png') no-repeat center center; border-radius: 50%;}
+.pay-wrap .head-top .list-sum:last-child .money{margin-top: 1.1rem;}
+.pay-wrap .head-top .list-sum .available-mt{font-size: 1rem;color: #999;margin-top: .5rem;}
+.pay-way{margin-top: 2.5rem;}
+.pay-way .list-pay{height: 5.5rem;line-height: 5.5rem;padding: 0 1rem;}
+.pay-way .list-head{height: 4.2rem;line-height: 4.2rem;}
+.pay-way .list-pay .lingqian{margin-left: 4.5rem;margin-right: 4.5rem;}
+.pay-way .list-pay .lingqian .lingqian-detail{font-size: 1rem;color: #999;}
+.pay-way .list-pay img{width: 3.5rem;height: 3.5rem;border-radius: 10px;}
+.pay-way .list-pay .radios{width: 1.5rem;height: 1.5rem;right: 1rem;top: 45%;}
+.pay-way .list-pay .radios input{width: 100%;height: 1.5rem;background: url('/web/car-service/assets/image/pay/no_sel_btn.png') no-repeat center center;display: block;z-index: 100;background-size: 1.5rem 1.5rem;}
+.pay-way .list-pay .radios input:checked{background: url('/web/car-service/assets/image/pay/sel_btn2@2x.png') no-repeat center center;background-size: 1.5rem 1.5rem;}
+.pay-wrap .db-btn{background: #ff5555;padding: 1.2rem 0;margin-bottom: 1.55rem;color: #fff;border-radius: 5px;font-size: 1.5rem;}
+
+/*preferential.html*/
+.preference-wrap{background: #fff;}
+.preference-wrap .text-con,.text-title{margin-top: 1.5rem;font-size: 1.4rem;color: #333;}
+.preference-wrap .text-title{font-weight: bold;font-size: 1.5rem;}
+.preference-wrap .db-btn{background: #ff4444;padding: 1rem 0;margin-bottom: 1.55rem;color: #fff;border-radius: 5px;}
+
+/*reserve-success.html*/
+.suc-wrap{height: 100%;}
+.suc-wrap .success{margin-top: 5.5rem;margin-bottom: 2.5rem;}
+.suc-wrap .success > img{ display: inline-block; width: 10rem; height: 10rem;}
+.suc-wrap .success p{font-size: 1.8rem;color: #09bb07;margin-bottom: 2.5rem;margin-top: 1.25rem;}
+.suc-wrap p.text{font-size: 1.5rem;color: #333;}
+.suc-wrap .btn-group{margin-top: 2.5rem;}
+.suc-wrap .reserve-btn{background: #ff4444;margin-bottom: 2rem;}
+.suc-wrap .go-btn{background: #ffffff;color:#000 !important;margin-bottom: 3rem;}
+.suc-wrap .btn-group .btn{width: 20rem;height: 4rem;border-radius: 0.3rem;color: #fff;line-height: 4rem;}
+.suc-wrap .play{text-decoration: underline;color: #ff8e00;}
+
+
+
+/*keep-car*/
+/*evaluation-result.html*/
+.evaluate-wrap{position: relative;font-size: 1.4rem;}
+.evaluate-wrap .car-tips{font-size: 1.2rem;color: #333;padding: 1.2rem;line-height: 1.6;background-color:#fff;}
+.evaluate-wrap .deal-price{padding: 3.4rem 0;background: #ff5555;color: #fff;font-size: 1.8rem}
+.evaluate-wrap .deal-price p{font-size: 3rem;}
+
+/*illegal-list.html*/
+.illegal-wrap{font-size: 1.4rem;color: #fff;}
+.illegal-wrap .car-info{padding: 3.8rem 0;background: url('/web/car-service/assets/image/back@2x.png') no-repeat;background-position: 98% 50%;background-size: 2.2rem;background-color: #ff5555;}
+.illegal-wrap .tab-menus {height: 4.2rem;line-height: 4.2rem;color: #333;background-color: #fff;}
+.illegal-wrap .tab-menus li a{display: inline-block;width: 100%;height: 2.5rem;margin-top:.7rem;line-height: 2.5rem;border-right: 1px solid #ddd;}
+.illegal-wrap .tab-menus li:nth-child(4) a{border-right: 0;}
+.illegal-wrap .tab-menus li.on{position: relative;}
+.illegal-wrap .tab-menus li.on a{position: relative;color: #ff5555;}
+.illegal-wrap .tab-menus .on:after{content: '';position: absolute;width: 60%;height: 4px;bottom: 0;left: 20%;right: 20%;background-color: #ff5555;}
+.illegal-wrap .no-record{padding-top:7rem;color: #999;}
+
+/*referral-policy.html*/
+.policy-wrap{position: relative;font-size: 1.4rem;color: #fff;}
+.policy-wrap{height: 100%;}
+.policy-wrap .wrap-text{color: #999;padding: 1rem;}
+.policy-wrap .db-btn{background: #ff5555;padding: 1.2rem 0;color: #fff;border-radius: 5px;margin-top: 2.5rem;font-size: 1.5rem;bottom: 1.5rem;width: 90%;left: 5%;}
+/*goods-detail*/
+.cushion-wrap{position: relative;font-size: 1.4rem; padding-bottom: 5rem;}
+.cushion-wrap i{font-style: normal;}
+.cushion-wrap .swiper_banner{position: static;height: auto;}
+.cushion-wrap .seat-info{padding: 1rem;}
+.cushion-wrap .seat-info .car-tips{color: #4a96fd;border:1px solid #4a96fd;margin-left: 1.75rem;padding: .3rem;font-size: .8rem;}
+.cushion-wrap .seat-info .solded{color: #999;float: right;}
+.cushion-wrap .seat-info .price-range{color: #ff5555;font-size: 1.6rem;}
+.cushion-wrap .seat-info .car-text{padding: 1rem 0;border-top: 1px solid #ddd;color: #999;}
+.cushion-wrap .near-shop{height: 4rem;line-height: 4rem;color: #999;font-size: 1.2rem;}
+.cushion-wrap .near-shop span{width: 11.5rem;background-color: #ccc;height: 1px;vertical-align: middle;position: relative;}
+.cushion-wrap .near-shop span.line-l{margin-right: 1.35rem;}
+.cushion-wrap .near-shop span.line-l:after{content: '';width: .6rem;height: .6rem;border-radius: 50%;background-color: #ccc;position: absolute;right: -.6rem;top: -.3rem;}
+.cushion-wrap .near-shop span.line-r{margin-left: 1.35rem;}
+.cushion-wrap .near-shop span.line-r:after{content: '';width: .6rem;height: .6rem;border-radius: 50%;background-color: #ccc;position: absolute;left: -.6rem;top: -.3rem;}
+.car-service ul li{padding: 1rem;background: url('/web/car-service/assets/image/xuanze@2x.png') no-repeat right top;background-color: #fff;color: #999;}
+.car-service ul li h3{margin-bottom: 1.25rem;color: #333;}
+.car-service ul li .address{background: url('/web/car-service/assets/image/dizhi1_ico.png') no-repeat;background: left auto;padding-left: 1.5rem;background-size: 1.2rem;}
+.car-service ul li.service-item img{width: 4.75rem;height: 4.75rem;}
+.car-service ul li.service-item h3 img{width: 1.4rem;height:1.4rem;margin-left: .75rem;}
+.car-service ul li.service-item .info{margin-left: 6.25rem;}
+.car-service ul li.service-item .info .mark{color: #fe5e5e;}
+.car-service ul li.service-item .info span{margin-right: 1.75rem;}
+.cushion-wrap .push-up{height: 4.4rem;line-height: 4.4rem;}
+.cushion-wrap .push-up img{vertical-align: middle;width: 2.8rem;}
+.car-service .view-more{height: 3.3rem;line-height: 3.3rem;border-top: 1px solid #ddd;}
+.cs-db-btn{ background: #ff5555; height: 4.4rem; line-height: 4.4rem; color: #fff; font-size: 1.5rem;bottom: 0;left: 0;width: 100%; position: fixed;bottom: 0; }
+.cushion-wrap .index-banner img{width: 100%;height: auto;display: block;}
+
+.seat-info s{display: block;color: #cccccc;font-size: 1rem;margin-top: 0;}
+.choseColor,.choseSize{clear: both;padding:0 1rem 1rem;}
+.choseColor .title,.choseSize .title{color: #333333;border-top:1px solid #dddddd;padding-top: 1.5rem;}
+.choseColor ul li{position:relative; border:1px solid #dddddd;width: 3rem;height: 3rem;margin-right: 2rem;margin-top: 1.2rem;}
+.choseSize ul li{ border:1px solid #cccccc;padding: 0.5rem 1rem;border-radius: 0.2rem;margin-right:2rem;margin-top: 1.2rem; float: left;}
+.choseColor ul li.active:after{content:"✔";line-height:2rem;color:#ffffff;text-align:right;font-size:1rem;background:url('/web/car-service/assets/image/xuanzhon@2x.png') no-repeat center;background-size:cover;width: 1.5rem;height: 1.5rem; bottom: 0;right: 0;position: absolute;}
+.choseSize ul li.active{background-color:#eff4ff;color: #4A96FD; }
+.choseColor ul li.no,.choseSize ul li.no{ color: #999; background-color:#eee;}
+.content{display: none;}
+.content img{ width: 100%;}
+
+/*special-service.html*/
+.special-wrap{position: relative;font-size: 1.4rem;color: #999;}
+.special-wrap{height: 100%;}
+.special-wrap .tips{padding: 0;height: 3rem;line-height: 3rem;text-align: center;}
+.special-wrap ul li{height: 18.35rem;}
+.special-wrap ul li a{height: 100%;}
+.special-wrap ul li img{width: 100%;height: 100%;top: 0;left: 0;}
+.special-wrap .text{height: 3rem;line-height: 3rem;padding-left: 2rem;bottom: 0;left: 0;width: 100%;background-color: rgba(0,0,0,.8);color: #fff;z-index: 10;}
+
+/*******/
+.data-box{position:fixed;left:100%;top:0;z-index: 100; width:100%;min-height:100%;background-color:#eee;
+    -webkit-transition:left 0.3s linear;transition:left 0.3s linear;}
+.calculator-header{font-size: 1.4rem;text-align: center;position: relative;background: #dddddd;padding:1.1rem 0;}
+.calculator-header .close{top:1.25rem;right: 2rem;position: absolute;font-size: 1.2rem;color: #333333;}
+.list{background: #ffffff}
+.list li{border-bottom: 1px solid #dddddd;font-size: 1.4rem;padding:1rem 2rem;}
+.list li.cur{color: #ff5555;}
+div.show{left:0;-webkit-transition:left 0.3s linear;transition:left 0.3s linear;}
+.positioin{width:100%;overflow-x: hidden;}
+
+.btn-box {
+    text-align: center;
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0 1rem;
+}
+.btn-box .btn {
+    display: block;
+    width: 100%;
+    height: 4.1rem;
+    line-height: 4.1rem;
+    background: #ff5555;
+    border-radius: 0.3rem;
+    overflow: hidden;
+    text-align: center;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+input[type='text']:before{
+    content: '￥';
+}
+.dataBox{
+    display: none;
+}
+.itemsBox{
+    background: #fff; margin-top: 1rem;
+}
+.itemsBox .title{
+    height: 5rem;  line-height: 5rem; width: 100%; display: -webkit-box; display: -webkit-flex; display: flex;
+}
+.itemsBox .title .con-l{
+    -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; margin-left: 1rem; color: #999999;
+}
+.itemsBox .title .con-r{
+    width: 12rem;text-align: right;
+}
+.itemsBox .title .tb{
+    width: 4rem; height: 5rem; display: -webkit-box; display: -webkit-flex; display: flex;-webkit-box-pack: center; -webkit-justify-content: center;  justify-content: center;-webkit-box-align: center;
+    -webkit-align-items: center; align-items: center;
+}
+.itemsBox .title .tb i{
+    width: 2rem; height: 2rem; background: url('/web/car-service/assets/image/jiantou1.png') no-repeat; background-size: 100%; transition: all .3s;-webkit-transition: all .3s;-moz-transition: all .3s;transform:rotate(0deg); -moz-transform:rotate(0deg); -webkit-transform:rotate(0deg);
+}
+.itemsBox .title.show .tb i{
+    transform:rotate(180deg); -moz-transform:rotate(180deg); -webkit-transform:rotate(180deg);
+}
+.itemsBox .list{
+    width: 100%; display: -webkit-box; display: -webkit-flex; display: flex; height: 4.2rem; line-height: 4.2rem;
+}
+.itemsBox .list .con-l{
+    -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; margin-left: 1rem;
+}
+.itemsBox .list .con-l i{
+    width: 2.2rem; height: 2.2rem; background: url('/web/car-service/assets/image/no_sel_btn.png') no-repeat center center; background-size: auto 2.2rem;
+    border-radius: 50%; vertical-align: middle; display: inline-block; margin-right: .4rem;
+}
+.itemsBox .list.cur .con-l i{
+    background: url('/web/car-service/assets/image/sel_btn.png') no-repeat center center; background-size: auto 2.2rem;
+}
+.itemsBox .list .con-l span{
+    font-style: normal; font-size: 1rem; color: #ccc; padding-left: .4rem;
+}
+.itemsBox .list .con-c{
+    width: 9rem;  text-align: right;
+}
+.itemsBox .list .con-r{
+    width:4rem; text-align: center; color: #ff8a00;
+    background: url('/web/car-service/assets/image/back2x.png') no-repeat center;
+    background-size: 2rem auto;
+}
+.itemsBox .list .con-r.no{
+    background: none;
+}
+
+.chooseCar{
+    background-image: url('/web/car-service/assets/image/back2x.png');  background-position: 100% 50%;  background-repeat: no-repeat;  background-size: auto 2rem;
+    width: 100%; display: -webkit-box; display: -webkit-flex; display: flex; height: 4.2rem; line-height: 4.2rem; font-size: 1.4rem; color: #999;
+}
+.chooseCar .con-l,.carPrice .con-l{
+    width: auto; margin: 0 1rem;color:#999;
+}
+.chooseCar .con-r,.carPrice .con-r{
+    -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; margin-right: 2rem; color: #999;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;
+}
+.carPrice{
+    width: 100%; display: -webkit-box; display: -webkit-flex; display: flex; height: 4.2rem; line-height: 4.2rem; font-size: 1.4rem; color: #999;
+}
+.carPrice .con-r input{ width: 80%;font-size: 1.3rem;}
+
+.success .zy{
+    height: 4rem; line-height: 4rem; border: 1px solid #ccc; border-radius: 6px; width: 20.3rem; display: inline-block; background: #fff; color: #333333; margin-top: 8rem; font-size: 1.5rem;
+}
+.success .zy img{
+    width: 1.8rem; height: 1.8rem; margin-right: 1rem; position: relative; top:.3rem;
+}
+
+/*询底价弹窗*/
+.modal{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1040;display:none;overflow:hidden;-webkit-overflow-scrolling:touch;outline:0; height: 100%;width: 100%; background-color: rgba(0,0,0,0.7);}
+.modal.fade{ display: block;}
+.ol-content {
+    width: 23.9rem;
+    text-align: center;
+}
+.ol-pn {
+    font-size: 1.4rem;
+    padding: 1rem 0;
+}
+.ol-cover-btn {
+    height: 4.4rem;
+}
+.ol-cover-btn>a {
+    display: block;
+    float: left;
+    width: 50%;
+    line-height: 4.4rem;
+    color: #4a96fd;
+    font-size: 1.2rem;
+}
+.modal-content{ max-width:90%; position:relative; top: 40%; left: 50%; transform:translate(-50%,-50%); -webkit-transform:translate(-50%,-50%); background-color:#fff; -webkit-background-clip:padding-box; background-clip:padding-box; border-radius:6px; outline:0; -webkit-box-shadow:0 3px 9px rgba(0,0,0,.5); box-shadow:0 3px 9px rgba(0,0,0,.5);}
+/*询底价按钮*/
+.contact-btn{margin: 0 8rem;margin-top: 5rem;background: #fff;border: 1px solid #ccc;color: #333;background-image: url('/web/car-service/assets/image/phone2@2x.png');padding-left: 2rem;background-position: 1rem 50%;background-repeat: no-repeat;background-size: 2.5rem;}

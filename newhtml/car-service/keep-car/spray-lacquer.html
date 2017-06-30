@@ -1,0 +1,297 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>喷漆</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css"/>
+    <script type="text/javascript" src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+</head>
+<body>
+<!--没有设置车辆时的提示框-->
+<div class="bomb-box">
+    <div class="bomb">
+        <div scl-pe="before">您暂时未设置车辆，请先设置车辆</div>
+        <div><span>取消</span><span scl-pe="before">去设置</span></div>
+    </div>
+</div>
+<div class="noProject">
+    <img class="yy" style="height: 7.5rem; width: auto; margin-bottom: .5rem;" src="/web/car-service/assets/image/default@2x.png">
+    <p>暂无喷漆方案</p>
+</div>
+<div class="dataBox">
+</div>
+    <div style="margin-top: 1rem;">
+        <div class="input-box">
+            <label>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;款</label>
+            <span class="myCar" style="color: #333;">请选择你爱车的车型</span>
+            <span class="arrow"></span>
+        </div>
+        <div class="flex-box">
+            <div class="input-box box-item">
+                <label style="display:inline;">联&nbsp;&nbsp;系&nbsp;&nbsp;人</label>
+                <input class="name" type="text" value="" placeholder="请输入联系人"/>
+            </div>
+            <div class="chose-sex box-auto">
+                <label>男</label>
+                <span class="selected" sex="1" style="margin-right: 1rem;"></span>
+                <label>女</label>
+                <span class="no_select" sex="0"></span>
+                </div>
+            </div>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>手机号码</label>
+            <input class="pho" type="text" value="" placeholder="请输入手机号码"/>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>预约时间</label>
+            <input id="time" type="text" value="" placeholder="请选择预约时间"/>
+        </div>
+        <div class="btn-box">
+            <a class="btn">预约到店</a>
+        </div>
+    </div>
+
+    <div class="guwen" id="adviser" style="margin-top: 1.5rem;">
+
+    </div>
+    <div class="modal">
+        <div class="modal-content ol-content">
+            <div class="ol-pn">
+                <div><span class="ol-pn-text">联系顾问</span><span class="ol-cover-bname"></span></div>
+                <div class="ol-pn-number"></div>
+            </div>
+            <div class="ol-cover-btn" border="top"><a class="hv" id="btn-cancel">取消</a><a class="hv" border="left"  id="btn-confirm">确定</a></div>
+        </div>
+    </div>
+    <script  type="text/template" id="tmpl-data-getData">
+
+        <div class="lacTitle">
+            <span>漆面报价图</span>
+        </div>
+        <div class="price-display">
+            <img src="/web/car-service/assets/image/qimiantu@2x.png" alt="" width="100%"/>
+            {{~it.data:val:index}}
+            <div class="numBox {{?index==0}}show{{?}}" aid="{{=val.id}}">
+                {{
+                var item = it.data[index];
+                }}
+                {{~item.price:vol:i}}
+                <span place="{{=vol.place}}">{{=vol.price}}</span>
+                {{~}}
+            </div>
+            {{~}}
+        </div>
+        <div class="chose-color">
+            <div class="swiper-container index-pop">
+                <div class="swiper-wrapper">
+                    {{~it.data:val:index}}
+                    <div class="swiper-slide {{?index==0}}cur{{?}}" aid="{{=val.id}}">
+                        <div class="color" style="background-color:{{=val.hue}} ;"></div>
+                        <span>{{=val.content}}</span>
+                        {{?index==0}}
+                        <i></i>
+                        {{?}}
+                    </div>
+                    {{~}}
+                </div>
+            </div>
+        </div>
+        </script>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var render = getRender('tmpl-data-getData');
+    var detailid = 0;
+    var carID = I('carid',0);
+    var dataLoad = false;
+    var empLoad = false;
+
+    function onStart(){
+        $('.name').val(UserInfo.nickname);
+        $('.pho').val(UserInfo.mobile);
+//        $('.name').val(UserInfo.nickname);
+        console.log(UserInfo.sex,'...');
+        if(UserInfo.sex==2){
+            $('.chose-sex span[sex="1"]').attr('class','no_select');
+            $('.chose-sex span[sex="0"]').attr('class','selected');
+        }
+        getMyCar();
+        getEmployee(API.API_LIST.CAR_BUYCAR_LACQUERCOUNSELOR,$(".guwen"));
+
+
+    }
+    $('.input-box').attr('border','all ccc');
+
+    $('.dataBox').on('click',".chose-color .swiper-wrapper > div",function(){
+        var oid = $(this).attr('aid');
+        $(this).addClass('cur').append('<i></i>').siblings().removeClass('cur').find('i').remove().end();
+        console.log(oid);
+        $(".numBox[aid='"+oid+"']").addClass('show').siblings('div').removeClass('show');
+    });
+
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected').addClass('no_select');
+        $(this).removeClass('no_select').addClass('selected');
+    });
+
+    var now = new Date();
+    $('#time').mobiscroll().datetime({
+        theme: 'android-holo-light',
+        lang: 'zh',
+        display: 'bottom',
+        mode: 'scroller',
+        min: new Date(now.getFullYear(), now.getMonth(), now.getDate(),now.getHours(),now.getMinutes()),
+        max:new Date(now.getFullYear(), now.getMonth(), now.getDate()+30),
+        /*invalid: ['w0', 'w6', '5/1', '12/24', '12/25'],*/
+        dateOrder: 'Mddyy',
+        timeWheels: 'HHii',
+        rows:3,
+    });
+
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_LACQUER, {'userid': getUserid(),'detailid':carID},function (res) {
+            if(res.status == 1){
+                loyId = res.data.aid;
+                $('.noProject').hide();
+                $('.dataBox').show();
+                $('.dataBox').html(render(res));
+                swiper_pop = new Swiper('.index-pop', {
+                    slidesPerView: 4.5,
+                    loop : false,
+                    paginationClickable: true,
+                    lazyLoading : true,
+                    preloadImages: false,
+                    watchSlidesVisibility:true
+                });
+                dataLoad = true;
+                allLoadEnd();
+            }else {
+                $('.noProject').show();
+                $('.dataBox').hide();
+                dataLoad = true;
+                allLoadEnd();
+            }
+        });
+    }
+
+    function allLoadEnd(){
+        console.log(dataLoad,empLoad);
+        if(dataLoad&&empLoad){
+            loadEnd();
+        }
+    }
+
+    function getMyCar(){
+        var datas = {
+            userid:getUserid(),
+            carid:I('carid','0'),
+            source:1
+        };
+        jsonAjax(API.API_LIST.CAR_CARINFO_GETONECARINFO,datas,function (res) {
+            if(res.status == 1){
+                if(res.data.carid){
+                    $('.myCar').text(res.data.brand?res.data.brand:''+' '+(res.data.model==null?'':res.data.model)+' '+(res.data.detail==null?'':res.data.detail));
+                    mileage = res.data.mileage;
+                    carID = res.data.carid;
+                    detailid = res.data.detailid;
+                    getData();
+                }else{
+                    $('.bomb-box').show();
+                }
+            }else {
+                $('.bomb-box').show();
+            }
+            loadEnd();
+        });
+    }
+
+    $('.myCar').on('click',function(){
+        var obj = M();
+        obj.source = 'pq';
+        PageJump('gotoMyCar',JSON.stringify(obj));
+    });
+
+    $('.btn-box').on('click',function(){ //预约到店
+        var carName = $('.myCar').text();
+        if(carName =='请选择你爱车的车型'||carName==''||carName==null){
+            inputTipsText('请选择车型');
+            return false;
+        }
+
+        var nameNum = /^[A-Za-z0-9\u4E00-\u9FA5]{1,32}$/;
+        var nameVal = $('input.name').val();
+
+        if(nameVal==''){
+            inputTipsText('联系人不能为空');
+            return false;
+        }
+
+        if(!nameNum.test(nameVal)){
+            inputTipsText('联系人不能输入特殊字符');
+            return false;
+        }
+
+        if(nameVal.length>32||nameVal.length<=0){
+            inputTipsText('联系人字体不能超过16个，字符不能超过32个!');
+            return false;
+        }
+
+        if($('input#time').val()==''){
+            inputTipsText('请选择预约时间');
+            return false;
+        }
+
+        var phoneNum = /^1[34578]\d{9}$/;
+        var phoneValue = $('input.pho').val(); // 手机号
+
+        if(!phoneNum.test(phoneValue)){
+            inputTipsText('请输入正确的手机号');
+            return false;
+        }
+        var datas = {
+            userid:getUserid(),
+            detailid:carID,//用户添加的车的ID
+            sex:$('.chose-sex .selected').attr('sex'),//性别
+            contacts:$('input.name').val(),//联系人
+            time:$('input#time').val(),//保养时间
+            phone:phoneValue,//电话
+            advisorid:$('.info').attr('aid')==undefined?'0':$('.info').attr('aid'),//顾问ID
+            colorid:$('.swiper-wrapper > .cur').attr('aid')
+        }
+
+        jsonAjax(API.API_LIST.CAR_BUYCAR_LACQUEROK,datas,function (res) {
+            if(res.status == 1){
+                var obj = M();
+                obj.code = res.data.code;
+                obj.id = res.data.id;
+                obj.name = res.data.name;
+                obj.type = res.data.type;
+                PageJump('gotoKeepCarRS',obj);
+            }else {
+                inputTipsText(res.info);
+                BackKeepIndex();
+            }
+        });
+    })
+    //没有设置默认车辆时的提示框点击事件
+    $('.bomb').on('click','div>span',function(){
+        var index=$(this).index();
+        if(index===0){//取消
+            $('.bomb-box').hide();
+        }else if(index===1){//去设置
+            var obj = M();
+            obj.source = 'pq';
+            obj.car_id = carID;
+            PageJump('gotoMyCar',JSON.stringify(obj));
+        }
+    })
+
+</script>
+</html>

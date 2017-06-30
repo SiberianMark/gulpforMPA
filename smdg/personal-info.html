@@ -1,0 +1,272 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <title>查看个人详情</title>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/personal-info.css">
+    <style>
+      /*缺省样式*/
+      section .default{text-align:center;margin-top:6.4rem;}
+      section .default>img{height:6.3rem;}
+      section .default>p{margin-top:1.7rem;font-size:1.4rem;color:#999;}
+      section .playfun{width:20.4rem;margin:4.8rem auto 2.4rem auto;font-size:1.5rem;color:#333;text-align:center;height:4.1rem;line-height:4.1rem;}
+      section .playfun:before{border-radius:0.3rem;}
+      header > div:nth-child(2) .female{
+        background: url("/web/assets/image/smdg/nv_ico@2x.png") no-repeat;
+        background-size:100% 100%;
+      }
+      .modal {
+        background:#0d0d0d;
+      }
+      .modal img {
+        width: 100%;
+        position:absolute;
+        top:50%;
+        transform:translate(0,-50%);
+      }
+    </style>
+</head>
+<body>
+  <header class="detail-info">
+
+  </header>
+  <section>
+
+  </section>
+  <div class="modal"></div>
+
+  <script type="text/template" id='header-info'>
+    <div class="selfpic flex-x">
+      <div class="flex-y">
+        <img src="{{=it.data.photo}}" alt="" style="width:100%">
+      </div>
+    </div>
+    <div>{{=it.data.nickname}}
+    {{?it.data.sex==1}}
+      <span></span>
+    {{??it.data.sex==2}}
+      <span class="female"></span>
+    {{?}}
+      <img src="/web/assets/image/smdg/v{{=it.data.rank-1}}.png" />
+    </div>
+    <p>
+    {{?it.data.approve==1}}
+      <i></i>
+    {{?}}
+      <span>{{=it.data.introduce}}</span>
+    </p>
+    <ul class="clear">
+      <li scl-pe="before">嘀嘀号&nbsp&nbsp{{=it.data.userid}}</li>
+      <li class="fans" scl-pe="before">粉丝&nbsp&nbsp<span>{{=it.data.fans}}</span></li>
+      <li>关注&nbsp&nbsp{{=it.data.attention}}</li>
+    </ul>
+    <div class="clear">
+    {{?it.data.keep==0}}
+      <div class="care" style="margin-right:1.7rem" scl-pe="before"><span class="guanzhu">关注</span></div>
+    {{??it.data.keep==1}}
+      <div class="care havcare" style="margin-right:1.7rem" scl-pe="before"><span>已关注</span></div>
+    {{?}}
+      <div class="perword" scl-pe="before"><img src="/web/assets/image/smdg/sixin.png"/>私信TA</div>
+    </div>
+  </script>
+
+  <script type="text/template" id='info'>
+    {{for(i in it.data.record){ }}
+    <div class="records">
+      <div class="recordtop clear">
+        <p>TA的参赛记录</p>
+        <span>成就&nbsp&nbsp{{=it.data.achievement}}</span>
+        <span scl-pe='before'>参赛&nbsp&nbsp{{=it.data.cishu}}次</span>
+        <span scl-pe='before'>总积分&nbsp&nbsp{{=it.data.score}}</span>
+        <img src="/web/assets/image/smdg/chengjiu@2x.png" />
+      </div>
+      <ul class="recordwrap">
+        <li scl-pe='before'>
+          <div class="score">
+            <i></i>
+            <span class="scorename">{{=it.data.record[i].title}}</span>
+            {{?it.data.record[i].score==0}}
+            <span class="scoreico" style="background: url('/web/assets/image/smdg/jifen_wu@2x.png');background-size: 100% 100%;color: #999;font-size:1.5rem">未获得积分</span>
+            {{??}}
+            <span class="scoreico">获得<i style="font-style:normal;font-size:1.6rem">&nbsp{{=it.data.record[i].score}}&nbsp</i>积分</span>
+            {{?}}
+          </div>
+          <div class="group">
+            {{?it.data.record[i].game.length==0}}
+              <div class="double-wrap" style="background:url('/web/assets/image/smdg/yichangci+n@2x.png');width:2.4rem;height:2.1rem;background-size:100% 100%;position: absolute;left: 1.7rem;width: 2.4rem;"></div>
+            {{??it.data.record[i].game.length==1}}
+              <i></i>
+            {{??it.data.record[i].game.length>1}}
+              <ul>
+                <li class="double-wrap"></li>
+              {{for(k=1;k<it.data.record[i].game.length;k++){ }}
+                <li></li>
+              {{ } }}
+              </ul>
+            {{?}}
+            <p class="clear">
+              <span>组别</span>
+              <span style="float:right;color:#f5b617">{{=it.data.record[i].name}}</span>
+            </p>
+            <div>
+            {{for(j in it.data.record[i].game){ }}
+              <p class="clear">
+                <span>{{=it.data.record[i].game[j].type}}
+                {{?it.data.record[i].game[j].ranking!=''}}
+                <i>第{{=it.data.record[i].game[j].ranking}}名</i>
+                {{?}}
+                </span>
+                {{?it.data.record[i].game[j].grade!=''}}
+                <span style="float:right;font-weight:bold;color:#f5b617">{{=it.data.record[i].game[j].grade}}s</span>
+                {{?}}
+              </p>
+            {{ } }}
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    {{ } }}
+    {{?it.data.article.length!=0}}
+    <div class="appear">
+      <div class="naver">
+        TA发表的
+        <span>查看全部></span>
+      </div>
+      <div class="appearpic" article_id={{=it.data.article.id}} scl-pe='before'>
+        <div style="height: 19rem;text-align: center;width: 100%;overflow: hidden;"><img src="{{=it.data.article.image}}" /></div>
+        <p>{{=it.data.article.title}}</p>
+      </div>
+    </div>
+    {{?}}
+    <div class="gostock">
+    {{?it.data.type!=2}}
+      <p class="confirm-go" scl-pe='before'>TA的后尾箱</p>
+    {{?}}
+    </div>
+  </script>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+var uid = I("uid");
+var action = 0;
+var headRender=getRender("header-info");
+var sectionRender=getRender("info");
+var obj=M();
+
+
+function onStart(){
+  jsonAjax(API.API_LIST.CHECK_USER_INFO, {'userid':uid,'loginid':getUserid()}, function (data) {
+      if(data.status==1){
+        WxShare.title=data.data.share.title;
+        WxShare.imgUrl=data.data.share.img_link;
+        WxShare.link=data.data.share.share_link;
+        WxShare.desc=data.data.share.desc;
+        loadWxObject(true); //获取微信分享对象
+        $("header").html(headRender(data));//头部模板
+        $("section").html(sectionRender(data));//记录和发表文章模板
+        if(!data.data.introduce){
+          $("header>p span").css("margin-left",0);
+        };
+        //缺省状态
+        if(data.data.type==2&&data.data.article.length<=0&&data.data.record.length<=0){
+          $("section").html("<div class='default'><img src='/web/assets/image/smdg/che_icon.png' /><p>这个人真的好懒，什么都没有~</p></div><div class='playfun' scl-pe='before'>看点好玩的</div>");
+          //跳转嘉年华首页
+          $("section").on("click",".playfun",function(){
+            Interface('gotoCarnivalHome');
+          });
+        };
+        //关注功能
+        $(".care").on("click",function(){
+          var _this=$(this);
+          var fansNum = parseInt($(".fans").find("span").text());
+          isLogin(function(ret){//验证登录
+            if(ret){
+              if(uid!=getUserid()){
+                if($(".havcare").length>0){
+                  _this.removeClass("havcare");
+                  _this.find("span").addClass("guanzhu");
+                  _this.find("span").text("关注");
+                  action = 1;
+                }else{
+                  _this.addClass("havcare");
+                  _this.find("span").removeClass("guanzhu");
+                  _this.find("span").text("已关注");
+                  action = 0;
+                };
+              }
+              jsonAjax(API.API_LIST.GOLD_PLAY_DOFOLLOW, {'userid':getUserid(),'action':action,'other_id':uid}, function (res) {
+                if(uid==getUserid()){
+                  inputTipsText('亲，不可以关注自己哦！');
+                };
+                if(res.status == 1) {
+                  if(action == 0) {
+                    $(".fans").find("span").text(fansNum+1);
+                  }else if(action == 1) {
+                    $(".fans").find("span").text(fansNum-1);
+                  }
+                }
+              });
+            };
+          });
+        });
+        //私信TA(跳转下载APP)
+        $(".perword").on("click",function(){
+            Interface('downApp',obj);
+        });
+
+        //点击头像预览图片
+        var img = "<img src="+data.data.photo+" >"
+        $(".selfpic").on("click","div img",function(e) {
+          e.stopPropagation();
+          if($(".modal").find("img").length == 0) {
+            $(".modal").html(img);
+          }
+          $(".modal").show();
+        });
+        $(".modal").on("click",function() {
+          $(this).hide();
+        });
+
+        //点击查看个人相册
+        $(".selfpic").on("click tap",function() {
+          obj.uid=uid;
+          obj.nickname=encodeURIComponent(data.data.nickname);
+          Interface('gotoPicShow',obj);
+
+        })
+
+        //跳转后尾箱
+        $(".gostock").on("click",".confirm-go",function(){
+          if(data.data.type==0){
+            obj.brandid=data.data.brandid;
+            Interface("gotoBrand",obj);
+          }else if(data.data.type==1){
+            redirect(data.data.link);
+          };
+        });
+        //跳转TA发布的全部文章
+        $(".naver").on("click","span",function(){
+          obj.uid=uid;
+          Interface('gotoArticleinfo',obj);
+        });
+        //跳转TA发布的当前文章
+        $(".appearpic").on("click",function(){
+          obj.id=$(this).attr("article_id");
+          Interface('gotoBrandNote',obj);
+        });
+        //跳转参赛记录
+        $(".records").on("click",function(){
+          obj.uid=uid;
+          Interface('gotoEntryInfo',obj);
+        });
+      };
+  loadEnd();
+  });
+}
+</script>
+</html>

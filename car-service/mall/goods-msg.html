@@ -1,0 +1,644 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title></title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/pro-list.css">
+    <link rel="stylesheet" href="/web/pub-acct/assets/css/weui.css">
+    <script src="/web/pub-acct/assets/js/swiper3.3.1.min.js"></script>
+    <link rel="stylesheet" href="/web/pub-acct/assets/css/swiper-3.3.1.min.css">
+    <script src="/web/pub-acct/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+</head>
+<body>
+<div class="attention-now"><a href="javascrip:;"></a></div>
+<div class="modal" id="shareEwm">
+    <div class="box">
+        <div>关注本店公众号</div>
+        <div>获得更多优惠活动</div>
+        <div><img src="/web/pub-acct/assets/image/qr_code.png"></div>
+        <div>长按二维码识别关注</div>
+        <i></i>
+    </div>
+</div>
+<div class="modal" id="showSharePic">
+    <div class="sharepic-right">
+        <img src="/web/assets/image/fenxiangtishi_ico.png"></div>
+</div>
+<div id="container">
+    <script type="text/template">
+        <div class="mall-top">
+            <div class="swiper-container index_banner">
+                <div class="swiper-wrapper">
+                    {{
+                    imgArr =  it.data.img.split(',');
+                    }}
+                    {{for(var i=0; i < imgArr.length; i++){}}
+                    <div class="swiper-slide swiper-slide-prev" ><img src="{{=imgArr[i]}}"></div>
+                    {{ }}}
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+        <div class="pro-head">
+            <div class="title">{{=it.data.name}}</div>
+            <div class="price">
+                <span><i>{{=it.data.min_price}}-{{=it.data.max_price}}</i>积分</span> <i>{{=it.data.market_price}}积分</i>
+                {{?it.data.free_freight=='1'}}
+                免运费
+                {{??}}
+                {{='运费：'+it.data.postage}}
+                {{?}}
+            </div>
+            <div class="labels">
+                <span><img src="/web/pub-acct/assets/image/ico01.png">实物拍摄</span>
+                <span><img src="/web/pub-acct/assets/image/ico01.png">消费保证</span>
+                <span><img src="/web/pub-acct/assets/image/ico01.png">假一罚十</span>
+            </div>
+            {{?it.data.content!=null&&it.data.content.length>0}}
+            <div class="depict" border="bottom">
+                {{=it.data.content}}
+            </div>
+            {{?}}
+            {{?it.data.privilege==1}}
+            <div class="hasDraw bgwh" border="top">
+                <p class="car-text">
+                    <img src="/web/car-service/assets/image/mall/ico_youhuiquan@2x_13.png"> 点击进入领取优惠券
+                </p>
+            </div>
+            {{?}}
+        </div>
+        {{? !isEmptyObject(it.data.temp)}}
+        <div class="select">选择{{=goods_specifications}}<i></i></div>
+        {{?}}
+        {{?it.data.res.length>0}}
+        {{for(var index=0;index < it.data.res.length;index++) { }}
+        {{item = it.data.res[index];}}
+        <div class="comment-list" border="top">
+            <div class="comment">
+                <div><img src="{{=item.photo}}"></div>
+                <div><span>{{=item.nickname}}</span></div>
+                <div><span>{{=item.comment_time}}</span></div>
+            </div>
+            <p class="comment-info">{{=item.contents}}</p>
+
+            {{?item.image && item.image != null && item.image != undefined && item.image != "" && item.image.length > 0}}
+            {{
+            imgArr =  item.image.split(',');
+            }}
+            <ul class="users-proimg clear content-img">
+                {{ for(var j=0; j < imgArr.length; j++){ }}
+                <li>
+                    <a><img src="{{=imgArr[j]}}"></a>
+                </li>
+                {{ } }}
+            </ul>
+            {{?}}
+            {{? item.feedback != null }}
+            <div class="business-reply"><strong>店长回复：</strong>{{=item.feedback}}</div>
+            {{?}}
+        </div>
+        {{ } }}
+        <div class="view-all_comment">
+            <span>查看全部评论</span>
+        </div>
+        {{?}}
+
+        <div class="more" onclick="javascript:var A = getElementById('detail');A.style.display='block';showDetail(this,A);">点击查看详情</div>
+        <div class="content" style="display:none;" id="detail">
+            {{?it.data.detail!=null}}
+            {{=it.data.detail.decodeHtml()}}
+            {{?}}
+        </div>
+        <div id="actionSheet_wrap">
+            <div id="mask" class="weui_mask_transition" style="display: none;"></div>
+            <div id="weui_actionsheet" class="weui_actionsheet">
+                <i class="close"></i>
+                <div class="select-box">
+                    <div class="pic" border="bottom">
+                        <img style="display: none" src="{{=it.data.img}}">
+                        <p>
+                            <span>
+                                {{?it.data.arr.length>0}}
+                                {{=it.data.arr[0].price}}
+                                {{??}}
+                                {{=it.data.sell_price}}
+                                {{?}}
+                            </span>积分
+                        </p>
+                    <span><em>选择</em>
+                        {{for(var index in it.data.temp) { }}
+                        {{var item=it.data.temp[index];}}
+                        <i>{{=item.key_name}}</i>
+                        {{}}}
+                    </span>
+                    </div>
+                    <div class="sort" border="bottom">
+                        {{for(var index in it.data.temp) { }}
+                        {{var item=it.data.temp[index];}}
+                        <div class="tit">{{=item.key_name}}</div>
+                        <ul class="norms">
+                            {{$.each(item.list,function(key,value){ }}
+                            <li data-aid="{{=key}}" class="{{=orgin_norms.indexOf(key)>=0?'':'no'}}">{{=value}}</li>
+                            {{ console.log(orgin_norms.indexOf(key),'000000');}}
+                            {{});}}
+                        </ul>
+                        {{}}}
+                    </div>
+                    <div class="buy-num" border="bottom">
+                        购买数量
+                        <div class="item-amount ">
+                            <a class="minus">-</a>
+                            <input type="text"  placeholder="1" class="text-amount">
+                            <a class="plus">+</a>
+                        </div>
+                    </div>
+                    <div class="goods-foot">
+                        <div class="pro-add hr">
+                            <span>加入购物车</span>
+                        </div>
+                        <div class="pro-buy hr">
+                            <span>立即购买</span>
+                        </div>
+                    </div>
+                    <div class="button">确定</div>
+                </div>
+
+            </div>
+        </div>
+    </script>
+</div>
+<div class="goods-foot">
+    <div class="wx-ico hv nowx">
+        <span>分享</span>
+    </div>
+    <div class="dp-ico gotoBrand hv" border="left">
+        <span>店铺</span>
+    </div>
+    <div class="pro-buy hv">
+        <span>立即购买</span>
+    </div>
+    <div class="buyNull">已售罄</div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/pub-acct/assets/js/load.foot.js"></script>
+<script>
+    var sys_item = '';
+    var sys_temp=null;
+    var product_id=null;
+    var applyCount = 1; //产品购买数量 默认1
+    var MAX_COUNT; //产品最大库存
+    var select_norms=0;
+    var orgin_norms=[];
+    var num_step=1;//输入框加减步长值
+    var hasNorms = 0; //产品是否有规格 默认否
+    var source = I('source','');
+    var customer_sign=0;//客户拥有的积分金额
+    var sell_sign=0;//当期商品需要的积分金额
+    var is_sign;//当期客户是否拥有购买的权限；
+    var quota = 0;//兑换限制
+    var goods_specifications=[];//商品规格
+    //分享引流
+    if(I('share')==1){
+        $('.attention-now').show();
+    }else {
+        $('.attention-now').hide();
+    }
+
+    function onStart() {
+        getData();
+        getCustomerSign();
+    }
+
+    function onWxReady(){
+        jsonAjax(API.API_LIST.CAR_SIGN_GOODDETAILS,{'userid': getUserid(),'id':I('id','')},function(data) {
+            if (data.status == 1) {
+                WxShare.title = data.data.share.title;
+                WxShare.desc = data.data.share.desc;
+                WxShare.imgUrl = data.data.share.imgUrl;
+                WxShare.link = data.data.share.linkurl;
+                onWxShare();
+            }
+        });
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_SIGN_GOODDETAILS,{'userid': getUserid(),'id':I('id','')},function(data){
+            if(data.status == 1){
+                TitleReSet (data.data.name);
+                sys_item = data.data;
+                sys_temp = data.data.temp;
+                sell_sign=data.data.sell_price;
+                quota = data.data.quota;
+                for(var n in sys_item.arr){
+                    orgin_norms.push(sys_item.arr[n].specification);
+                    if(sys_item.arr[n].specification){
+                        if(sys_item.arr[n].specification.length>0
+                            &&sys_item.arr[n].specification.indexOf(',')>0){
+                            var _arr = sys_item.arr[n].specification.split(',');
+                            for(var i in _arr){
+                                orgin_norms.push(_arr[i]);
+                            }
+                        }
+                    }
+                    console.log(orgin_norms,'orgin_norms');
+                }
+                for(var index in sys_temp) {
+                    goods_specifications.push(sys_temp[index].key_name);
+                }
+                var buyNull =  parseInt(data.data.store_nums); //获取库存判断售罄状态
+                if(buyNull==0){
+                    $('.goods-foot .pro-add,.goods-foot .pro-buy').hide();
+                    $('.goods-foot .buyNull').show();
+                }
+                if(!isEmptyObject(data.data.temp)){
+                    hasNorms = 1;
+                    console.log('hasNorms',hasNorms);
+                }else {
+                    console.log('hasNorms',hasNorms);
+                }
+                doTer(data,$('#container'));
+                new Swiper('.index_banner', {
+                    speed: 500,
+                    autoplay: 3000,
+                    pagination: '.swiper-pagination',
+                    paginationClickable: false,
+                    autoplayDisableOnInteraction: false
+                });
+                $('.select').on('click', function () {
+                    $('#mask').addClass('weui_fade_toggle').show();
+                    $('#weui_actionsheet').addClass('weui_actionsheet_toggle');
+                    $('.select-box .pic img,.goods-foot').show();
+                    $('.button').hide();
+                });
+                $('#weui_actionsheet i').on('click', function () {
+                    $('#mask').removeClass('weui_fade_toggle').hide();
+                    $('#weui_actionsheet').removeClass('weui_actionsheet_toggle');
+                    $('.select-box .pic img').hide();
+                });
+                var norms_index=0;
+                $.each(sys_temp,function(key,value){
+                    console.log('#########',key,value);
+                    $('.norms').eq(norms_index).attr('norms',key);
+                    $('.pic>span>i').eq(norms_index).attr('norms',key);
+                    norms_index++;
+                });
+                //商品规格选择
+                $(".sort ul").each(function(){
+                    var i=$(this);
+                    var p=i.find("li");
+                    p.click(function(){
+                        if($(this).hasClass('no')){
+                            return;
+                        }
+                        select_norms=i.attr('norms');
+                        if(!!$(this).hasClass("cur")){
+                            $(this).removeClass("cur");
+                            i.removeAttr("data-attrval");
+                            $(".pic>span>i[norms="+select_norms+"]").show();
+                            $(".pic>span>em").text('选择');
+                        }else{
+                            $(this).addClass("cur").siblings("li").removeClass("cur");
+                            i.attr("data-attrval",$(this).attr("data-aid"));
+                            $(".pic>span>i[norms="+select_norms+"]").hide();
+                        }
+                        //getattrprice(); //输出价格
+                        var all_sel=true;
+                        var sel_string='';
+                        var sel_val='';
+                        $.each($('.norms'),function(index,obj){
+                            console.log('hasClass',$(obj).children().hasClass('cur'));
+                            if($(obj).children().hasClass('cur')){
+                                if(sel_string!=''){
+                                    sel_string+=' ';
+                                }
+                                if(sel_val!=''){
+                                    sel_val+=','
+                                }
+                                sel_string+=$(obj).find('.cur').text();
+                                sel_val+=$(obj).attr('data-attrval');
+                            }else{
+                                all_sel=false;
+                            }
+                        });
+
+                        var norms_id=$(this).parent().attr('norms');
+                        var aid=i.find('.cur').attr('data-aid');
+                        var spec_index=objIndexOfArray(sys_item.arr,orderNumber(sel_val));
+                        var type=getattrprice(spec_index);
+                        if(type){
+                            $(this).removeClass("cur")
+                            return;
+                        }
+                        if(all_sel){
+                            $(".pic>span>em").text('已选择 '+sel_string);
+                        }
+                        $.each(sys_temp,function(key,value){
+                            if(key!=norms_id){
+                                console.log('norms_id '+norms_id,'aid '+aid);
+                                if(aid){
+                                    $.each($('.norms[norms='+key+']>li'),function(x,obj_norms){
+                                        var obj_aid = $(obj_norms).attr('data-aid');
+                                        var _tmp=orderNumber(aid+','+obj_aid);
+                                        spec_index=objIndexOfArray(sys_item.arr,_tmp);
+                                        console.log(x,_tmp);
+                                        if(orgin_norms.indexOf(_tmp)>=0&&spec_index>=0){
+                                            console.log('库存',sys_item.arr[spec_index].store_num);
+                                            if(parseInt(sys_item.arr[spec_index].store_num)>0){
+                                                $('.norms[norms='+key+']>li').eq(x).removeClass('no');
+                                            }else{
+                                                $('.norms[norms='+key+']>li').eq(x).addClass('no');
+                                            }
+                                        }else{
+                                            $('.norms[norms='+key+']>li').eq(x).addClass('no');
+                                        }
+                                    });
+                                }else if(!i.siblings('.norms').children().hasClass('cur')){
+                                    resetNorms();
+                                }
+                            }
+                        });
+                    });
+                });
+                if(I('source')=='mall'){ //来源：商城
+                    $('.suspension-menu,.dp-ico,.pro-add').hide();
+                    $('.pro-buy').css('background-color','#f55');
+                }
+                loadEnd();
+            }
+        })
+    }
+    function objIndexOfArray(arr,key){
+        var index=-1;
+        for(var i in arr){
+            if(arr[i].specification==key){
+                index=i;
+                break;
+            }
+        }
+        return index;
+    }
+    function orderNumber(number){
+        var arr=number.split(',');
+        for(var i=0;i<arr.length;i++){
+            for(var j=i;j<arr.length;j++){
+                if(parseInt(arr[i])>parseInt(arr[j])){
+                    var tmp=parseInt(arr[i]);
+                    arr[i]=arr[j];
+                    arr[j]=tmp;
+                }
+            }
+        }
+        return arr.toString();
+    }
+    function resetNorms(){
+        $.each($('li[data-aid]'),function(index,obj){
+            if(orgin_norms.indexOf($(obj).attr('data-aid'))>=0){
+                $(obj).removeClass('no');
+            }else{
+                $(obj).addClass('no');
+            }
+        });
+    }
+    //获取对应属性的价格
+    function getattrprice(index){
+        console.log("getattrprice index "+index);
+        if(sys_item.arr.length>0){
+            var prece=sys_item.arr[index].price
+        }else{
+            var prece= sys_item.sell_price;
+        }
+        console.log(prece);
+        if(prece==0){
+            inputTipsText('不支持兑换该商品');
+            return true;
+        }
+        if(index>=0){
+            $('.pic img').attr('src',sys_item.arr[index].img);
+            $('.pic > p > span').text(sys_item.arr[index].price);
+            product_id = sys_item.arr[index].product_id;
+            MAX_COUNT = sys_item.arr[index].store_num;
+            console.log('getattrprice',sys_item.arr[index].product_id,sys_item.arr[index].price,sys_item.arr[index].img,product_id,MAX_COUNT);
+        }else {
+            $('.pic img').attr('src',sys_item.img);
+            $('.pic > p > span').text(sys_item.sell_price);
+            product_id = null;
+        }
+    }
+    //获取当期客户拥有的积分数额
+    function getCustomerSign(){
+        jsonAjax('car/sign/myIntegral',{userid:getUserid(),wxappid: $.cookie('wxappid')},function(data){
+            if(data.status==1){
+                customer_sign=data.data;
+            }
+        })
+    }
+    $('.goods-foot').on('click','.pro-add.hv',function () {//加入礼品车事件1
+        if(hasNorms==1){
+            $('#mask').addClass('weui_fade_toggle').show();
+            $('#weui_actionsheet').addClass('weui_actionsheet_toggle');
+            $('.select-box .pic img,.goods-foot').show();
+            $('.button').hide();
+        }else {
+            AddCart (I('id'));
+            getCarInfo();
+        }
+
+    });
+    $('#container').on('click','.pro-add.hr',function () {//加入礼品车事件2
+        console.log(product_id);
+        if(product_id == null){
+            inputTipsText('请选择商品规格');
+        }else {
+            console.log('提交参数',I('id'),product_id,applyCount);
+            AddCart (I('id'));
+            getCarInfo();
+            $(".norms li").each(function(){
+                $(this).removeClass('cur');
+            });
+            $('.text-amount').val('');
+            $('#mask').removeClass('weui_fade_toggle').hide();
+            $('#weui_actionsheet').removeClass('weui_actionsheet_toggle');
+            $('.select-box .pic img').hide();
+        }
+
+    });
+
+    //减
+    $(document).on('tap','.minus',function(){
+        if(product_id == null){
+            inputTipsText('请选择商品规格');
+        }else {
+            var num = parseInt($('.text-amount').val()==''?num_step:$('.text-amount').val());
+            num-=num_step;
+            if(num < num_step){
+                $('.text-amount').val(num_step);
+                return;
+            }else{
+                $('.text-amount').val(num);
+            }
+            applyCount =  num;
+        }
+    });
+    //加
+    $(document).on('tap','.plus',function(){
+        if(product_id == null){
+            inputTipsText('请选择商品规格');
+        }else {
+            var num = parseInt($('.text-amount').val() == '' ? num_step : $('.text-amount').val());
+            num += num_step;
+            if(num > MAX_COUNT){
+                inputTipsText('数量超过该商品库存');
+                return;
+            }else if(num > quota && quota!=0){
+                inputTipsText("数量超过兑换数量");
+                return;
+            }else{
+                if(num%num_step != 0){
+                    num = Math.floor(num/num_step)*num_step;
+                }
+                $('.text-amount').val(num);
+            }
+            applyCount = num;
+        }
+    });
+    //输入购买数量
+    $(document).on('keyup','.text-amount',function(){
+        if(product_id == null){
+            inputTipsText('请选择商品规格');
+            $('.text-amount').val(num_step);
+        }else {
+            $(this).val($(this).val().replace(/\D/g,''));
+            //$(this).val(($(this).val()==0)?1:$(this).val());
+            var num = parseInt($('.text-amount').val());
+            applyCount = num;
+            if(num > MAX_COUNT){
+                inputTipsText('数量超过该商品库存');
+                $('.text-amount').val(MAX_COUNT);
+                applyCount = MAX_COUNT;
+            }else if(num > quota && quota!=0){
+                inputTipsText("数量超过兑换数量");
+                $('.text-amount').val(quota);
+                applyCount = quota;
+            }
+        }
+    });
+    //立即购买
+    $(document).on('click','.pro-buy.hv',function () {
+        console.log('...1');
+        if(hasNorms == 1){
+            $('#mask').addClass('weui_fade_toggle').show();
+            $('#weui_actionsheet').addClass('weui_actionsheet_toggle');
+            $('.select-box .pic img,.button').show();
+            $('.select-box .goods-foot').hide();
+        }else {
+            if(+sell_sign===0){
+                inputTipsText('不支持兑换该商品');
+                return false
+            }
+            if(+sell_sign>+customer_sign){
+                inputTipsText('您的积分余额不足！');
+                return false
+            }
+            var obj = M();
+            obj.goods_id = I('id');
+            obj.source = I('source','');
+            PageJump('gotoMallOrder',JSON.stringify(obj));
+        }
+    });
+    $(document).on('click','.button,.pro-buy.hr',function(){
+        console.log('......');
+        var all_price=+($('.pic').find('p').find('span').text())*+($('.text-amount').val()?$('.text-amount').val():1);
+        if(product_id == null){
+            inputTipsText('请选择商品规格');
+        }else if(MAX_COUNT<=0){
+            inputTipsText('商品库存不足');
+        }else if(+all_price>+customer_sign){
+            inputTipsText('您的积分余额不足！');
+        }else {
+            var obj = M();
+            obj.goods_id = I('id');
+            obj.product_id = product_id;
+            obj.source = I('source','');
+            obj.num = applyCount;
+//            console.log(obj);
+//            return
+            PageJump('gotoMallOrder',JSON.stringify(obj));
+        }
+    });
+
+    //隐藏分享提示层
+    $('#showSharePic').on('click',function(){
+        $(this).removeClass("fade");
+    });
+    $('.wx-ico').on('click',function(){
+        $("#showSharePic").addClass("fade");
+    });
+
+    //跳转页面到评论列表
+    $('#container').on('click','.view-all_comment',function(){
+            var obj = new Object();
+            obj.goodsid = I('id',0);
+            PageJump('gotoCLIST',obj);
+    });
+
+    //店铺首页
+    $('.goods-foot .gotoBrand').on('click',function(){
+        PageJump('gotoBrandCommend');
+    });
+
+    function isEmptyObject(e) {
+        var t;
+        for (t in e)
+            return !1;
+        return !0
+    }
+
+    $('.attention-now a').on('click tap',function (event){
+        event.stopPropagation();
+        $('.attention-now').hide();
+    });
+
+    $('.attention-now').on('click tap',function(){
+        $('#shareEwm').show();
+    });
+
+    $('#shareEwm i').on('click tap',function(event){
+        event.stopPropagation();
+        $('#shareEwm').hide();
+    });
+
+
+    function JumpAfterSharing(){
+        jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,{'rid':I('id',''),'source':2,'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+            }
+        })
+    }
+
+    if(is_weixn(true)){//微信环境
+        //微信预览图片的接口.
+        $("#container").on("click", ".content img", function (event) {
+            //预览图片接口
+            var imgArray = [];
+            var curImageSrc = $(this).attr('src');
+            if (curImageSrc) {
+                $("#container .content img").each(function (index, el) {
+                    var itemSrc = $(this).attr('src');
+                    imgArray.push(itemSrc);
+                });
+                wx.previewImage({
+                    current: curImageSrc,   // 当前显示图片的http链接
+                    urls: imgArray  // 需要预览的图片http链接列表
+                });
+            }
+        });
+    }
+    function showDetail(_self,_A){
+        $(_self).hide();
+        $('body').animate({scrollTop:$(_A).offset().top},1000);
+    }
+</script>
+</html>

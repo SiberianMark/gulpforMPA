@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>保养</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/maintenance.css">
+</head>
+<body>
+    <div class="maintenance-wrap">
+        <ul class="list">
+            <li class="item">
+                <div class="item-head">
+                    <span class="car-name">雅阁</span>
+                    <span>粤B6F11C</span>
+                </div>
+                <div class="item-data">
+                    <div class="mileage">
+                        <span class="circle"><i class="db" id="sylc">10000</i>km</span>
+                        <p>剩余保养里程</p>
+                    </div>
+                    <div class="days">
+                        <span class="circle"><i class="db" id="syts">36</i>天</span>
+                        <p>剩余保养天数</p>
+                    </div>
+                </div>
+                <div class="item-bottom">
+                    <div>上次保养里程:6000km</div>
+                    <div>上次保养日期:2016-06-10</div>
+                </div>
+            </li>
+        </ul>
+        <div class="btn-box">
+            <div class="btn"><a href="baoyan.html" style="color: #333;">预约保养</a></div>
+            <div class="btn"><a href="youhui.html" style="color: #333;">优惠套餐</a></div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+
+    function onStart(){
+        var mileage=I('mileage',1000);
+        $(".mileage i").html(mileage==''?1000:mileage);
+        loadEnd();
+
+        $(".item").on('click',function(){
+            var sylc = $("#sylc").text();
+            var syts = $("#syts").text();
+            location.href = "/web/car-service/demo/detail.html?mileage="+mileage+"&sylc="+sylc+"&syts="+syts;
+        });
+    }
+</script>
+</html>

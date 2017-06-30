@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>积分</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/member.css"/>
+</head>
+<body class="no-sign-box">
+<section class="sign-section">
+    <!--未签到-->
+    <div class="no-sign"><img src="/web/car-service/assets/image/mall/bg.jpg" alt=""/></div>
+    <!--已签到-->
+    <div class="sign"><img src="/web/car-service/assets/image/mall/bg2.jpg" alt=""/></div>
+    <!--主体页面-->
+    <div class="center-box">
+        <ul class="flex-x-about integral" >
+            <li><span></span>积分</li>
+            <li class="flex-center"><span></span>签到攻略</li>
+        </ul>
+        <div class="shop-submit">前往商城 ></div>
+        <ul class="sign-submit flex-top flex-y flex-x">
+            <li class="sign-css">签到</li>
+            <li class="sign-css"></li>
+            <li class="sign-css">已签到<span class="day"></span>天</li>
+        </ul>
+        <!--签到日历-->
+        <div class="calendar-box">
+            <ul class="calendar-head flex-y ">
+                <li></li>
+                <li><span></span>年<span></span>月</li>
+                <li></li>
+            </ul>
+            <div class="calendar-section">
+                <div class="sign-day">
+                    您已经签到<span class="day"></span>天
+                </div>
+                <div class="animation-box">
+                    <!--没有展开日历是显示-->
+                    <ul id="sign-calendar" class="sign-calendar flex" >
+                    </ul>
+                    <!--展开后的日历-->
+                    <div class="calendar">
+                        <div class="flex">
+                            <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+                        </div>
+                        <ul id="calendar" class="calendar-all clear">
+                        </ul>
+                    </div>
+                </div>
+                <!--展开日历按钮-->
+                <div class="calendar-submit flex-center" scl-pe="before">
+                    <span></span>
+                </div>
+            </div>
+        </div>
+        <!--签到项目-->
+        <ul class="sign-project">
+            <li class="flex-x-center">
+                <div>
+                    <h2>每日签到</h2>
+                    <p>签到可以获得积分</p>
+                </div>
+                <div data-id="4" class="submit">签到</div>
+            </li>
+        </ul>
+    </div>
+    <!--签到提示框-->
+    <ul class="improt-box flex-top flex-y hide">
+        <li></li>
+        <li>您已经领取<span></span>积分</li>
+        <li>明天继续，更多惊喜~</li>
+    </ul>
+</section>
+</body>
+<script type="text/template" id="temp">
+    {{var arr=it,len=arr.length;}}
+    {{for(var i=0;i<len-1;i++){}}
+        {{var integral=arr[i].rule.integral;}}
+        {{?integral!=0}}
+            {{?i!=3&&i!=8}}
+            <li class="flex-x-center" >
+                <div>
+                    <h2>{{=arr[i].categoryname}}</h2>
+                    <p>{{=arr[i].categoryname}}可以获得积分</p>
+                </div>
+                <div data-id="{{=arr[i].categoryid}}" class="submit">去{{=arr[i].categoryname}}</div>
+            </li>
+            {{??i==8}}
+            <li class="flex-x-center" >
+                <div>
+                    <h2>{{=arr[i].categoryname}}</h2>
+                    <p>{{=arr[i].categoryname}}可以获得积分</p>
+                </div>
+                <div data-id="{{=arr[i].categoryid}}" class="submit" style="display: none;">{{=arr[i].categoryname}}</div>
+            </li>
+            {{??}}
+            {{?}}
+        {{??}}
+    {{?}}
+    {{}}}
+</script>
+<script type="text/javascript">
+    function onStart(){
+        getData();
+        getSignInfo();
+    }
+    var _date=new Date(),
+            Y=_date.getFullYear(),//年
+            M=_date.getMonth()+ 1,//月
+            calendar_data=null,
+//            D=_date.getDate(),//日
+            is_show=false,//日历是否展开
+            is_sign=true,//是否已经签到
+            ul=document.getElementById('calendar'),
+            ul1=document.getElementById('sign-calendar');
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_SIGN_SIGNDETAIL,{userid:getUserid(),month:Y+'-'+M},function(data){
+            if(data.status==1){
+                var _data=data.data,y= Y,m= M,
+                   str=new CreateCalendar(ul,_data.sign);
+                calendar_data=_data.sign;
+                str.createCalendarInfo(y+'/'+m+'/1',true,ul1);
+                $('.integral').find('li').eq(0).find('span').text(_data.integral);
+                $('.day').text(_data.sign_day);
+                $('.calendar-head').find('li').eq(1).text(y+'份'+m+'月');
+                if(_data.today_sign==1){//已经签到
+                    $('.sign-submit>li').eq(0).text('已签到');
+                    $('body').addClass('sign-box').removeClass('no-sign-box');
+                    $('.sign-project .submit').eq(0).text('已签到');
+                }else{//未签到
+                }
+//                $('.calendar-submit>span').addClass('ani-transition');
+                $('.calendar').addClass('ani-transition');
+                $('.sign-calendar').addClass('ani-transition');
+                loadEnd();
+            }
+        })
+    }
+    function getSignInfo(){
+        var render=getRender('temp');
+        jsonAjax(API.API_LIST.CAR_SIGN_INTEGRALRULE,{wiappid: $.cookie('wiappid')},function(data){
+            if(data.status==1){
+                $('.sign-project').append(render(data.data))
+            }
+        })
+    }
+    //点击事件
+    (function(){
+        var y= Y,m= M;
+        //切换年月
+        $('.calendar-head').on('touchstart','li',function(){
+            var index=$(this).index(),
+                    calendar=new CreateCalendar(ul,calendar_data);
+            var _class=$('.calendar-submit>span').attr('class');
+            if(index==0){
+                m--;
+                if(m<=0){
+                    y--;
+                    m=12;
+                }
+            }else if(index==2){
+                m++;
+                if(m>12){
+                    y++;
+                    m=1;
+                }
+            }
+            if(is_show){
+                if(m!==M||y!==Y){
+                    calendar.createCalendarInfo(y+'/'+m+'/1');
+                }else{
+                    calendar.createCalendarInfo(y+'/'+m+'/1',true);
+                }
+            }else{
+                if(m!==M||y!==Y){
+                    calendar.createCalendarInfo(y+'/'+m+'/1',false,ul1,y+'/'+m);
+                }else{
+                    calendar.createCalendarInfo(y+'/'+m+'/1',false,ul1);
+                }
+            }
+            $('.calendar-head').find('li').eq(1).text(y+'份'+m+'月');
+            if(_class){
+                var height=$('.calendar').height();
+                $('.animation-box').css('height',height+'px');
+            }
+        });
+        //展开日历
+        $('.calendar-submit').on('touchstart','span',function(){
+            var  calendar=new CreateCalendar(ul,calendar_data);
+            var height=$('.calendar').height();
+            var _class=$(this).attr('class');
+            $(this).toggleClass('transform');
+            $('.sign-calendar').toggleClass('sign-transition');
+            $('.calendar').toggleClass('sign-transition');
+            if(_class){
+                is_show=false;
+                $('.animation-box').css('height','3.2rem');
+                console.log(m,y);
+                console.log(m==M&&y==Y);
+                if(m==M&&y==Y){
+                    calendar.createSevenDay(ul1);
+                }else{
+                    calendar.createSevenDay(ul1,y+'/'+m);
+                }
+            }else{
+                is_show=true;
+                $('.animation-box').css('height',height+'px');
+//                $('.calendar-section').css('height',+height+198+'px');
+            }
+            if(m!==M||y!==Y){
+                calendar.createCalendarInfo(y+'/'+m+'/1',false);
+            }else{
+                calendar.createCalendarInfo(y+'/'+m+'/1',true);
+            }
+        });
+        //获得积分按钮
+        $('.sign-project').on('click','.submit',function(){
+            var id=$(this).attr('data-id'),obj=new Object();
+            switch(id){
+                case '1'://消费
+                    PageJumpTap('gotoMallIndex',obj);
+                    break;
+                case '2'://分享
+                    PageJumpTap('gotoMallIndex',obj);
+                    break;
+                case '3'://评价
+                    PageJumpTap('gotoMyConsultant',obj);
+                    break;
+                case '4'://签到
+                        jsonAjax(API.API_LIST.CAR_SIGN_SIGN,{wxappid: $.cookie('wxappid'),userid:getUserid()},function(data){
+                            if(data.status==1){
+//                                $('.sign-submit>li').eq(0).text('已签到');
+//                                $('body').addClass('sign-box').removeClass('no-sign-box');
+                                $('.sign').addClass('transition');
+                                $('.improt-box').removeClass('hide').find('span').text(data.data);
+//                                var day=+($('.day').text())+1;
+//                                $('.day').text(day);
+//                                $('.sign-project .submit').eq(0).text('已签到');
+                                setTimeout(function(){
+                                    $('.improt-box').addClass('hide');
+                                    getData();
+                                },1000)
+                            }else{
+                                inputTipsText(data.info);
+                            }
+                        });
+                    break;
+                case '5'://买车
+                    PageJumpTap('gotoBuyCarIndex',obj);
+                    break;
+                case '6'://旧车置换
+                    PageJumpTap('gotoReplacement',obj);
+                    break;
+                case '7'://转介
+                    PageJumpTap('gotoReferralPolicy',obj);
+                    break;
+                case '8'://续保
+                    PageJumpTap('gotoKeepInsurance',obj);
+                    break;
+                case '9'://关注
+//                    PageJumpTap('gotoMyConsultant');
+                    break;
+                case '10'://后台奖励
+                    break;
+
+            }
+        });
+        //前往商城
+        $('.shop-submit').on('click',function(){
+            var obj={};
+            PageJumpTap('gotoMallIndex',obj);
+        });
+        //查看积分攻略
+        $('.integral').on('click','li',function(){
+            var index=$(this).index();
+            if(index==1){
+                PageJumpTap('gotoHowAcqureSign',{});
+            }
+        })
+    })();
+</script>
+</html>

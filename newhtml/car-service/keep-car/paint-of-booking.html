@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>预约详情</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+<div id="detBox">
+    <script type="text/template" id="tmpList">
+        <div class="keep-item">
+            <div class="title">喷漆项目</div>
+            <ul>
+                <li>预约编号<span>{{=it.data.code_num}}</span></li>
+                <li>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;型<span>{{=it.data.model}}</span></li>
+                <li>预约时间<span>{{=it.data.reservation_time}}</span></li>
+                {{?it.data.content!=null}}
+                <li>喷漆颜色<span>{{=it.data.content}}</span></li>
+                {{?}}
+                <!--<li>咚咚16项免费检测<span class="ganth"></span></li>-->
+            </ul>
+        </div>
+    </script>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var render = getRender('tmpList');
+
+    function onStart(){
+        getData();
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_LACQUERVIEW,{'id':I('id'),'type':I('type','0')},function (res) {
+            if(res.status == 1){
+                $('#detBox').html(render(res));
+                if(I('type')==6){
+                    $('.title').text('喷漆项目');
+                }else if(I('type')==5){
+                    $('.title').text('预约试驾项目');
+                }
+                loadEnd();
+            }else {
+                inputTipsText(res.data.info);
+            }
+        });
+    }
+
+
+
+</script>
+</html>

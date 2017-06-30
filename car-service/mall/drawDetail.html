@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>优惠券详情</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/coupon.css"/>
+</head>
+<body>
+<div class="modal" id="showSharePic">
+    <!--fade-->
+    <div class="sharepic-right">
+        <img src="/web/assets/image/fenxiangtishi_ico.png">
+    </div>
+</div>
+<div class="drawDetail" id="details">
+    <script type="text/template">
+        {{?it.data.is_del==0}}
+            {{?it.data.status==1}}
+                <i class="lose sy"></i>
+            {{??it.data.status==2}}
+                <i class="lose dj"></i>
+            {{??it.data.status==3}}
+                <i class="lose sx"></i>
+            {{??it.data.status==5}}
+                <i class="lose zs"></i>
+            {{?}}
+            {{?it.data.give_person}}
+            <div class="det-tit" border="bottom">
+               <span>{{=it.data.give_person}}赠送</span>
+            </div>
+            {{?}}
+            <div class="name">{{=it.data.activity_name}}</div>
+            <div class="tit">
+                {{?it.data.range==''}}
+                    {{?it.data.apply==0}}
+                        {{='普通商品'+it.data.ticket_much+(it.data.click_status==0?'元':'折')}}
+                    {{??it.data.apply==1}}
+                        {{='服务商品'+it.data.ticket_much+(it.data.click_status==0?'元':'折')}}
+                    {{??}}
+                        {{='全店铺'+it.data.ticket_much+(it.data.click_status==0?'元':'折')}}
+                    {{?}}
+                {{??}}
+                    {{='部分商品'+it.data.ticket_much+(it.data.click_status==0?'元':'折')}}
+                {{?}}
+            </div>
+            <!--<div class="but " apply="{{=it.data.apply}}">立即使用</div>-->
+            <div class="shopHandle">
+                {{?it.data.apply==0||it.data.apply==1||it.data.apply==2}}
+                <div class="pull {{?it.data.status!=0}}gray{{?}}" apply="{{=it.data.apply}}">立即使用</div>
+                {{?}}
+                <div class="share {{?it.data.can_give==0}}gray{{?}}">转赠给朋友</div>
+            </div>
+            <div class="txt">下单即享立减优惠</div>
+            <ul>
+                <li class="flex">
+                    <div class="flex-x-about"><i>使</i><i>用</i><i>范</i><i>围</i><i>： </i></div>
+                    <div class="flex-c">
+                        {{?it.data.range==''}}
+                            {{?it.data.apply==0}}
+                                适用于普通商品
+                            {{??it.data.apply==1}}
+                                适用于服务商品
+                            {{??}}
+                                全店铺通用
+                            {{?}}
+                        {{??}}
+                            适用于部分商品
+                        {{?}}
+                    </div>
+                </li>
+                <li class="flex">
+                    <div class="flex-x-about"><i>有</i><i>效</i><i>期</i><i>至</i><i>： </i></div>
+                    <div class="flex-c">{{=it.data.mintime.split(' ')[0]+' 至 '+it.data.maxtime.split(' ')[0]}}</div>
+                </li>
+                <li class="flex">
+                    <div class="flex-x-about"><i>商</i><i>家</i><i>公</i><i>众</i><i>号</i><i>： </i></div>
+                    <div class="flex-c">{{=it.data.name}}</div>
+                </li>
+                <li class="flex">
+                    <div class="flex-x-about"><i>商</i><i>家</i><i>备</i><i>注</i><i>： </i></div>
+                    <div class="flex-c">{{=it.data.remark}}</div>
+                </li>
+            </ul>
+        {{??}}
+            <div id="drawShop">
+                <div class="nullify">
+                    <img src="/web/car-service/assets/image/mall/ico_zuofei@2x.png">
+                    <p>该优惠券已作废，请联系商家</p>
+                </div>
+                <p class="ewmTxt">搜索关注"{{=it.data.name}}"公众号或扫描下方二维码关注公众号</p>
+                <img class="ewmPic" src="{{=it.data.qr_code}}">
+            </div>
+        {{?}}
+    </script>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+
+    function onStart(){
+
+    }
+
+    function onWxReady(){
+        getData();
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_PRIVILEGE_DETAILS,{'get_id':I('get_id',''),'pid':I('pid',''),'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+                if(data.data.status==0||data.data.status==4){ //0-未使用 1-已使用 2-冻结中 3-已失效 4-未开始  可用则调分享
+                    WxShare.title = data.data.title;
+                    WxShare.desc = data.data.desc;
+                    WxShare.imgUrl = data.data.image;
+                    WxShare.link = data.data.link;
+                    onWxShare();
+                }
+                doTer(data, $('#details'));
+                loadEnd();
+            }
+        })
+    }
+
+    $('#details').on('click','.pull',function(){
+        if(!$(this).hasClass('gray')) {
+            var oApply = $(this).attr('apply');
+            if (oApply == 2) { //通用券跳至首页
+                PageJumpTap('gotoMallIndex');
+            }else { //商品券跳至商品选择
+                var obj = M();
+                obj.get_id = I('get_id', '');
+                PageJumpTap('gotoMallPartake', obj);
+            }
+        }
+    }).on('click','.share',function(){
+        if(!$(this).hasClass('gray')) {
+            $('#showSharePic').addClass('fade');
+        }
+    });
+
+    $('#showSharePic').on('click',function(){
+        $(this).removeClass('fade');
+    });
+
+</script>
+</html>

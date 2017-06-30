@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>一键咨询</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+    <div class="consult">
+        <textarea name="" id="qusetion" cols="30" rows="10" maxlength="160" placeholder="只要你问，我们就一定会回答!
+请问您的车是什么年款，里程？神马问题？问题是偶发还是持续出现？最好能提供拍照。"></textarea>
+    </div>
+
+    <div style="margin-top: 1rem;">
+        <div class="input-box" id="choseCar" scl-pe="before">
+            <label>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系</label>
+            <span id="res" style="color: #333333;">雅阁 2016款2.4L CVT 智尊版</span>
+        </div>
+        <div class="input-box">
+            <label>购车时间</label>
+            <input type="text" value="2015-6-27">
+        </div>
+        <div class="flex-box">
+            <div class="input-box box-item">
+                <label>联系人&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <input type="text" value="陈宇峰" placeholder="请输入联系人"id="name"/>
+            </div>
+            <div class="chose-sex box-auto">
+                <div>
+                    <label>男</label>
+                    <span class="selected" style="margin-right: 1rem;" sex="1"></span>
+                </div>
+                <div>
+                    <label>女</label>
+                    <span class="no_select" sex="0"></span>
+                </div>
+            </div>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>手机号码</label>
+            <input type="text" id="phone" value="135 4358 5678" placeholder="请输入手机号码"/>
+        </div>
+        <div class="btn-box">
+            <div class="btn" href="">一键咨询</div>
+        </div>
+    </div>
+
+    <div class="mask"></div>
+    <div class="menu">
+        <ul>
+            <li><a href="tel:18682346880">全国服务热线</a></li>
+            <li><a href="tel:18682346880">我的专营店</a></li>
+            <li><a href="tel:18682346880">最近专营店</a></li>
+        </ul>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    function onStart(){
+        getdata();
+        loadEnd();
+    }
+
+    $(".btn").on("click",function () {
+        $(".mask").fadeIn();
+        $(".menu").animate({'bottom':'0'},500);
+        //location.href = '/web/car-service/demo/booking-success.html';
+    });
+
+    $(".mask").on("click",function () {
+        $(".mask").fadeOut();
+        $(".menu").animate({'bottom':'-100%'},500);
+        //location.href = '/web/car-service/demo/booking-success.html';
+    });
+
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected').addClass('no_select');
+        $(this).removeClass('no_select').addClass('selected');
+    });
+
+    function getdata(){
+        $("#phone").val(UserInfo.mobile);
+        if(UserInfo.sex==1){
+            $("span[sex='1']").addClass('selected').removeClass('no_select');
+            $("span[sex='2']").addClass('no_select').removeClass('selected');
+        }else{
+            $("span[sex='1']").addClass('no_select').removeClass('selected');
+            $("span[sex='2']").addClass('selected').removeClass('no_select');
+        }
+    }
+
+
+</script>
+</html>

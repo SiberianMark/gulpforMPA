@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title></title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/smholiday.css">
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+</head>
+<body>
+
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll" style="">
+
+<div class="headlines clear">
+    <div class="headlines-img clear">
+        <div></div>
+    </div>
+    <div class="headlines-pro clear">
+        <div class="swiper-header">
+            <div class="swiper-wrapper swiper-index"></div>
+        </div>
+    </div>
+</div>
+<div id="out">
+
+</div>
+
+    </div>
+</div>
+
+<div class="modal" id="showSharePic">
+    <div class="sharepic-right">
+        <img src="/web/assets/image/fenxiangtishi_ico.png"></div>
+</div>
+</body>
+
+<script type="text/template" id="headlines-index">
+    {{?it.status==1}}
+        {{~it.data:item:index}}
+            <div class="swiper-slide smdg" article_id="{{=item.article_id}}" link="{{=item.link}}">
+                <div class="pro-name">{{=item.laber}}</div>
+                <div class="pro-msg">{{=item.description}}</div>
+            </div>
+        {{~}}
+    {{?}}
+</script>
+
+<script type="text/template" id="headlines-sed">
+    {{~it.data:item:index}}
+    <div class="headlines-message" article_id="{{=item.article_id}}" activity="{{=item.is_support}}" id="{{=item.id}}" status="{{=item.status}}">
+    <div class="swiper-container" style="overflow: inherit;">
+        <div class="swiper-wrapper swiper-sed">
+            {{?item.images.length>0}}
+                {{~item.images:list:index1}}
+                <div class="swiper-slide-act swiper-slide" article_id="{{=item.article_id}}">
+                    <img src="{{=list.img}}" alt="" style="height: 19rem;width: 100%;"/>
+                    {{?item.category_name!=null}}
+                    <div class="table-bg">{{=item.category_name}}</div>
+                    {{?}}
+                    {{?item.status==0}}
+                    <div class="activity-cancel">
+                        <div></div>
+                    </div>
+                    {{?}}
+                </div>
+                {{~}}
+            {{??}}
+                <div class="swiper-slide-act swiper-slide" article_id="{{=item.article_id}}">
+                    <img src="/web/assets/image/default_ico.png" alt="" style="height: 19rem;width: 100%;"/>
+                    <div class="table-bg">{{=item.category_name}}</div>
+                    {{?item.status==0}}
+                    <div class="activity-cancel">
+                        <div></div>
+                    </div>
+                    {{?}}
+                </div>
+            {{?}}
+        </div>
+    </div>
+    <div class="headlines-msg" article_id="{{=item.article_id}}" id="{{=item.id}}" status="{{=item.status}}" border="bottom">
+
+        <div class="msg-news">{{=item.title}}</div>
+
+        {{?item.is_support==1}}
+        <div class="msg-fuc clear">
+            <div class="msg-time">{{=item.begin_time}}开始</div>
+            <div class="msg-location">{{=item.city_name}}</div>
+            {{?item.status==0}}
+            <div class="msg-status">活动已取消</div>
+            {{??item.status==1}}
+            {{?item.price=="0.00"}}
+            <div class="msg-status-price">免费</div>
+            {{??}}
+            <div class="msg-status-price">¥&nbsp;{{=item.price}}</div>
+            {{?}}
+            {{??item.status==2}}
+            <div class="msg-status status-tidbits">活动晒图</div>
+            {{?}}
+        </div>
+        {{?}}
+    </div>
+    <div class="headlines-function flex clear">
+        <div class="WxShare flex-c"><div class="headlines-share clear" share_title="{{=item.share_title}}" share_content="{{=item.share_content}}" share_pic="{{=item.share_pic}}" share_link="{{=item.share_link}}"></div></div>
+        <div class="flex-c">
+            {{?item.is_collections==0}}
+            <div class="headlines-follow clear" article_id="{{=item.article_id}}" action=""></div>
+            {{??}}
+            <div class="headlines-follow clear follow" article_id="{{=item.article_id}}" action="cancel"></div>
+            {{?}}
+
+            <span class="collections">{{=item.collections}}</span>
+        </div>
+
+        {{?item.is_click==0}}
+        <div class="flex-c"><div class="headlines-like clear" article_id="{{=item.article_id}}" action=""></div>
+        {{??}}
+            <div class="flex-c"><div class="headlines-like clear like" article_id="{{=item.article_id}}" action="cancel"></div>
+        {{?}}
+            <span class="_click">{{=item.click}}</span>
+        </div>
+        <div class="gocomment flex-c" activityid="{{=item.id}}" artical="{{=item.article_id}}">
+            <div class="headlines-talk clear"></div>
+            <span class="_talk">{{=item.comment_num}}</span>
+        </div>
+    </div>
+    </div>
+    {{~}}
+</script>
+
+
+<script>
+    var page =I('page',1);
+    var headlines_index = getRender('headlines-index');
+    var headlines_thd = getRender('headlines-sed');
+    var share=I('share');
+    function onStart() {
+        if(is_weixn(true)&&share_ornot==0){
+            downloadApp('body','bottom');
+        }else{
+            $("#pullrefresh").css("margin-bottom","0");
+        }
+        _initMui();
+        getData();
+    }
+
+function getData(){
+    jsonAjax('/gold/home/headtitle',{},function(data){
+        if(data.status==1){
+            $('.swiper-index').html(headlines_index(data));
+             var swiper_header = new Swiper ('.swiper-header', {
+                roundLengths : true,
+                initialSlide : 0,//设定初始化时slide的索引
+                slidesPerView:"auto",//设置slider容器能够同时显示的slides数量
+                autoplay : 3000,
+                autoplayDisableOnInteraction : false,
+                spaceBetween : 16,//活动块间隔
+                speed:300,
+                loop : true//循环
+            });
+            for(var i=0;i<data.data.length;i++){
+                 if(data.data[i].description==''){
+                         $('.headlines').hide();
+                     }
+                }
+        }else{
+            $('.headlines').hide();
+        }
+    });
+
+    jsonAjax('/Gold/Home/holidayLists',{userid:getUserid(),type:I('type'),page:page},function(data) {
+        if (data.status == 1) {
+            WxShare.title=data.data[0].share_title1;
+            WxShare.imgUrl=data.data[0].share_pic1;
+            WxShare.link=data.data[0].share_link1;
+            WxShare.desc=data.data[0].share_content1;
+            loadWxObject(true); //获取微信分享对象
+            TitleReSet(data.data[0].share_title1);
+            if (data.data.length <= 0) {
+                if (pull_action == 'up') {
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if (pull_action == 'down') {
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                loadEnd();
+                return;
+            }
+            if (page == 1) {
+                $('#out').html(headlines_thd(data));
+            } else {
+                $('#out').append(headlines_thd(data));
+            }
+            $('.mui-pull-caption').show();
+            if (data.data.length < 10) {
+                $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+            }
+            setTimeout(function () {
+                mui('#pullrefresh').pullRefresh().setStopped(false);
+            }, 200);
+            page++;
+            if (pull_action == 'up') {
+                mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+            }
+            else if (pull_action == 'down') {
+                mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+            }
+        } else {
+            if (pull_action == 'up') {
+                mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+            }
+            else if (pull_action == 'down') {
+                mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+            }
+            if (page == 1) {
+                $('.mui-pull-caption').hide();
+                mui('#pullrefresh').pullRefresh().setStopped(true);
+            }
+        }
+        var swiper_container = new Swiper ('.swiper-container', {
+            roundLengths : true,
+            initialSlide : 0,//设定初始化时slide的索引
+            speed:600,//滑动速度
+            slidesPerView:"auto",//设置slider容器能够同时显示的slides数量
+            centeredSlides : true,//活动块居中
+            followFinger : false,//拖动后释放鼠标或手指时slide滑动
+            loop : false//循环
+        });
+         if(!is_weixn(true)&&!is_smdd()){
+             $(".WxShare").remove();
+         }
+        loadEnd();
+    });
+}
+
+
+
+    $("#out").on("tap",".headlines-share",function(){
+        WxShare.title=$(this).attr('share_title');
+        WxShare.imgUrl=$(this).attr('share_pic');
+        WxShare.link=$(this).attr('share_link');
+        WxShare.desc=$(this).attr('share_content');
+        $('#showSharePic').addClass("fade");
+        loadWxObject(true); //获取微信分享对象
+        obj={
+            title : $(this).attr('share_title'),
+            desc : $(this).attr('share_content'),
+            imgUrl : $(this).attr('share_pic'),
+            link : $(this).attr('share_link')
+        };
+        if(is_weixn()){
+            wxShare(obj);
+        }else{
+            wxShare(obj);  ////设置微信分享信息	 APP端
+        }
+    });
+
+    //头条文章
+    $(".swiper-index").on("tap",".smdg",function(){
+        var article_id= $(this).attr("article_id");
+        var link= $(this).attr("link");
+        if(link==''){
+            var obj = new Object();
+            obj.article_id=article_id;
+            Interface('gotosmdgHeadlines',JSON.stringify(obj));
+        }else{
+            redirect(link, obj);
+        }
+    });
+
+    //活动文章
+    $("#out").on("tap",".swiper-sed",function(){
+        var article_id= $(this).parents(".headlines-message").attr("article_id");
+        var activity= $(this).parents(".headlines-message").attr("activity");
+        var id= $(this).parents(".headlines-message").attr("id");
+        var status= $(this).parents(".headlines-message").attr("status");
+        console.log(article_id,activity,id,status);
+//        return;
+        var obj = new Object();
+        if(activity=='0'){
+                obj.activity_id=id;
+            // Interface('gotosmdgInfoDetail',JSON.stringify(obj));
+                Interface('gotosmdgActivityDetail',JSON.stringify(obj));
+        }else{
+                obj.activity_id=id;
+                Interface('gotosmdgActivityDetail',JSON.stringify(obj));
+            }
+
+    });
+
+    //活动状态
+    $("#out").on("tap",".msg-status",function(){
+        var id= $(this).parents(".headlines-msg").attr("id");
+        var status= $(this).parents(".headlines-msg").attr("status");
+        var obj = new Object();
+        if(status==2){
+            obj.id=id;
+            obj.title=$(this).text();
+            obj.apply="holiday";
+            Interface('gotoLiveInteractive',JSON.stringify(obj));
+        }else{
+            obj.activity_id=id;
+            Interface('gotosmdgActivityDetail',JSON.stringify(obj));
+        }
+    });
+
+
+
+    function zan(id,action,_this){
+        jsonAjax('/Gold/Home/doLikeArticle',{userid:getUserid(),type:'1',action:action,id:id},function(data){
+            if(data.status==1){
+                inputTipsText(data.info);
+                if (action == "cancel") {
+                    _this.removeClass("like");
+                    var value = parseInt(_this.parent().find("._click").text()) - 1;
+                    _this.parent().find("._click").text(value);
+                    _this.attr("action", "");
+                } else {
+                    _this.addClass("like");
+                    var value = parseInt(_this.parent().find("._click").text()) + 1;
+                    _this.parent().find("._click").text(value);
+                    _this.attr("action", "cancel");
+                }
+            }else {
+//                inputTipsText(data.info);
+            }
+        });
+    }
+
+    function collections(id,action,_this){
+        jsonAjax('/Gold/Home/doCollectArticle',{userid:getUserid(),type:'1',action:action,id:id},function(data){
+            if(data.status==1){
+                inputTipsText(data.info);
+                if (action == "cancel") {
+                    _this.removeClass("follow");
+                    var value = parseInt(_this.parent().find(".collections").text()) - 1;
+                    _this.parent().find(".collections").text(value);
+                    _this.attr("action", "");
+                } else {
+                    _this.addClass("follow");
+                    var value = parseInt(_this.parent().find(".collections").text()) + 1;
+                    _this.parent().find(".collections").text(value);
+                    _this.attr("action", "cancel");
+                }
+            }else {
+//                inputTipsText(data.info);
+            }
+        });
+    }
+
+    //收藏
+    $("#out").on("tap",".headlines-follow",function(){
+        var _this = $(this);
+        isLogin(function (ret) {
+            if(ret) {
+                var id = _this.attr("article_id");
+                var action = _this.attr("action");
+                collections(id, action,_this);
+            }
+        });
+    });
+    //评论
+    $('#out').on('tap','.gocomment',function(){
+        var _this = $(this);
+        isLogin(function (ret) {
+            if(ret){
+                var obj = M();
+                obj.id = _this.attr('activityid');
+                obj.article_id = _this.attr('artical');
+                obj.type = 0;
+                Interface('gotoCommenLists', JSON.stringify(obj));
+            }
+        });
+    });
+    //点赞
+    $("#out").on("tap",".headlines-like",function(){
+        var _this = $(this);
+        isLogin(function (ret) {
+            if(ret){
+                var id = _this.attr("article_id");
+                var action = _this.attr("action");
+                zan(id, action, _this);
+            }
+        });
+    });
+
+    $("#showSharePic").on('click',function () {
+        $(this).removeClass("fade");
+    });
+
+    $('.down_btn').on('click', function () {
+        Interface('gotoIndex');
+        return false;
+    });
+
+    $(document).on('click',".app-download .close",function () {
+        $("#pullrefresh").css("margin-bottom","0");
+    });
+</script>
+</html>

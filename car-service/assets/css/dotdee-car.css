@@ -1,0 +1,196 @@
+@charset "utf-8";
+*{ outline: none; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);-moz-user-select: none;-webkit-user-select: none;-ms-user-select: none;user-select:none;}
+input,textarea{-moz-user-select: text;-webkit-user-select: text;-ms-user-select: text;user-select:text;-webkit-appearance: none; font-family:"微软雅黑";}
+button{margin: 0;padding: 0;font-family:"微软雅黑";}
+html{font-family:sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%; font-size:62.5%;/* 10px/16px=62.5% */ visibility:hidden; }
+body{ margin:0;font-family:"微软雅黑"; color: #333; background-color: rgb(238,238,238); word-break:break-all; }
+article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary{display:block}
+ul,ol,li {list-style:none;}
+a{text-decoration: none;}
+a:-webkit-any-link {
+    text-decoration: none;
+    cursor: auto;
+}
+audio,canvas,progress,video{display:inline-block;vertical-align:baseline}
+img{border:0; padding:0 !important;}
+textarea{overflow:auto}
+table{border-spacing:0;border-collapse:collapse;width: 100%;}td,th{padding:0.3rem;border:1px solid #ddd;}
+hr{margin: 0; border-width:1px 0 0; border-color:#ccc; height: 1px; -webkit-transform: scaleY(0.5); transform: scaleY(0.5); -webkit-transform-origin: 0 0; transform-origin: 0 0;}
+/*允许复制内容*/
+[copy='true']{-moz-user-select: text !important;-webkit-user-select: text !important;-ms-user-select: text !important;user-select:text !important;}
+/*清除浮动*/
+.clear:after,.clear:before {display:table;content:" ";}
+.clear:after {clear:both;}
+/*css动画硬件加速*/
+.hd-acc{-webkit-transform: translate3d(0, 0, 0);-moz-transform: translate3d(0, 0, 0);-ms-transform: translate3d(0, 0, 0);transform: translate3d(0, 0, 0);}
+.dd-btn{background-clip: padding-box;border-radius: 6px;}
+/*单行，多行文本属性样式*/
+[limitline='2'],.dd-limittwoline{overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}
+[limitline='1'],.dd-limitoneline{overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical;}
+[limitline='3'],.dd-limitthreeline{overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical;}
+[limitline='5'],.dd-limittfiveline{overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical;}
+/*黑底全屏提示层*/
+.modal{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1040;display:none;overflow:hidden;-webkit-overflow-scrolling:touch;outline:0; height: 100%;width: 100%; background-color: rgba(0,0,0,0.7);}
+.modal.fade{ display: block;}
+.modal-content{ max-width:90%; position:relative; top: 40%; left: 50%; transform:translate(-50%,-50%); -webkit-transform:translate(-50%,-50%); background-color:#fff; -webkit-background-clip:padding-box; background-clip:padding-box; border-radius:6px; outline:0; -webkit-box-shadow:0 3px 9px rgba(0,0,0,.5); box-shadow:0 3px 9px rgba(0,0,0,.5);}
+/*统一提示框*/
+.inputTipsText{position: fixed;top: 40%;transform:translate(0,-50%); -webkit-transform:translate(0,-50%);z-index: 60000;width: 100%;background: none !important;}
+.inputTipsText>div{width: 15em;min-width: 15em;text-align: center;background-clip: padding-box;border-radius: 6px;line-height: 2em;font-size: 1.5rem;background-color: rgba(0,0,0,0.8);color: #fff;margin: 0 auto;position: static;}
+.inputTipsText>div>p{text-align: center;}
+.inputTipsText>div>p>img{width: 3rem;height: 3rem;}
+.inputTipsText.hide{display: none !important;}
+/*
+统一边框样式
+因为手机网页与实际手机像素不一致, 在页面里直接写1px的边框在手机里看起来有2-3个像素宽.
+直接写0.5px或者0.33px却不被很多浏览器支持.
+解决办法1: border-image;
+    用图片作为border背景.通过缩放图片比例来实现1px的border.
+    使用时,在目标标签上添加个border属性. 例如<div class='xxx' border='all'></div>;
+    如果只给其中某条边加边框. 例如<div class='xxx' border='top,bottom'></div>;
+
+    缺点1:颜色固定.改变颜色则需要换图片;目前只有2种颜色;
+    缺点2:无法设置圆角;
+    缺点3:会有图片请求(影响不大);
+    缺点4:border内侧有一条1px左右的透明线条,(影响不大,除非与父标签之间背景色差太大.不然很难看出来);
+*/
+[border]{ border-width: 0px; border-image: url(/web/assets/image/border.png) 2 repeat;}
+[border*='ccc']{ border-image: url(/web/assets/image/border_c.png) 2 repeat;}
+[border*='all']{ border-width: 1px;}
+[border*='top']{ border-top-width:1px;}
+[border*='bottom']{ border-bottom-width:1px;}
+[border*='left']{ border-left-width:1px;}
+[border*='right']{ border-right-width:1px;}
+/*
+解决办法2: scale(0.5);
+
+    需要配合:before :after伪元素. 用伪元素画一个高宽都是200%的区域,然后scale(0.5)缩放至等大小并定位覆盖目标标签区域.然后给伪类画border;
+    使用时,在目标标签上添加scl-pe属性.值为before或after. 例如:<div class="xxx" scl-pe="after"></div>;
+    默认边框样式为 border: 1px #eee solid; 需要修改请修改对应伪元素 如 .xxx:after{border-coloer:#f55;}
+
+    优点1: 可以比较方便的修改颜色和圆角度等;
+    缺点1: position属性需设置为relative,必须考虑布局使用;
+    缺点2: 会占用1个伪元素,必须考虑布局使用;
+*/
+[scl-pe]{position:relative;}
+[scl-pe='before']:before,[scl-pe='after']:after{content: ""; position: absolute; display: block; height: 200%; width: 200%; top: -50%; left: -50%; border: 1px #eee solid; transform: scale(0.5); -webkit-transform: scale(0.5); box-sizing:border-box; -webkit-box-sizing:border-box; pointer-events: none;}
+/*页面加载时旋转方块样式*/
+#modal_loader{ background-color: rgb(255,255,255);}
+#modal_loader .modal-content{text-align: center; font-size: 0.8rem; line-height: 1.5rem; color: #f55; background-color:transparent; -webkit-box-shadow: none; box-shadow:none;}
+#didi_loader{width: 4.5rem;	height: 4.5rem;	padding: 1.2rem; margin: 0 auto; -webkit-animation: didi_loader 5s infinite linear; animation: didi_loader 5s infinite linear;}
+#didi_loader span{ width:1rem; height:1rem; float: left; background:#f55; margin: 0 0.1rem 0.1rem 0; display:block; -webkit-animation: didi_loader_span 1s infinite linear; animation: didi_loader_span 1s infinite linear;}
+#didi_loader span:nth-child(2){	margin-right: 0; -webkit-animation-delay: .2s; animation-delay: .2s;}
+#didi_loader span:nth-child(3){ margin-bottom: 0; -webkit-animation-delay: .4s; animation-delay: .4s;}
+#didi_loader span:nth-child(4){ margin:0; -webkit-animation-delay: .6s; animation-delay: .6s;}
+@-webkit-keyframes didi_loader {
+    from {-webkit-transform: rotate(0deg);}
+    to {-webkit-transform: rotate(360deg);}
+}
+@-webkit-keyframes didi_loader_span {
+   0%,100% { -webkit-transform:scale(1); }
+   50% { -webkit-transform:scale(0.5); }
+}
+@keyframes didi_loader {
+    from { transform: rotate(0deg);}
+    to { transform: rotate(360deg);}
+}
+@keyframes didi_loader_span {
+   0%,100% { transform:scale(1);}
+   50% { transform:scale(0.5); }
+}
+/* SVG 格式文件 */
+@font-face {
+    font-family: 'dotdee';
+    src:    url('/web/assets/fonts/dotdee.eot?v=2.3.9');
+    src:    url('/web/assets/fonts/dotdee.eot?v=2.3.9#iefix') format('embedded-opentype'),
+            url('/web/assets/fonts/dotdee.ttf?v=2.3.9') format('truetype'),
+            url('/web/assets/fonts/dotdee.woff?v=2.3.9') format('woff'),
+            url('/web/assets/fonts/dotdee.svg?v=2.3.9') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+.icon {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'dotdee',"微软雅黑" !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 悬浮菜单 */
+.suspension-menu{width:12.8rem;;position:fixed;right:0;bottom:10rem;z-index:1000000;}
+.suspension-menu img{width:3.2rem;height:3.2rem;position:absolute;bottom:-4rem;right: 0rem;border-radius: .3rem 0 0 .3rem;display:block; }
+.sus-list{width:12.8rem;background:rgba(0, 0, 0, 0.5);position:absolute;bottom: .8rem;display:none;border-radius: .3rem 0 0 .3rem;}
+.sus-list span{width:auto;height:4.26rem;line-height:4.26rem;text-align:left;display:block;margin:0 1.1rem;position:relative;}
+.sus-list span:nth-of-type(3){border:none;}
+.sus-icon{display: inline-block;padding-left:2.6rem;color:#fff;font-style:normal;text-align:left;margin-left:.8rem;}
+.sus-nun{height:1rem;line-height:.8rem;font-size:.8rem;color: #fff;text-align: center;background: #f55;border-radius: 1rem; position: absolute;top:.35rem;left: 2rem;padding:.2rem .3rem;vertical-align: middle;}
+.triangle-down{width: 0;height: 0;border-left:1rem solid transparent;border-right:1rem solid transparent;border-top: 1rem solid rgba(0, 0, 0, 0.5);position:absolute;right:1rem;}
+
+/*分享提醒功能*/
+#share-alert-box{width:100%;height:100%;position:fixed;left:0;top:0;background-color:rgba(0,0,0,0.5);display: none;}
+#share-alert-box>div{width:14rem;height:11rem;background:url('/web/car-service/assets/image/share_brand.png') center no-repeat;background-size:13.65rem 10.45rem;position:absolute;right:2rem;top:0;}
+
+/*专属顾问*/
+.guwen{min-height: 10rem;background: #ffffff;display:box;display: -webkit-box;display: -moz-box;display: -ms-box; margin: 2rem 0;}
+.guwen img{width:5.5rem;height: 5.5rem;border-radius: 50%;overflow: hidden;border: 2px solid #cccccc;margin: 1.25rem 1.5rem;-webkit-box-flex: 1;-moz-box-flex: 1;-ms-box-flex: 1;box-flex: 1;}
+.guwen .info{-webkit-box-flex: 1;-moz-box-flex: 1;-ms-box-flex: 1;box-flex: 1;}
+.guwen .info .name{margin-top: 1.6rem;font-size: 1.6rem;color: #333333;position: relative;}
+.guwen .info .name i{display:inline-block;width:6rem;height:2.2rem;vertical-align: middle;margin-left:1rem;}
+.guwen .info .name i.zx{background:url('/web/car-service/assets/image/more-service/tan_zixun@2x.png') center no-repeat;background-size:cover;}
+.guwen .info .name i.gh{background:url('/web/car-service/assets/image/more-service/tan_genghuang@2x.png') center no-repeat;background-size:cover;}
+.guwen .info .name span.zx{color:#4a96fd;border:#4a96fd 1px solid;border-radius:0.3rem;font-size:1.2rem;width:6.5rem;height:2.6rem;line-height:2.6rem;display:inline-block;text-align:center;position: absolute;top:0;right:1rem;}
+.guwen .info .name span.js{color:#4a96fd;border:#4a96fd 1px solid;border-radius:0.3rem;font-size:1.2rem;width:6.5rem;height:2.6rem;line-height:2.6rem;display:inline-block;text-align:center;position: absolute;top:0;right:8rem;}
+.guwen .info .contact{font-size: 1.2rem;color: #ff4e00;padding: 1rem 0;}
+.shouji a{margin-right: 1rem;color: #4a96fd;position: relative;top:-.2rem;}
+.weixin a,.weixin span{color: #4a96fd;margin-left: .4rem;position: relative;top:-.2rem;}
+.weixin i{background: url("/web/car-service/assets/image/chat_ico.png") no-repeat center center;display: inline-block;width: 1.2rem;height: 1.2rem;background-size:1.2rem auto;}
+.shouji i{background: url("/web/car-service/assets/image/phone_ico.png") no-repeat center center;display: inline-block;width: 1.2rem;height: 1.2rem;background-size:1.2rem auto;}
+.hello{border-top: 1px solid #dddddd;padding:0.5rem 0;color: #ccc;}
+.shuoming{text-align: center;margin:3rem 0 3.5rem;}
+
+/*列表无数据样式*/
+.listNoData{text-align: center; padding-top: 5rem; color: #666;font-size: 1.2rem;}
+.listNoData img{display: inline-block; width: 7rem; height: auto; margin-bottom: .2rem;}
+
+/*顶部引流-关注公众号弹框提示信息*/
+.share-info{background:url('/web/pub-acct/assets/image/attention-now.png') no-repeat center center;background-size:100%; height:5rem;}
+.share-info a{width:2rem;height:2rem;float:right;margin:.3rem .3rem auto auto;background:url(/web/assets/image/clos_ico.png) no-repeat center center;background-size:1.5rem 1.5rem;opacity: 0.3;}
+.attent-mask{width:100%;height:100%;background:rgba(0,0,0,0.7);position:fixed;top:0;bottom:0;z-index:1000;}
+.code-pic{width:22.25rem;height:24.8rem;}
+.code-pic img{width:100%;height:100%;}
+.code-pic a{width:2.4rem;height:2.4rem;display:block;position:absolute;top:0;right:0;z-index: 1200;background:url('/web/assets/image/float_mesu/ddcode-close.png') left center no-repeat;background-size:2.4rem 2.4rem;}
+
+/* flex 弹性布局 */
+.flex,.flex-top,.flex-x,.flex-y,.flex-x-about,.flex-x-center,.flex-center{ display: -webkit-box; display: -webkit-flex; display: flex;} /* 设置弹性布局 */
+.flex-c{ -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;} /* 子元素占等比1 */
+.flex-x,.flex-center{ -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;} /* 子元素X轴居中 */
+.flex-y,.flex-x-center,.flex-center{ -webkit-box-align: center; -webkit-align-items: center; align-items: center;} /* 子元素Y轴居中 */
+.flex-top{ -webkit-box-direction: normal; -webkit-box-orient: vertical; -webkit-flex-direction: column; flex-direction: column;} /* 子元素垂直排列 */
+.flex-a{ -webkit-box-flex: auto; -webkit-flex: auto; flex: auto;}/* 子元素宽度自定义 */
+/*flex-x-about---子元素x左右分布*****flex-x-center--子元素X左右分布，Y居中*/
+.flex-x-about,.flex-x-center{-webkit-box-pack:justify;-webkit-justify-content: space-between;justify-content: space-between}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

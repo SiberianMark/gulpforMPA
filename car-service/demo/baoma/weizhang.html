@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>违章查询</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/exclusive-adviser.css"/>
+    <style>
+        .list-box ul:nth-child(1) li:nth-child(1) {
+            width: 66.6%;
+            padding-top: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+<div class="car-data">
+
+</div>
+<!--<div class="add-peccancy">-->
+    <!--<div id="add">添加车辆</div>-->
+<!--</div>-->
+</body>
+<script type="text/template" id="car_list_temp">
+    {{~it.data:item:index}}
+    {{
+        var carnum = item.carnum;
+        var a = carnum.substr(0,2);
+        var b = carnum.substr(2).toUpperCase();
+    }}
+    <div class="list-box">
+        <ul class="flex-box flex-box-left-center top" scl-pe="before">
+            <li scl-pe="before"><b id="a">{{=a}}</b><b></b><b id="b">{{=b}}</b></li>
+            <li ><span></span></li>
+        </ul>
+        <ul class="flex-box flex-box-left-center bottom" scl-pe="before" rel="{{=item.soft_vin}}" index="{{=index}}">
+            <li scl-pe="before">
+                <span>违章</span>
+                <span>{{=item.violation.unhandled}}</span>
+            </li>
+            <li scl-pe="before">
+                <span>扣分</span>
+                <span>{{=item.violation.unhandled_fen}}</span>
+            </li>
+            <li>
+                <span>罚款</span>
+                <span>￥{{=item.violation.unhandled_money}}</span>
+            </li>
+        </ul>
+    </div>
+    {{~}}
+</script>
+<script type="text/javascript">
+    var userid = I('userid');
+    var vbappid = I('vbappid');
+    var car_render = getRender('car_list_temp');
+    function onStart(){
+        getCarList()
+    }
+    //获取违章车辆列表
+    function getCarList(){
+        var data = {
+            userid:userid,
+            vbappid:vbappid
+        }
+        jsonAjax(API.API_LIST.TECH_UPKEEP_GETCARLIST,data,function(res){
+            if(res.status==1){
+                $(".car-data").html(car_render(res));
+            }else{
+                inputTipsText("请完善车辆信息");
+            }
+        });
+        loadEnd();
+    }
+
+    $(".car-data").on("click",'.bottom',function(){
+        var parem = {
+            userid:I('userid'),
+            logintoken:I('logintoken'),
+            soft_vin:$(this).attr('rel'),
+            longitude:I('longitude'),
+            latitude:I('latitude'),
+            index:$(this).attr('index'),
+            vbappid:vbappid
+        };
+        PageJump('gotoDemoPeccancyList',parem);
+    });
+</script>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>个人资料</title>
+    <script src="/web/assets/js/head-lottery.js?v=1.0.0"></script>
+
+    <script src="/web/assets/js/smdg/image_upload.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/my_info.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+    <script>
+        loadWxObject();  //加载微信对象
+    </script>
+    <style type="text/css">
+
+
+    </style>
+</head>
+<body class="team-info">
+<div class="user-header clear spec" id="header" border="bottom">
+    <span class="user-tx">头像</span>
+    <div class="jt-gray-right"></div>
+    <div class="pic-box" id="pic-box">
+        <img src="" id="logo"/>
+    </div>
+</div>
+<div class="user clear"id="didi"  border="bottom">
+    <span class="">手机号码</span>
+    <input type="text" class="didi-phonenum user-r"  maxlength="11" placeholder="请输入电话号码">
+</div>
+<div class="user clear" id="nickname" border="bottom">
+    <span>姓名</span>
+    <input type="text" class="nickname user-r" maxlength="11" placeholder="请输入姓名" >
+</div>
+<div class="user clear" id="tcar" border="bottom">
+    <span>我的车辆</span>
+    <div class="jt-gray-right"></div>
+    <span class="car"  type="3">选择车辆</span>
+</div>
+<div class="modal" id="modal-Pop">
+    <div class="pop-cover modal-content">
+        <div class="radio-code" style="height:6.4rem;line-height:6.4rem">
+            <input type="tel" class='get-picCode1' style="height:4rem" placeholder="请输入图形验证码" border="all" maxlength="4" />
+            <span class="ph-pic"><img id="picCode1" style="height:3rem;top:1.9rem" onclick="fleshVerify();" src="http://test.didi365.com/gold/public/verify" /></span>
+        </div>
+        <div class='tj-sec' style="padding-bottom:1rem"></div>
+    </div>
+</div>
+<div class="btn-jion">加入车队</div>
+</body>
+<script>
+var tid = I('tid'),//车队ID
+    carid = I('carid'),//玩家车库车辆id
+    codedata = '<div class="user codenum clear" border="bottom" style="text-align: right;"><input id="imgcode-text" type="text" class="code" maxlength="4"  placeholder="请输入图形验证码"><img id="imgcode1" style="width: 6rem; height: 3.6rem;margin-right: 1.2rem; vertical-align: middle;" src="http://test.didi365.com/gold/public/verify" onclick="fleshVerify()" /></div><div class="user codenum clear" border="bottom" style="text-align: right;"><input id="code2" type="text" class="code" maxlength="4" placeholder="请输入短信验证码" ><span class="ph-md">没收到？</span><a class="achieve">获取</a></div>',
+    message = true,
+    wait = 60,//时间
+    code,//验证码
+    picCode,//图形验证码
+    isvoice = 0,//语音判断
+    mobile,
+    f =I('f','0'),//默认没有验证
+    regex = /^1[34578]\d{9}$/;//手机号
+    function onStart() {
+       isLogin(function(ret){
+            if(ret){
+                image_upload();//上传头像
+                getData();
+            }
+            loadEnd();
+        });
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_MODULEGROUP_JOINLIST, {'userid': getUserid()}, function (data) {
+            if (data.status == 1) {
+                    getinfo();
+                $("#imgcode-text").attr({"value":I("imgcode")});
+                $("#code2").val(I("code2"));
+                if(data.data){
+                    if(!I('mobile')){
+                        $(".didi-phonenum").attr({"value":data.data.mobile,"oldmoblie":data.data.mobile});
+                    }else{
+                        $(".didi-phonenum").attr({"value":I('mobile'),"oldmoblie":data.data.mobile});
+                    }
+                    if(!decodeURIComponent(I('imgsrc'))){
+                        $("#pic-box img").attr("src",data.data.photo);
+                    }else{
+                        $("#pic-box img").attr("src",decodeURIComponent(I('imgsrc')));
+                    }
+                    if(!decodeURIComponent(I('name'))){
+                        $(".nickname").val(data.data.nickname);
+                    }else{
+                        $(".nickname").val(decodeURIComponent(I('name')));
+                    }
+                    if(decodeURIComponent(I('carinfo'))){
+                        $('.car').text(decodeURIComponent(I('carinfo')));
+                    }
+                }
+            }
+        });
+    }
+    //选择车辆
+     $('#tcar').on('click',function(){
+        isLogin(function(ret){
+            if(ret){
+                var param= M();
+                param.name=$('.nickname').val();
+                param.mobile=$('.didi-phonenum').val();
+                param.tid = tid;//车队id
+                param.imgcode = $("#imgcode-text").val();//图形验证码
+                param.code2 = $("#code2").val();//短信验证码
+                param.imgsrc = $('#logo').attr("src");//头像图片
+                if($(".code").length > 0){
+                    param.f = 1;
+                }
+                InterfaceTap('gotoMyGarage',param);
+            }
+        })
+    });
+    //验证码图标状态
+    function getinfo(){
+        var imgcode = I('imgcode');
+        var phonenum = $(".didi-phonenum").val();
+        if(f == 1){
+            $('#didi').after(codedata);
+        }
+        if(imgcode.length == 4){
+            $('.achieve').css("background-color","#f5b617");
+        }
+    }
+    //判断是否添加验证信息
+    $(".didi-phonenum").on('keyup',function(){
+            f++;
+        var phonenum = $(this).val();
+        var oldphonenum = $(this).attr("oldmoblie");
+        if( phonenum.length == 11 && phonenum == oldphonenum){
+            //如果phonenum = 11 并且手机号 == 原手机号 删除验证模块
+             $('.codenum').remove(); 
+             f=0;
+        }else{
+            if(f == 1 ){
+                $('#didi').after(codedata);
+            }
+        }
+    });
+    //判断获取验证按钮状态
+    $("body").on('keyup','#imgcode-text',function(){
+        var a=$(this).val().length;
+        if( a ==4){
+            $('.achieve').css("background-color","#f5b617");
+        }else{
+            $('.achieve').css("background-color","#ddd");
+        }
+    })
+//发送短信验证码
+$("body").on('click','.achieve',function(){
+    isvoice = 0;
+    mobile = $('.didi-phonenum').val();
+    picCode = $('#imgcode-text').val();
+    mobmessage(mobile, isvoice , picCode);
+});
+//获取语音验证
+$("body").on('click','.ph-md',function () {
+        fleshVerify();
+        isvoice = 1;
+        $('#modal-Pop').show();
+        $('.radio-code').show();
+        $('.code-btn,.code-btn1').remove();
+        $('.pop-cover').append('<div class="code-btn1">'+'确定'+'</div>');
+        $(".tj-sec").removeClass('addstyle').text("请输入图形验证码，等待语音验证!");
+        $('.code-btn1').on('click',function(){
+            picCode = $('.get-picCode1').val();
+            if(picCode==''){
+                inputTipsText('请输入图形验证码！');
+                return false
+            }
+            message = true;
+            mobmessage(mobile, isvoice , picCode);
+            $('#modal-Pop').hide();
+        });
+});
+    //提交信息
+    function mobmessage(mobile, isvoice, picCode) {
+        if (mobile.length == 11 && regex.test(mobile) && picCode.length == 4 && !isNaN(picCode) ) {
+            if (message) {
+                message = false;
+                jsonAjax('api4/public/sms', {mobile:mobile,type:1,isvoice:isvoice,code: picCode,app:1}, function (data) {
+                    if (data.status == 1) {
+                        inputTipsText("已发送验证码 注意查收");
+                        if(isvoice!=1){
+                            time();
+                        }else{
+                            $('.voice-remind').show();
+                            setTimeout(function(){
+                                   $('.voice-remind').hide();
+                            },5000)
+                        };
+                    } else {
+                        message = true;
+                        fleshVerify();
+                        inputTipsText(data.info);
+                    }
+                });
+            }
+        }else {
+            if (picCode.length != 4) {
+                inputTipsText("请填写正确验证码");
+                fleshVerify();
+                return false;
+            }
+            if (mobile.length == 0) {
+               inputTipsText("请填写手机号码");
+               fleshVerify();
+                return false;
+            } else {
+                inputTipsText("请输入正确的手机号");
+                fleshVerify();
+                return false;
+            }
+        }
+    };
+
+    //倒计时
+    function time() {
+        if (wait == -1) {
+            $(".achieve").html("获取").css("background-color","#ddd");
+            message = true;
+            //console.log(message);
+            wait = 60;
+        } else {
+            $(".achieve").text(wait + "s").css("background-color", "#f5b617");
+            if (wait == 40) {
+                 $(".ph-md").css("display", "inline-block");
+            };
+            wait--;
+            setTimeout(function () {
+                time()
+            }, 1000);
+        }
+    };
+    function fleshVerify(){
+        //重载验证码
+        var time = new Date().getTime();
+        document.getElementById('imgcode1').src= API.SERVER_URL+'gold/public/verify/'+time;
+        document.getElementById('picCode1').src= API.SERVER_URL+'gold/public/verify/'+time;
+    }
+    //加入车队
+    $('.btn-jion').on('click',function(){
+        mobile=$('.didi-phonenum').val();//手机号
+        code=$('#code2');//短信验证码
+        isLogin(function(ret){
+            if(ret){
+                if($('.car').text() == "选择车辆"){
+                    inputTipsText('请选择车辆');
+                    return false;
+                }
+                if(code.length >0){
+                    if(code.val().length == 0){
+                        inputTipsText("请输入验证码");
+                        return false;
+                    }
+                }
+                var source = 'succ';
+                var param = M();
+                param={
+                    userid : getUserid(),
+                    tid : tid,
+                    id:carid,
+                    brand : I('brandid'),
+                    model : I('modelid'),
+                    detail : I('detailid'),
+                    imgsrc : $('#logo').attr("src"),
+                    uname : $('.nickname').val(),
+                    mobile : $('.didi-phonenum').val(),
+                    share : I('share'),
+                    source:source,
+                    verify:code.val()
+                }
+                jsonAjax(API.API_LIST.GOLD_MODULEFROUP_JOINED, param, function (data) {
+                    if (data.status == 1) {
+                        InterfaceTap('gotoJoinTeam',param);
+                    }else{
+                        inputTipsText(data.info);
+                    }
+                })
+            }
+        })
+    });
+</script>
+</html>

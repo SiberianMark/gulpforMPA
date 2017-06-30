@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>我的车库</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <!-- <script src="http://10.10.2.116:8081/target/target-script-min.js#anonymous"></script> -->
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+</head>
+<body>
+    <section  id="pullrefresh" class="mui-scroll-wrapper garageinfo" style="bottom: 6.4rem;">
+        <ul class="mui-scroll garage-list">
+        </ul>
+
+    </section>
+        <div class="add-carteam"><img class="addicon" src="/web/assets/image/jiahao_btn.png" alt="">点击添加车辆</div>
+    <!-- 已加入车队提示框 -->
+    <div class="m-dialog">
+        <div class="m-dialoginfo">
+            <div class="m-dltip" scl-pe="before">
+            <p class="addlose"><img src="/web/assets/image/smdg/wufachakan_1080.png" alt="">加入失败</p>
+            <p class="pinfo">一个车辆只能加入一个车队诶</p> 亲，要专一哦</div>
+            <div class="m-dlbtn"><span>确 认</span></div>
+        </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="templist">
+{{ var val = it.data;}}
+{{~val:i:index}}
+    {{?i.isdefault == 1}} <!-- 1是默认 -->
+    <li class="default" car_id="{{=i.id}}">
+        <div class="core clear" brandid="{{=i.brandid}}" detailid="{{=i.detailid}}" modelid="{{=i.modelid}}">
+            <img class="car-img" src="{{=i.img}}" alt="">
+            <span class="li-menu">
+                <p class="cartype">{{=i.brand}} {{=i.model}} {{=(i.detail) ? (i.detail)  : ""}}</p>
+                {{?i.hphm == ""}}
+                <p>未设置车牌号</p>
+                {{??}}
+                <p>{{=i.hphm}}</p>
+                {{?}}
+                {{?i.team}}
+                <p class="joinclub" team_id="{{=i.team_id}}">已加入 <b>{{=i.team}}</b></p>
+                {{?}}
+            </span>
+            <img class="car-icon" src="{{=i.logos}}" alt="">
+        </div>
+        <div class="bottom-btn" border="top"><span class="bbtn b-update">修改车辆信息</span><span class="bbtn b-del">删除车辆</span></div>
+    </li>
+    {{??}}
+    <li car_id="{{=i.id}}">
+       <div class="core clear" brandid="{{=i.brandid}}" detailid="{{=i.detailid}}" modelid="{{=i.modelid}}">
+           <img class="car-img" src="{{=i.img}}" alt="">
+        <span class="li-menu">
+            <p class="cartype">{{=i.brand}} {{=i.model}} {{=(i.detail) ? (i.detail) : ""}}</p>
+            {{?i.hphm == ""}}
+            <p>未设置车牌号</p>
+            {{??}}
+            <p>{{=i.hphm}}</p>
+            {{?}}
+            {{?i.team}}
+            <p class="joinclub" team_id="{{=i.team_id}}">已加入 <b>{{=i.team}}</b></p>
+            {{?}}
+        </span>
+        <img class="car-icon" src="{{=i.logos}}" alt="">
+       </div>
+        <div class="bottom-btn" border="top"><span class="bbtn b-update">修改车辆信息</span><span class="bbtn b-default">设为默认车辆</span><span class="bbtn b-del">删除车辆</span></div>
+    </li>
+    {{?}}
+{{~}}
+</script>
+<script>
+    var userid= getUserid(),
+        page = I('page','1'),
+        render=getRender('templist');
+
+    function onStart(){
+        _initMui();
+        loadEnd();
+        getData();//渲染数据
+    }
+    //获取数据并渲染
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_MODULEGROUP_GARAGE,{userid:userid,page:page},function(data){
+            if(data.status==1){
+                 if(data.data.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(page==1){
+                    $('.garage-list').html(render(data));
+                }else{
+                    $('.garage-list').append(render(data));
+                }
+                $('.mui-pull-caption').show();
+                if(data.data.length< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                 setTimeout(function(){
+                        mui('#pullrefresh').pullRefresh().setStopped(false);
+                 },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                           mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(page==1){
+                        $('.mui-pull-caption').hide();
+                        mui('#pullrefresh').pullRefresh().setStopped(true);
+                    }
+            }
+            loadEnd();
+        });
+    }
+    //添加车辆
+    $('.add-carteam').on('tap',function(){
+        var param= M();
+        param.source='barn';
+        param.name=decodeURIComponent(I('name'));//用户姓名
+        param.mobile=I('mobile');//手机号
+        param.tid = I('tid');//车队id
+        param.f =I('f');//验证块状态
+        param.imgcode =I('imgcode');//图形验证码
+        param.code2 =(I('code2'));//短信验证码
+        param.imgsrc = decodeURIComponent(I('imgsrc'));//图片src
+        isLogin(function(ret){
+            if(ret){
+                InterfaceTap('gotoCarLists',param);
+            }
+        })
+    });
+     //编辑车辆
+     $('.garage-list').on('tap','.b-update',function(){
+        var param= M();
+        param.source='barn_update';
+        param.name=decodeURIComponent(I('name'));//用户姓名
+        param.mobile=I('mobile');//手机号
+        param.id = $(this).parent().parent("li").attr("car_id");//id 
+        param.f =I('f');//验证块状态
+        param.imgcode =I('imgcode');//图形验证码
+        param.code2 =(I('code2'));//短信验证码
+        param.imgsrc = decodeURIComponent(I('imgsrc'));//图片src
+        isLogin(function(ret){
+            if(ret){
+                    InterfaceTap('gotoCarLists',param);
+            }
+        })
+    });
+    //删除车辆
+    $('.garage-list').on('tap','.b-del',function(){
+        var param= M();
+        param={
+            userid:userid,
+            action:"del",
+            id:$(this).parent().parent("li").attr("car_id"),
+        };
+        isLogin(function(ret){
+            if(ret){
+                jsonAjax(API.API_LIST.APT4_USER_CARFORM,param,function(data){
+                    if(data.status==1){
+                        $(".garage-list").html("");
+                        page=1
+                        getData();
+                    }
+                        loadEnd();
+                });
+            }
+        })
+    });
+    // 设为默认车
+    $('.garage-list').on('tap','.b-default',function(){
+        var param= M();
+        param={
+            userid:userid,
+            id:$(this).parent().parent("li").attr("car_id"),
+        };
+        isLogin(function(ret){
+            if(ret){
+                jsonAjax(API.API_LIST.GOLD_MODULEFROUP_UPDATECAR,param,function(data){
+                    if(data.status==1){
+                        getData(page=1);
+                    }
+                        loadEnd();
+                });
+            }
+        })
+    });
+     //选择车辆信息
+    $('.garage-list').on('tap','li .core',function(){
+        var param =M();
+        param.carinfo = $(this).find('.cartype').text();//车辆信息
+        param.name=decodeURIComponent(I('name'));//用户姓名
+        param.mobile=I('mobile');//手机号
+        param.brandid = $(this).attr("brandid");
+        param.modelid = $(this).attr("modelid");
+        param.detailid = $(this).attr("detailid");
+        param.tid = I('tid');//车队id
+        param.f =I('f');//验证块状态
+        param.imgcode =I('imgcode');//图形验证码
+        param.code2 =(I('code2'));//短信验证码
+        param.imgsrc = decodeURIComponent(I('imgsrc'));//头像图片src
+        param.carid = $(this).parent("li").attr("car_id"); //玩家车库车辆id
+        if($(this).find('.joinclub').length > 0){
+            $('.m-dialog').show(); //已加入车队提示框
+        }else{
+            InterfaceTap('gotoTeamInfo',param);
+        }
+    })
+    //提示框点击事件
+    $('.m-dlbtn').on('click','span',function(){
+            $('.m-dialog').hide();
+    })
+</script>
+</html>

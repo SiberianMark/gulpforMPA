@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>转介政策</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <style>
+        .wrap{width: 100%}
+        .wrap img{width: 100%;}
+        .wrap p{margin: 1rem;}
+    </style>
+</head>
+<body>
+    <div class="wrap" id="data">
+        <!--<img class="img-responsive" src="/web/car-service/assets/image/YJHbanner@2x.png">-->
+        <!--<p class="wrap-text mgt-2">广汽本田安信俱乐部认证车主（老车主)，介绍一位用户(新车主）购车，并登录活动平台参与完成车主转介绍购车活动的规定流程，则新老车主一并成为吉行天下倶乐部“最惠客”，经广汽本田安信俱乐部相关工作人员确认后，“最惠客”将获得吉行天下俱乐部提供的专属优惠。友聚会“最惠客”限前5000名，以新车主最终购车时间为限。极好的回馈老车主的机会，拥有广本车的亲们快快行动吧！</p>-->
+        <!--<div class="db-btn tc pa">填写好友信息</div>-->
+    </div>
+    <div class="btn-box">
+        <a class="btn" href="javascript:;" onclick="judge()">填写好友信息</a>
+    </div>
+</body>
+<script type="text/template" id="temp-list">
+    {{=it.decodeHtml()}}
+</script>
+<script>
+    var render = getRender('temp-list');
+    var LoadShare = false;
+    var LoadDate = false;
+	function onStart(){
+        getdata();
+	}
+
+    function allloadEnd(){
+        if(LoadDate&&LoadShare){
+            loadEnd();
+
+        }
+    }
+    function onWxReady(){
+        getShare();
+    }
+
+    function getShare () {
+        jsonAjax(API.API_LIST.CAR_REFFERAL_SHARE,{'userid':getUserid()},function (res) {
+            if(res.status==1){
+                WxShare.title = res.data.title;
+                WxShare.desc = res.data.content;
+                WxShare.imgUrl = res.data.img;
+                WxShare.link = res.data.link;
+                onWxShare();
+                LoadShare = true ;
+                allloadEnd();
+            }
+        })
+        // body...
+    }
+
+    function getdata(){
+        var datas ={
+            userid : getUserid()
+        };
+
+        jsonAjax(API.API_LIST.CAR_REFFERAL_INDEX,datas,function(res){
+            if(res.status==1&&res.data){
+                $(".wrap").html(render(res.data));
+                LoadDate = true ;
+                allloadEnd();
+            }
+        });
+    }
+
+    function judge(){
+        if(UserInfo.mobile){
+            PageJump('gotoFillFriendInfo');
+        }else{
+            var param = M();
+            param.source = 'RP';
+            PageJump('gotoLogin',param);
+        }
+    }
+
+</script>
+</html>

@@ -1,0 +1,245 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>摇一摇</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/shake.css"/>
+    <script src="/web/car-service/assets/js/shake.js?v=8094b90d7f"></script>
+    <script src="/web/assets/js/lottery/timegoing.js" charset="utf-8"></script>
+</head>
+<body>
+<!-- <button id="test" style="width: 100%;height: 4rem;">test</button> -->
+<div class="container bg02">
+    <div class="time-tit">暂未开始</div>
+    <div class="time-num">
+        <div class="djs">
+            <!-- <span class="hour colon" style="display: inline;">02</span> : -->
+            <span class="mini">00</span>
+            <em>:</em>
+            <span class="sec">00</span>
+            <em>:</em>
+            <span class="hm">00</span>
+        </div>
+    </div>
+    <!--gameover图片-->
+    <img class="gameOver" src="/web/car-service/assets/image/game/Game-Over@2x.png" style="display: none;">
+    <div class="shakePic"></div>
+    <div class="userBox">
+        <div class="user">
+            <img src="/web/car-service/assets/image/game/bg-2@2x.jpg">
+            <i></i>
+        </div>
+        <div class="goal"><span>速度值：<em>0</em></span></div>
+        <a href="javascript:;">&gt;&gt;查看别人的速度值&lt;&lt;</a>
+    </div>
+</div>
+<div class="modal">
+    <!-- 样式加fade显示 -->
+</div>
+<!-- <audio id="shakeAudio" preload="auto">
+    <source src="/web/car-service/assets/voice/shake_sound.mp3" type="audio/mpeg">
+</audio>
+<audio id="dingAudio" preload="auto">
+    <source src="/web/car-service/assets/voice/ding_sound.mp3" type="audio/mpeg">
+</audio> -->
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/x-dot-template" id="tmpl-msg">
+    <div class="box">
+    {{?msg_type==1}}
+        <div class="timeOut playBomb">
+            <div class="txt">游戏还未开始，请耐心等待</div>
+            <div class="btn" border="top">确定</div>
+        </div>
+    {{??msg_type==2}}
+        <div class="playOver playBomb">
+            <div class="txt">活动已经结束，请等待下一场</div>
+            <div class="btn" border="top" id="showList">查看排名</div>
+        </div>
+    {{??msg_type==3}}
+        <!-- 未中奖提示 -->
+        <div class="notWin playBomb">
+            <div class="txt">{{=it.info?it.info:''}}<p>{{=it.data}}</p></div>
+            <div class="btn" border="top" id="showList">查看排名</div>
+        </div>
+    {{??msg_type==4}}
+        <!-- 中奖提示 -->
+        <div class="win playBomb">
+            <div class="txt">{{=it.info?it.info:''}}<p>{{=it.data.award_yes?it.data.award_yes:''}}</p></div>
+            <div class="btn2" border="top">
+                <div border="right">取消</div>
+                <div>确定</div>
+            </div>
+        </div>
+    {{?}}
+    </div>
+</script>
+<script>
+var render=new getRender('tmpl-msg');
+var lefttime = '2017-01-30 15:45:13';
+var serverNow = new Date().getTime();
+var shakeTimeout = null;
+var active=false;
+var items_id=0;
+var game_id=I('id',0);
+var msg_type=0;
+//$('.djs').fnTimeCountDown(lefttime,formatDate(serverNow,'yyyy-MM-dd HH:mm:ss'),null,null,false,false,null);
+/*var mini=sec=hm=0;
+setInterval(function(){
+    $('.djs .mini').text('00');
+    $('.djs .sec').text('00');
+    hm=hm>=60?0:hm;
+    $('.djs .hm').text(hm.toString().length<2?('0'+hm):hm);
+    //$('.djs .sec').text(hm.toString().length<2?('0'+hm):hm);
+    //$('.djs .mini').text(hm.toString().length<2?('0'+hm):hm);
+    hm+=1;
+},10);*/
+$('.userBox>a').on('click',function(){
+    var obj=M();
+    obj.id=game_id;
+    obj.items_id=items_id;
+    PageJump('gotoShakeEtc',obj);
+});
+$('.modal').on('click','.btn,.btn2',function(){
+    $('.modal').removeClass('fade');
+});
+$('.modal').on('click','#showList',function(){
+    $('.modal').removeClass('fade');
+    var obj=M();
+    obj.id=game_id;
+    obj.items_id=items_id;
+    PageJumpTap('gotoShakeList',obj);
+});
+/*$('#test').on('click',function(){
+    shakeEventDidOccur();
+});*/
+function shakeEventDidOccur() {
+    var showvalue=false;
+    var value=0;
+    if(active&&parseInt(items_id)>0&&msg_type==0){
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKEVALUE,{'userid':getUserid(),id:game_id,items_id:items_id,mobile:$.cookie('did_game_mobile')},function(data){
+            if(data.status==1){
+                showvalue=true;
+                value=data.data;
+            }else{
+                inputTipsText(data.info);
+            }
+        });
+        $('.shakePic').addClass('do_share');
+        clearTimeout(shakeTimeout);
+        shakeTimeout = setTimeout(function(){
+            $('.shakePic').removeClass('do_share');
+            if(showvalue){
+                //myShakeEvent.sound(1);
+                $('.goal em').text(value);
+            }
+        },2000);
+    }else{
+        $('.modal').html(render());
+        $('.modal').addClass('fade');
+    }
+}
+
+function onStart() {
+    ring=false;
+    var myShakeEvent = new Shake({
+        threshold: 9,
+        timeout:2000
+    });
+    myShakeEvent.start();
+    /*for(var i=0;i<3;i++){
+        myShakeEvent.sound(0);
+        myShakeEvent.sound(1);
+    }*/
+    if (window.DeviceMotionEvent) {
+        window.addEventListener('shake', shakeEventDidOccur, false);
+    }else{
+        alert('您所用的设备好像不支持重力感应哦！');
+    }
+    $('.user>img').attr('src',UserInfo.photo!=''?UserInfo.photo:'/web/car-service/assets/image/game/bg-2@2x.jpg');
+    $('.user>i').text(UserInfo.nickname!=''?UserInfo.nickname:'');
+    Start();
+}
+
+function onWxReady(){
+    jsonAjax(API.API_LIST.CAR_GAME_SHAKESHARE,{'userid':getUserid(),id:I('id',0)},function(data){
+        if(data.status==1){
+            WxShare.title = data.data.title;
+            WxShare.desc = data.data.desc;
+            WxShare.imgUrl = data.data.imgUrl;
+            WxShare.link = data.data.link;
+            onWxShare();
+        }
+        loadEnd();
+    });
+}
+
+function Start(){
+    jsonAjax(API.API_LIST.CAR_GAME_SHAKETIMES,{'userid':getUserid(),id:I('id',0)},function(data){
+        if(data.status==1){
+            items_id=data.data.id;
+            //game_id=data.data.game_id;
+            serverNow = serverTime = parseInt(data.now)*1000;
+            lefttime = data.data.end_time;
+            $('.container').css({'background-image':'url('+data.data.game_img+')'});
+            if(data.data.status==0){//状态:0：未开始 1：进行中 2：已完成
+                if(data.data.start_time&&data.data.start_time!=''){//显示距离开始时间
+                    lefttime = data.data.start_time;
+                    $('.time-tit').text('距离开始');
+                    msg_type=1;
+                    $('.djs').fnTimeCountDown(lefttime,formatDate(serverTime,'yyyy-MM-dd HH:mm:ss'),null,null,false,false,function(){
+                        Start();
+                    });
+                }else{
+                    $('.time-tit').text('暂未开始');
+                    $('.djs>span').text('00');
+                    msg_type=1;
+                    setTimeout(function(){
+                        Start();
+                    },5000);
+                }
+            }else if(data.data.status==1){
+                active=true;
+                msg_type=0;
+                if(data.data.end_time&&data.data.end_time!=''){//显示距离结束时间
+                    $('.goal>span').html(data.data.point+"：<em>0</em>");
+                    $('.time-tit').text('距离结束');
+                    $('.djs').fnTimeCountDown(lefttime,formatDate(serverTime,'yyyy-MM-dd HH:mm:ss'),null,null,false,false,function(){//倒计时完成
+                        active=false;
+                        inputTipsText('开奖中...',-1);
+                        msg_type=2;//已完成
+                        //获取是否中奖
+                        setTimeout(function(){
+                            jsonAjax(API.API_LIST.CAR_GAME_SHAKEWIN,{'userid':getUserid(),id:game_id,items_id:items_id},function(r){
+                                if(r.status==1){
+                                    msg_type=4;//中奖了
+                                }else{
+                                    msg_type=3;//未中奖
+                                }
+                                console.log('开奖了',r.status,msg_type);
+                                $('.modal').html(render(r));
+                                $('.modal').addClass('fade');
+                                $('.inputTipsText').addClass('hide');
+                                $('.gameOver').show();
+                                $('.time-tit').hide();
+                                $('.time-num').hide();
+                                msg_type=2;//已完成
+                            });
+                        },5000);
+                    });
+                }
+            }else if(data.data.status==2){//已完成
+                $('.time-tit').text('暂未开始');
+                $('.djs>spam').text('00');
+                msg_type=1;
+            }
+        }
+        loadEnd();
+    });
+}
+</script>
+</html>

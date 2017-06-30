@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>会员说明</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/member.css"/>
+</head>
+<body class="explain">
+<div class="member-explain">
+    <p>什么是会员</p>
+    <p>会员是通过积分积累的总额决定会员级别</p>
+    <p>会员通过购物、签到、分享等，获得积分，积分越高，享受的特权越高.</p>
+</div>
+<div class="explain-box">
+    <div scl-pe="before">会员等级对照表</div>
+    <ul>
+        <li><span>注册会员</span><span>无</span></li>
+
+    </ul>
+</div>
+<script type="text/template" id="temp">
+    {{var arr=it,len=arr.length;}}
+    {{for(var i=0;i<len;i++){}}
+        {{
+            var grade1,grade2;
+            if(i==0){
+              grade1=i;
+            }else{
+              grade1=+(arr[i-1].integral)+1;
+            }
+            grade2=+arr[i].integral;
+        }}
+     <li><span>{{=arr[i].rankname}}</span>
+         {{?i==(len-1)}}
+         <span>{{=grade2}}积分以上</span>
+         {{??}}
+         <span>{{=grade1}}-{{=grade2}}积分</span>
+         {{?}}
+     </li>
+    {{}}}
+</script>
+</body>
+<script type="text/javascript">
+    function onStart(){
+        getData();
+    }
+    function getData(){
+        var render=getRender('temp');
+        jsonAjax(API.API_LIST.CAR_USER_USERRANK,{userid:getUserid()},function(data){
+            if(data.status==1){
+                $('.explain-box>ul').append(render(data.data.userrank));
+                loadEnd();
+            }
+        })
+    }
+</script>
+</html>

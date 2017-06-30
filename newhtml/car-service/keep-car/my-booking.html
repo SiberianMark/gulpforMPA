@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>我的预约</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <script>
+        loadWxObject();  //加载微信对象
+    </script>
+    <style>
+      .book-item>ul>div{position:absolute;left:50%;margin-left:-4.1rem;margin-top:5rem;text-align:center;font-size:1.4rem;color:#999;}
+      .book-item>ul>div>img{width:8.2rem;margin-bottom:1rem;}
+    </style>
+</head>
+<body >
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll">
+        <div class="book-item">
+            <ul>
+             <div class='quesheng'><img src='/web/car-service/assets/image/zanwuyuyue@2x.png'><p>暂无预约</p></div>
+            </ul>
+        </div>
+    </div>
+</div>
+    <script type="text/template" id="tmpl-data-history">
+        {{~it.data:val:index}}
+        <li type="{{=val.type}}" oid="{{=val.id}}" border="bottom">
+            <div class="title">{{=val.name}}</div>
+            <div class="book-time">预约编号：{{=val.code_num}}</div>
+            <div class="book-time">预约时间：{{=val.reservation_time}}</div>
+        </li>
+        {{~}}
+    </script>
+
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var page = 1;
+    var render = getRender('tmpl-data-history');
+
+    function onStart(){
+        _initMui();
+        getData();
+    }
+
+    function getData() {
+        jsonAjax(API.API_LIST.CAR_UPKEEP_RESERVATIONLIST, {'userid': getUserid(),'page':page}, function (data) {
+            if (data.status == 1) {
+                if(data.data.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return false;
+                }
+                var html  = render(data);
+                if(page == 1){
+                    $('.book-item ul').html(html);
+                }else{
+                    $(".book-item ul").append(html);
+                    $('.quesheng').hide();
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }
+            loadEnd();
+        });
+    }
+
+    $('.book-item').on('tap','li',function(){
+        var obj = M();
+        obj.id = $(this).attr('oid');
+        obj.type = $(this).attr('type');
+        // if($(this).attr('type')==6){
+        //     PageJump('gotoMyPaintDetail',obj);
+        // }else {
+            PageJump('gotoMyBookDetail',obj);
+        // }
+
+    })
+</script>
+</html>

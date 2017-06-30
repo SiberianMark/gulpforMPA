@@ -1,0 +1,314 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/fleet-home.css">
+    <title>车队</title>
+    <!-- ↑ 顶部共用 ↑ -->
+</head>
+<body>
+  <div class="wrap-box">
+
+  </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+
+<!-- 头部内容渲染 -->
+<script type="text/template" id="tempinfo">
+  <header class="flex-y">
+    <div class="introduce"></div>
+    <img src="{{=it.data.info.logo}}" >
+    <div class="gotoFleetInfo">车队信息</div>
+  </header>
+  <section>
+    <div class="flex new-notice">
+      <div class="flex-y notice-pic" border="right">
+        <img src="/web/assets/image/smdg/v2.41Demon/new@2x.png" >
+      </div>
+      <div class="notice-wrap flex-y">{{=it.data.info.comment?it.data.info.comment:''}}</div>
+    </div>
+    <div class="fleet-capacity flex" border="bottom">
+      <img src="/web/assets/image/smdg/v2.41Demon/redirect@2x.png">
+      <div class="tag">战力值</div>
+      <div class="wrap flex-x-about">
+        <span class="score">{{=it.data.info.sums}}</span>
+        <span class="gotoScore">查看榜单</span>
+      </div>
+    </div>
+     <div class="fleet-photo flex-y" border="bottom">
+      <div class="tag">车队相册</div>
+      {{?it.data.info.img.length != 0 }}
+      <img src="/web/assets/image/smdg/v2.41Demon/redirect@2x.png">
+      <div class="wrap fleet-pic flex-y">
+      {{~it.data.info.img:item:index}}
+        <i class="flex-y">
+          <img src={{=item.photo}}>
+        </i>
+      {{~}}
+      </div>
+      {{?}}
+    </div>
+    <div class="fleet-leaguer">
+      <div class="tag">车队成员</div>
+      <ul class="leaguer-info">
+        <li uid={{=it.data.captain.userid}}>
+            <div class="flex-y go-pinfo">
+              <div class="leaguer-pic">
+                <div class="flex-y">
+                    <img src={{=it.data.captain.image}}>
+                </div>
+                {{?it.data.captain.status == 1 }}
+                    <span>
+                      <img src="/web/assets/image/smdg/v2.41Demon/wanjiahao@2x.png">
+                    </span>
+                {{?}}
+              </div>
+              <div class="leaguer-info" border="bottom">
+                <p>{{=it.data.captain.uname}}
+                {{?it.data.captain.sex == 1 }}
+                  <span class="lg-sex">
+                    <img src="/web/assets/image/smdg/24px@1x.png" >
+                  </span>
+                {{??it.data.captain.sex == 2 }}
+                  <span class="lg-sex">
+                    <img src="/web/assets/image/smdg/24px@1x.png" >
+                  </span>
+                {{?}}
+                </p>
+                <div class="flex-x-about">
+                  <span class="car-model">{{=it.data.captain.brand}} {{=it.data.captain.detail}}</span>
+                  <span style="color:#f5b617;font-size:1.6rem">{{=it.data.captain.total}}</span>
+                </div>
+                <div class="lg-achievement">
+                {{?it.data.captain.grade !== ""}}
+                  <span>最好成绩：</span>
+                  <span>{{=it.data.captain.grade}}s
+                  {{?it.data.captain.gname !== ''}}
+                  <i style="font-style:normal;">（{{=it.data.captain.gname }}）</i>
+                  {{?}}
+                  </span>
+                {{?}}
+                </div>
+              </div>
+            </div>
+        </li>
+      {{~it.data.list:lists:indexs}}
+        <li uid={{=lists.userid}} class="un-captain" leaguer-id={{=lists.id}}>
+            <div class="flex-y item-cons go-pinfo">
+              <div class="leaguer-pic">
+                <div class="flex-y">
+                    <img src={{=lists.image}}>
+                </div>
+                {{?lists.status == 1 }}
+                    <span>
+                      <img src="/web/assets/image/smdg/v2.41Demon/wanjiahao@2x.png">
+                    </span>
+                {{?}}
+              </div>
+              <div class="leaguer-info" border="bottom">
+                <p>{{=lists.uname}}
+                {{?lists.sex == 1 }}
+                  <span class="lg-sex">
+                    <img src="/web/assets/image/smdg/24px@1x.png" >
+                  </span>
+                {{??lists.sex == 2 }}
+                  <span class="lg-sex">
+                    <img src="/web/assets/image/smdg/female-24.png" >
+                  </span>
+                {{?}}
+                </p>
+                <div class="flex-x-about">
+                  <span class="car-model">{{=lists.brand}} {{=lists.detail}}</span>
+                  <div class="integral">
+                      <span style="color:#f5b617;font-size:1.6rem">{{=lists.total}}</span>
+                  </div>
+                </div>
+                <div class="lg-achievement">
+                {{?lists.grade !== "" }}
+                  <span>最好成绩：</span>
+                  <span>{{=lists.grade}}s
+                  {{?lists.gname !== '' }}
+                  <i style="font-style:normal;">（{{=lists.gname }}）</i>
+                  {{?}}
+                  </span>
+                {{?}}
+                </div>
+              </div>
+            </div>
+            <div class="del-btn" style="display:none">删除</div>
+        </li>
+      {{~}}
+      </ul>
+    </div>
+    {{?it.data.info.is_captain == 1 }}
+    <div class="get-fri">
+      邀请好友加入
+    </div>
+    {{?}}
+  </section>
+
+</script>
+
+<script>
+var obj = M(),
+    render = getRender("tempinfo"),
+    captain_id = 0,
+    team_id = I("team_id"), // 车队ID;
+    is_captain = 0; // 判断是否是队长
+function getData() {
+    jsonAjax(API.API_LIST.GOLD_PLAY_SHOWTEAM,{userid:getUserid(),team_id:team_id},function(data){
+        if(data.status==1){
+            captain_id = data.data.captain.userid;
+            is_captain = data.data.info.is_captain;
+            $('.wrap-box').html(render(data));
+            $("title").html(data.data.info.name + "车队");
+        }else {
+            inputTipsText(data.info);
+        }
+    });
+};
+function onStart() {
+  getData();
+  loadEnd();
+};
+
+// 跳转车队信息
+$(".wrap-box").on("click",".gotoFleetInfo",function() {
+    obj = {
+        "tid": team_id
+    }
+    InterfaceTap("gotoFleetInfo",obj);
+});
+
+//跳转车队介绍
+$(".wrap-box").on("click",".introduce",function() {
+    obj = {
+        "tid": team_id,
+        "is_captain": is_captain
+    }
+    InterfaceTap("gotoFleetIntroduce",obj);
+})
+
+// 跳转战力值榜单
+$(".wrap-box").on("click",".gotoScore",function() {
+    obj = {
+      "tid": team_id
+    }
+    InterfaceTap("gotoScore",obj);
+});
+
+// 跳转车队队员个人详情
+$(".wrap-box").on("click",".leaguer-info li .go-pinfo",function() {
+    obj = {
+        "uid": $(this).parents("li").attr("uid")
+    }
+    InterfaceTap("gotoPersonInfo",obj);
+});
+
+// 队长邀请好友加入
+$('.wrap-box').on('click','.get-fri',function() {
+    obj={
+        "tid":team_id
+    };
+    Interface('gotoAddJoin',obj);
+});
+
+// 编辑删除车队成员
+$('.wrap-box').on('click','.del-btn',function() {
+    var _this = $(this),
+        playid = _this.parents('li').attr('leaguer-id');
+    jsonAjax('/Gold/Modulegroup/del_user',{id:playid},function(data){
+        if(data.status==1) {
+            _this.parents('li').remove();
+        }
+        else {
+            inputTipsText(data.info);
+        }
+    });
+});
+
+/***********左滑删除开始***********/
+    var li_x_page={
+        s:0,    //touchstart x坐标
+        m:0,    //e-s
+        e:0,    //touchmove x坐标
+        g:0,    //global—-m
+        is_show:false,  //是否显示删除按钮
+        sy:0,   //touchstart y坐标
+        ey:0,   //touchend y坐标
+        my:0,   //ey-sy
+    };
+    $('.wrap-box').on('touchstart touchmove touchend','.leaguer-info > .un-captain',function(e) {
+        if(captain_id != getUserid()){
+            return;
+        }
+        var ww=parseInt($('.del-btn').eq(0).width());
+        var e_, touches;
+        var itemCons=$(this).find('.item-cons');
+        var integral=$(this).find('.integral');
+        touches = event.touches && (event.touches.length ? event.touches : [event]);
+        e_ = (event.changedTouches && event.changedTouches[0]) || (event.originalEvent && event.originalEvent.changedTouches && event.originalEvent.changedTouches[0]) || touches[0].originalEvent || touches[0];
+        switch(e.type){
+            case 'touchstart':
+                li_x_page.s=e_.pageX;
+                li_x_page.sy=e_.pageY;
+                break;
+            case 'touchmove':
+                li_x_page.ey=e_.pageY;
+                li_x_page.e=e_.pageX;
+                li_x_page.m=li_x_page.e-li_x_page.s;
+                li_x_page.my=Math.abs(li_x_page.ey-li_x_page.sy);
+                if(li_x_page.m<-ww/3&&li_x_page.my<=50){
+                    console.log(li_x_page.m);
+                    $(this).find('.del-btn').show();
+                    tranSlate(itemCons,li_x_page.m-ww);
+                    tranSlate(integral,-ww);
+                    li_x_page.is_show=true;
+                }else{
+                    tranSlate(itemCons,0,'ease');
+                    tranSlate(integral,0,'ease');
+                    li_x_page.is_show=false;
+                    $(this).find('.del-btn').hide();
+                }
+                break;
+            case 'touchend':
+                if(li_x_page.is_show){
+                    tranSlate(itemCons,-ww,'ease');
+                }
+                break;
+        }
+    });
+    $('body:not(.del-btn)').on('touchstart',function(e){
+        var is_del = e.target.className.indexOf('del-btn') == -1;   //点到的不是cartPro-del;则为true；否则为false
+        if(li_x_page.is_show&&is_del){  //如果当前有未隐藏的删除按钮，隐藏删除按钮
+            e.preventDefault();
+            li_x_page.is_show=false;
+            tranSlate($('.player-list li .item-cons'),0,'ease');
+            tranSlate($('.player-list li .integral'),0,'ease');
+            $('.del-btn').hide();
+        }
+    });
+    function tranSlate(ele,ml,type){
+        if(type=='ease'){
+            ele.css({
+                '-webkit-transform' : 'translate3d('+ml+'px,0,0)',
+                'transform' : 'translate3d('+ml+'px,0,0)',
+                '-webkit-transition' : '-webkit-transform .3s ease-out',
+                'transition' : 'transform .3s ease-out',
+            });
+        }
+        else {
+            ele.css({
+                '-webkit-transform' : 'translate3d('+ml+'px,0,0)',
+                'transform' : 'translate3d('+ml+'px,0,0)',
+                '-webkit-transition' : '-webkit-transform 0s',
+                'transition' : 'transform 0s',
+            });
+        }
+    }
+    /***********左滑删除结束***********/
+</script>
+</html>

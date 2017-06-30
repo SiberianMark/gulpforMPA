@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>投诉</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <script src="/web/assets/js/imageUpdate.js"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/exclusive-adviser.css"/>
+    <script>
+        loadWxObject();  //加载微信对象
+    </script>
+</head>
+<body >
+<div class="consult">
+    <p class="miss">只要您问，我们一定会回答您！<br/>请问您的爱车是什么年款，里程？神马问题？问题是偶发还是持续出现。最好能提供照片哦！</p>
+    <textarea name="" id="" cols="30" rows="10" placeholder="请您在此尽量描述理由并上传图片"></textarea>
+    <div class="publish-btn clear">
+        <span class="pub-btn spec"></span>
+    </div>
+    <!--<div class="submit-successfully" scl-pe="before">-->
+        <!--<div>你的投诉已经提交，稍后会为你解答.</div>-->
+        <!--<div scl-pe='before'>回首页</div>-->
+    <!--</div>-->
+</div>
+
+<div class="complain-info" >
+    <div  class="flex-box input-name">
+        <div class=" my-name">
+            <label>联&nbsp;系&nbsp;人&nbsp;</label>
+            <input type="text" value="" name="text" placeholder="请输入联系人"/>
+        </div>
+        <div class="chose-sex box-item">
+            男
+            <span class="" scl-pe='before' sex="1"></span>
+           女
+            <span scl-pe='before' sex="2"></span>
+        </div>
+    </div>
+    <div class="input-box" style="clear: both;">
+        <label>手机号码</label>
+        <input type="text" value="" name="tel" placeholder="请输入手机号码"/>
+    </div>
+    <div class="btn-box">
+        提交
+    </div>
+</div>
+
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    function onStart(){
+   /*     if(I('secord')==0){
+            TitleReSet('在线咨询');
+            $('.consult textarea').attr('placeholder','');
+            $('.consult p').addClass('show')
+        }*/
+        getInfo();
+        imageUpdate();
+        loadEnd();
+    }
+    var images=[];//上传的图片
+    //选择性别
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected');
+        $(this).addClass('selected');
+    });
+//获取当前人的身份信息
+    function getInfo(){
+        $('input[name="text"]').val(UserInfo.nickname);
+        $('input[name="tel"]').val(UserInfo.mobile);
+        var sex=UserInfo.sex;
+       switch(parseInt(sex)){
+           case 0:
+               break;
+           case 1:
+               $('.chose-sex span').eq(0).addClass('selected');
+               break;
+           case 2:
+               $('.chose-sex span').eq(1).addClass('selected');
+               break;
+       }
+    }
+    //提交
+    $('.btn-box').on('click',function(){
+        var text=$('.consult textarea').val();
+        var contacts=$("input[type='text']").val();
+        var phone=$("input[name='tel']").val();
+        var patt=/^1[3|4|5|7|8]\d{9}$/i;
+        var sex=$('.selected').attr('sex');//性别
+        console.log(text,contacts);
+        if(empty(text)){
+            inputTipsText('请输入投诉内容');
+            return false;
+        }
+        if(empty(contacts)){
+            inputTipsText('请输入联系人，方便顾问联系您');
+            return false;
+        }
+        if(!patt.test(phone)){
+            inputTipsText('请输入正确的手机号码');
+            return false;
+        }
+        if(sex==undefined||sex==''){
+            inputTipsText('请选择性别');
+            return false;
+        }
+        var obj=M();
+        obj.userid=getUserid();
+        obj.aid=I('aid');//顾问id
+        obj.contacts=contacts;//联系人
+        obj.content=text;//问题描述
+        obj.images='';//图片
+        if($('.publish-btn .pub-img img').length>1){
+            $('.publish-btn .pub-img img').each(function(i,item){
+                images.push(item.getAttribute('src'));
+            });
+            obj.images=images.join(',');
+        }else if($('.publish-btn .pub-img img').length==1){
+            obj.images=$('.publish-btn .pub-img img').attr('src');
+        }
+        obj.sex=sex;
+        obj.mobile=phone;//手机
+        obj.carid=0;
+       jsonAjax(API.API_LIST.CAR_USER_COMPLAINT,obj,function(data){
+           if(data.status==1){
+               var obj = M(),secord=I('secord',0);
+               obj.phone = I('phone');
+               changeBackUrlL("car-service/more-services/my-consultant",{secord:secord});
+               PageJumpTap('gotoRescueSuccess',JSON.stringify(obj));
+           }else{
+               inputTipsText(data.info);
+           }
+       });
+    });
+    //限制只能输入数字
+    $('input[name="tel"]').on('input',function(){
+        var res=/^[0-9]*$/;
+        var value=$(this).val();
+        if(!res.test(value)){
+            $(this).val('');
+        }
+    });
+    var value;//输入的内容
+    //限制联系人输入长度
+    $('input[name="text"]').on('input',function(){
+        var res=/^[A-Za-z0-9\u4E00-\u9FA5]*$/;
+        var len1=$(this).val().length;
+        value=$(this).val();
+        if(!res.test($(this).val())){
+            $(this).val(value.slice(0,len1-1));
+        }
+        var len=$(this).val().gblen();
+        if(len<32){
+            value=$(this).val();
+        }
+        if(len>=32){
+            $(this).val(value);
+        }
+    });
+ /*   $('.consult textarea').on('input',function(){
+        $('.miss').removeClass('show');
+        console.log($('.consult textarea'));
+    })
+*/
+</script>
+</html>

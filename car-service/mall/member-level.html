@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>会员等级</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" href="/web/car-service/assets/css/member.css"/>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+</head>
+<body>
+<header class="member-header" id="header">
+</header>
+<section class="member-section" >
+    <div scl-pe="before">积分明细</div>
+    <div class=" mui-content mui-scroll-wrapper" id="pullrefresh">
+        <div class="mui-scroll">
+            <ul >
+                <div class="no-record"><span>暂无积分记录</span></div>
+            </ul>
+        </div>
+    </div>
+</section>
+<script type="text/template" id="temp1">
+    {{var obj=it;}}
+    <ul class="flex-x-about shop-submit">
+        <li><span>{{=obj.integral}}</span>积分</li>
+        <li>前往商城 ></li>
+    </ul>
+    <div class="member-level">
+        <img src="{{=obj.rankicon}}" alt=""/>
+        <p>{{=obj.rankname}}</p>
+    </div>
+    <div class="member swiper-container">
+        <ul class="swiper-wrapper ul-member">
+            {{var arr=obj.userrank,len=arr.length,rankid=obj.rankid;}}
+            {{for(var i=0;i<len;i++){}}
+            {{?rankid>=arr[i].rankid}}
+            <li class="swiper-slide yellow">
+            {{??}}
+            <li class="swiper-slide ">
+            {{?}}
+                <p>{{=arr[i].rankname}}</p><img src="/web/car-service/assets/image/mall/ico_diamond_60.png" alt=""/>
+                <p>{{=arr[i].integral}}</p>
+            </li>
+           {{}}}
+        </ul>
+        <div class="swiper-wrapper div"><div></div></div>
+    </div>
+</script>
+<script type="text/template" id="temp2">
+    {{var str=it,len=str.length;}}
+    {{ for(var j=0;j<len;j++){}}
+    <li scl-pe="before" class="flex-x-center" data-id="{{=str[j].id}}">
+        <div><spn>{{=str[j].type}}</spn><span>{{=str[j].addtime}}</span></div>
+        {{var num=+str[j].integral;}}
+        {{?num>0}}
+        <div>+{{=num}}</div>
+        {{??}}
+        <div>{{=num}}</div>
+        {{?}}
+    </li>
+    {{}}}
+</script>
+</body>
+<script type="text/javascript">
+    function onStart(){
+        _initMui();
+        getHeaderInfo();
+        getData();
+    }
+    var last_id='',
+            userid=getUserid();
+    //获得页面头部信息
+    function getHeaderInfo(){
+        var render1=getRender('temp1');
+        jsonAjax(API.API_LIST.CAR_USER_USERRANK,{userid:userid},function(data){
+            if(data.status==1){
+                var len=data.data.userrank.length,_data=data.data;
+                $('.member-header').html(render1(_data));
+                var width=0;
+                if(len<5){
+                    $('.member').css('width',4*len+(len-1)*3.5+'rem');
+                    width=4*len+(len-1)*3.5;
+                }else{
+                    $('.member>div').css('width',(4*len+(len-1)*3.5)*0.8+'rem');
+                    width=(4*len+(len-1)*3.5)*0.8;
+                }
+
+                var integral=_data.integral,
+                        all_integral=_data.userrank[len-1].integral,
+//                num=integral/all_integral*width+3*(+_data.rankid-1);
+                num=integral/all_integral*100+10*(+_data.rankid-1);
+                console.log(integral,all_integral,num+'----',integral/all_integral);
+                $('.div>div').css('width',num+'%');
+                var swiper = new Swiper('#header .member', {
+                    loop : false,
+                    observer: true,
+                    slidesPerView: 'auto',
+                    paginationClickable: true,
+                    freeMode: true
+                });
+                loadEnd();
+            }
+        })
+    }
+    //获得积分明细数据
+    function getData(){
+        var render=getRender('temp2');
+        jsonAjax(API.API_LIST.CAR_USER_INTEGRAL,{userid:userid,lastid:last_id},function(data){
+            if(data.status==1){
+                var len=data.data.log.length;
+                if(len<= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                }
+                if(last_id==''){
+                    $('.member-section ul').html(render(data.data.log));
+                }else{
+                    $('.member-section ul').append(render(data.data.log));
+                }
+                $('.mui-pull-caption').show();
+                if(len< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                last_id=$('.member-section li:last-child').attr('data-id');
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                loadEnd();
+            }else{
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(last_id==''){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+
+            }
+        })
+    }
+    //计算会员等级
+    function reckonMemberLevel(data){
+        var _data=data,zong_integral= 0;
+        for(var i= 0,len=_data.length;i<len;i++){
+            zong_integral+=+(_data[i].integral)
+        }
+        return zong_integral;
+    }
+    //前往商城
+    $('.member-header').on('click','.shop-submit>li',function(){
+        var index=$(this).index();
+        console.log(index);
+        if(index==1){
+            PageJumpTap('gotoMallIndex',{});
+        }
+    })
+</script>
+</html>

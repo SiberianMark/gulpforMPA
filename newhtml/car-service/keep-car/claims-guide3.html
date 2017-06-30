@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>理赔指南</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" href="/web/car-service/assets/css/claims.css">
+</head>
+<body>
+    <div class="claims-wrap">
+        <div class="accident-type pdt-2 pdb-2 bgwh">
+            <h3 class="claim3">理赔流程</h3>
+        </div>
+        <ul class="claims-terms bgwh claims-terms-none">
+
+        </ul>
+    </div>
+
+    <script type="text/template" id="tmpList">
+        {{~it.data.list:val:index}}
+        <li border="bottom"><i class="index">{{=index+1}}</i><p>{{=val.value}}</p></li>
+        {{~}}
+    </script>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var render = getRender('tmpList');
+
+    function onStart(){
+        getData();
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_INSURANCE_PAYMONEYGUIDE,{'type':2,'actypeid':I('actypeid',0),'ifdieid':I('ifdieid',0),'ifmydutyid':I('ifmydutyid',0)},function(data){
+            if(data.status == 1){
+                $('.claims-terms').html(render(data));
+                loadEnd();
+            }
+        })
+    }
+</script>
+</html>

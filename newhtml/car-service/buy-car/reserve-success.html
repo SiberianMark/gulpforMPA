@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>预约成功</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body>
+    <div class="wrap suc-wrap ovh">
+        <div class="success tc">
+            <img src="/web/car-service/assets/image/success@2x.png">
+            <p class="reserve-num">预约编号：</p>
+        </div>
+        <p class="text mgb-2 tc">恭喜您，已经成功预约了安信广本的服务</p>
+        <p class="text tc">请在前往4S店之后出示您的预约编号</p>
+        <div class="btn-group">
+            <div class="reserve-btn btn tc auto">查看预约详情</div>
+            <div class="go-btn btn tc auto">前往4S店</div>
+        </div>
+        <p class="tc play">玩游戏赚马蹄付保养费</p>
+    </div>
+</body>
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var reserve_num=I('reserve_num');
+    function onStart(){
+        console.log(reserve_num);
+        $('p.reserve-num').html('预约编号：'+reserve_num);
+        loadEnd();
+    }
+</script>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>在线咨询</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <script>
+        CLREAR_COPY=false;//enable copy content
+    </script>
+    <script src="/web/assets/js/imageUpdate.js"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+    <div class="consult">
+        <textarea name="" id="qusetion" cols="30" rows="10" maxlength="160" placeholder="只要你问，我们就一定会回答!
+请问您的车是什么年款，里程？神马问题？问题是偶发还是持续出现？最好能提供拍照。"></textarea>
+        <div class="publish-btn clear">
+            <span class="pub-btn spec"></span>
+        </div>
+    </div>
+
+    <div style="margin-top: 1rem;">
+        <div class="flex-box">
+            <div class="input-box box-item">
+                <label>联系人&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <input type="text" placeholder="请输入联系人" id="name" maxlength="32">
+            </div>
+            <div class="chose-sex box-auto">
+                <div>
+                    <label>男</label>
+                    <span class="selected" style="margin-right: 1rem;" sex="1"></span>
+                </div>
+                <div>
+                    <label>女</label>
+                    <span class="no_select" sex="0"></span>
+                </div>
+            </div>
+        </div>
+        <div class="input-box" style="clear: both;">
+            <label>手机号码</label>
+            <input type="text" id="phone"  placeholder="请输入手机号码"/>
+        </div>
+        <div class="btn-box">
+            <div class="btn">提交</div>
+        </div>
+    </div>
+    <div class="guwen" style="margin-top: 3rem;"></div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var dataLoad = false;
+    var empLoad = false;
+    function onStart(){
+        imageUpdate();
+        getData();//客服顾问信息
+        getEmployee(API.API_LIST.CAR_BUYCAR_PRICECOUNSELOR,$(".guwen"));
+    }
+
+    //选择性别
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected').addClass('no_select');
+        $(this).removeClass('no_select').addClass('selected');
+        sex=$(this).attr("sex");
+        console.log(sex);
+    });
+
+    $("#qusetion").on("input",function(){
+        if($(this).val().length==160){
+            inputTipsText('请描述问题的字数不能超过160个字符');
+        }
+    })
+
+    //提交
+    $(".btn").on("click",function(){
+        var sub = M();
+        sub.images = new Array();
+        $('.publish-btn .pub-img img').each(function (i) {
+            sub.images[i]=$(this).attr('src');
+            //_s +='['+i+']'+sub.images[i];
+        })
+        sub.content = $("#qusetion").val();
+        sub.userid = getUserid();
+        sub.contacts = $("#name").val();
+        sub.sex = $("span.selected").attr('sex');
+        sub.phone = $("#phone").val();
+        sub.advisorid = $(".guwen .info").attr('aid');
+        if(empty(sub.content)){
+            inputTipsText('请描述下您遇到的具体问题,越详细越好!');
+            return ;
+        }
+        if(!sub.contacts.isContacts()){
+            inputTipsText('联系人不能输入特殊字符且中文不能超过16个，字符不能超过32个!');
+            return ;
+        }
+        if(empty(sub.phone)){
+            inputTipsText('请填写您的联系方式!');
+            return ;
+        }
+        if(!sub.phone.isMobile()){
+            inputTipsText('请填写正确的手机号码!');
+            return;
+        }
+        jsonAjax(API.API_LIST.CAR_UPKEEP_ONEKEYCONSULT,sub,function (res) {
+            if (res.status == 1) {
+                var obj = M();
+                obj.reserve_num = res.data;
+                obj.phone = $('.guwen .shouji a').text();
+                changeBackUrlL("car-service/keep-car/index",{});
+                PageJump('gotoRescueSuccess',obj);
+            }else{
+                inputTipsText(res.info);
+            };
+            // body...
+        })
+
+    });
+    //限制只能输入数字
+    $('#phone').on('input',function(){
+        var res=/^[0-9]*$/;
+        var value=$(this).val();
+        if(!res.test(value)){
+            $(this).val(value.slice(0,value.length-1));
+        }
+    });
+    //客服顾问信息
+    function getData(){
+        $("#phone").val(UserInfo.mobile);
+        $("#name").val(UserInfo.nickname);
+        if(UserInfo.sex==2){
+            $("span[sex='1']").addClass('no_select').removeClass('selected');
+            $("span[sex='0']").addClass('selected').removeClass('no_select');
+        }
+        dataLoad = true;
+        allLoadEnd();
+    }
+
+    function allLoadEnd(){
+        console.log(dataLoad,empLoad);
+        if(dataLoad&&empLoad){
+            loadEnd();
+        }
+    }
+</script>
+</html>

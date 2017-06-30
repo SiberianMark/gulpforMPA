@@ -1,0 +1,182 @@
+<!doctype html>
+<html>
+<head>
+		<meta charset="UTF-8">
+		<script src="/web/assets/js/load.meta.js"></script>
+		<script src="/web/assets/js/load.head3.js"></script>
+		<title>确认订单</title>
+		<!-- ↑ 顶部共用 ↑ -->
+		<link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/determine-order.css">
+		<style>
+			input{border:none;}
+		</style>
+</head>
+<body>
+	<section id="shop">
+
+	</section>
+	<ul class="footer clear">
+		<li class="buyconfirm">确认</li>
+		<li>总价:
+			<i>￥</i>
+			<span id="totalmoney"></span>
+		</li>
+		<li>共1件商品</li>
+	</ul>
+	<div class="cartPro-text"><span></span><img class="whathl" src="/web/assets/image/wen_ico.png"></div>
+</body>
+<script type="text/template" id='goods-info'>
+		<header>{{=it.data.name}}</header>
+		<div class="goodsinfo flex" border="top">
+			<div class="pic">
+				<img src="{{=it.data.img}}" />
+			</div>
+			<div class="article">
+				<p>{{=it.data.title}}</p>
+				<ul class="clear">
+				{{for(i in it.data.features){ }}
+					<li scl-pe='before'>{{=it.data.features[i]}}</li>
+				{{ } }}
+				</ul>
+				<p>时间：{{=it.data.begin_time.split(" ")[0].replace(/-/g,'.')}}</p>
+				<p>￥{{=it.data.price}}</p>
+			</div>
+		</div>
+		<!-- <div class="nums clear liner">
+			<span>购买数量</span>
+			<div>
+				<span class="minus" scl-pe='before'>-</span>
+				<input class="buy-how" type="number" value="1"/>
+				<span class="add" scl-pe='before'>+</span>
+			</div>
+		</div> -->
+		<div class="usermeg liner" border="top">
+			<span>买家留言：</span>
+			<input type="text" value="选填，可填写您和卖家达成的一致要求" />
+		</div>
+		{{?it.data.privilege_list.length>0}}
+		<div id="syscoupon" class="liner clear">
+				<span>平台优惠券</span>
+				<p style="width:50%;text-align:right;height:4.1rem;">
+					<span type_id=0>有可用优惠券</span>
+				</p>
+		</div>
+		<div class="couBox">
+				<div class="inpBox" >
+						<div class="title" border="bottom">平台优惠</div>
+						<div class="systemcount">
+								{{~it.data.privilege_list:act:index}}
+								<label class="ipn" border="bottom" type_id={{=act.id}} status={{=act.click_status}} ticket={{=parseFloat(act.ticket_much).toFixed(2)}}>
+										<input type="radio" name="radio">
+										{{?act.click_status==2}}
+										<span>{{=act.ticket_much}}折：</span><i>{{=act.activity_name}}</i>
+										{{??}}
+										<span>省{{=act.ticket_much}}元：</span><i>{{=act.activity_name}}</i>
+										{{?}}
+								</label>
+								{{~}}
+								<label class="ipn"  border="bottom" aid="0">
+										<input type="radio" name="radio" checked="checked">
+										<i>不使用优惠券</i>
+								</label>
+						</div>
+						<div class="close">关闭</div>
+				</div>
+		</div>
+		{{?}}
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+var totalNum = 0; //总数量
+var aid=I("id");//活动ID
+var price_id=I("priceid");//票类型ID
+var goodsRender=getRender("goods-info");
+var totalmoney=0;//结算金额
+var activity_name='有可用优惠券';//代金券名称
+var syscount=0;//优惠额度;
+var typeid=0;//优惠券id
+var usermeg = '';//用户留言
+function onStart(){
+	isLogin(function(ret){
+		if(ret){
+			getData();
+		};
+	});
+
+};
+
+function getData(){
+	jsonAjax(API.API_LIST.CONFIRM_ACTIVITY_PAGE, {'userid':getUserid(),'aid':aid,'price_id':price_id}, function (data) {
+		if(data.status==1){
+				$("#shop").html(goodsRender(data));
+				totalmoney=parseFloat(data.data.price).toFixed(2);
+				$("#totalmoney").text(totalmoney);
+				$(".cartPro-text span").html(data.data.notice);//福袋
+				$("#syscoupon").on("click",function(){
+						$(".couBox").show();
+				});
+				$(".couBox .ipn").on("click",function(){
+						activity_name=$(this).find("i").text();
+						if(activity_name=="不使用优惠券"){
+								activity_name="有可用优惠券";
+								syscount=0;
+								typeid=0;
+						}else{
+								if($(this).attr("status")==2){
+										syscount=totalmoney*(1-$(this).attr("ticket")/10);
+								}else{
+										syscount=$(this).attr("ticket");
+								}
+								typeid=$(this).attr("type_id");
+						};
+				});
+				$(".couBox").on("click",".close",function(){
+						if(parseFloat(data.data.price-syscount)<=0){
+							totalmoney = 0;
+						}else{
+							totalmoney = data.data.price-syscount;
+						};
+						$(".couBox").hide();
+						$("#syscoupon").find("p>span").text(activity_name).attr("type_id",typeid);
+						$("#totalmoney").text(parseFloat(totalmoney).toFixed(2));
+				});
+				//跳转活动详情
+				$(".goodsinfo").on("click",function(){
+					var parm = M();
+					parm.activity_id=aid;
+					// Interface('gotoEnrolLists');
+					Interface('gotoCarnivalDetail',parm);
+				});
+		};
+		loadEnd();
+	});
+};
+//买家留言onfocus效果
+$('#shop').on('focus', '.usermeg input', function () {
+		if ($(this).val() == "选填，可填写您和卖家达成的一致要求") {
+				$(this).val("");
+				usermeg='';
+		};
+		$(this).css("color", "#333");
+});
+$('#shop').on('blur', '.usermeg input', function () {
+		if ($(this).val() == "") {
+				$(this).val("选填，可填写您和卖家达成的一致要求");
+				$(this).css("color", "#999");
+		}else{
+		    usermeg=$(this).val();
+		}
+});
+//点击确认跳转
+$(".footer").on("click",".buyconfirm",function(){
+	var obj=M();
+	obj.id=aid;
+	obj.price_id=price_id;
+	obj.coupon_id=typeid;
+	obj.meg=usermeg;
+	Interface("gotoCarnivalEnrollinfo",obj);
+});
+
+</script>
+</html>

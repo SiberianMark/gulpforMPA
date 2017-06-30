@@ -1,0 +1,280 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>TA的参赛记录</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/entryRecord.css">
+    <style>
+      .swiper-wrapper{height:4rem;float:right;}
+    </style>
+</head>
+<body>
+  <header>
+  </header>
+  <div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+      <div class="mui-scroll">
+        <section>
+              <ul class="wrap-box">
+
+              </ul>
+        </section>
+      </div>
+  </div>
+
+</body>
+<script type="text/template" id='record-head'>
+  <div class="bground">
+      <img src="/web/assets/image/smdg/img_rongyu_bg.png" />
+      <ul class="userinfo">
+        <li>
+          <span>姓名:</span>&nbsp&nbsp&nbsp{{=it.data.message.nickname}}
+        </li>
+        <li>
+          <span>嘀嘀号:</span>{{=uid}}
+        </li>
+        <li>
+          <span>积分:</span>&nbsp&nbsp&nbsp{{=it.data.message.score}}分
+        </li>
+        <li class="userpic flex-y">
+          <img src="{{=it.data.message.photo?it.data.message.photo:'/web/assets/image/smdg/moren_touxiang@2x.png'}}" />
+        </li>
+      </ul>
+      <div class="usertitle">
+        {{?it.data.message.score<500}}
+          <img src="/web/assets/image/smdg/img_houshuchesheng.png" />
+        {{??it.data.message.score>=500&&it.data.message.score<999}}
+          <img src="/web/assets/image/smdg/img_shangdianchesheng.png" />
+        {{??it.data.message.score>=1000}}
+          <img src="/web/assets/image/smdg/img_leitingchesheng.png" />
+        {{?}}
+      </div>
+  </div>
+    <div class="car-record ">
+    <p>车辆参赛记录</p>
+      <div class="swiper-container">
+          <div class="swiper-wrapper">
+            {{for( var i = it.data.header.length;i>0;i--){ }}
+              <span brandid={{=it.data.header[i-1].brandid}} modelid={{=it.data.header[i-1].modelid}} detailid={{=it.data.header[i-1].detailid}} class="swiper-slide">
+                <img src="{{=it.data.header[i-1].logo}}" />
+                <i style="display:none"></i>
+              </span>
+            {{ } }}
+          </div>
+      </div>
+    </div>
+    {{?it.data.header.length>0}}
+    <div class="wrap-head">
+      <img class="car-pic" src="{{=it.data.car.image}}" />
+      <span>{{=it.data.car.brand}}&nbsp{{=it.data.car.detail}}&nbsp{{=it.data.car.model}}</span>
+    </div>
+    {{?}}
+</script>
+<script type="text/template" id='record-wrap'>
+        {{for(i in it.data.record){ }}
+          <li aid="{{=it.data.record[i].aid}}">
+          <p>参赛记录</p>
+            <div class="score">
+              <i></i>
+              <span class="scorename">{{=it.data.record[i].title}}</span>
+              {{?it.data.record[i].score != 0}}
+              <span class="scoreico">获得<i>&nbsp{{=it.data.record[i].score}}&nbsp</i>积分</span>
+              {{??}}
+              <span class="scoreico no-score">未获得积分</span>
+              {{?}}
+            </div>
+            <div class="group" >
+            {{?it.data.record[i].game.length==0}}
+              <div class="double-wrap" style="background:url('/web/assets/image/smdg/yichangci+n@2x.png');width:2.4rem;height:2.1rem;background-size:100% 100%"></div>
+            {{??it.data.record[i].game.length==1}}
+              <i class="double-wrap"></i>
+            {{??it.data.record[i].game.length>1}}
+              <ul>
+                <li class="double-wrap"></li>
+              {{for(k=1;k<it.data.record[i].game.length;k++){ }}
+                <li></li>
+              {{ } }}
+              </ul>
+            {{?}}
+              <p class="clear">
+                <span>组别</span>
+                <span style="float:right;color:#f5b617">{{=it.data.record[i].name}}</span>
+              </p>
+              <div>
+              {{ for(j in it.data.record[i].game){ }}
+                <p class="clear">
+                  <span>{{=it.data.record[i].game[j].type}}
+                  {{?it.data.record[i].game[j].ranking!=''}}
+                  <i>第{{=it.data.record[i].game[j].ranking}}名</i>
+                  {{?}}
+                  </span>
+                  {{?it.data.record[i].game[j].grade!=''}}
+                  <span style="float:right;font-weight:bold;color:#f5b617">{{=it.data.record[i].game[j].grade}}s</span>
+                  {{?}}
+                </p>
+              {{ } }}
+              </div>
+            </div>
+          </li>
+        {{ } }}
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+
+<script>
+var render = getRender("record-head");//头部模板
+var render1 = getRender("record-wrap");//参赛记录内容模板
+var page = 1;//请求分页
+var brandid = 0;//品牌id
+var modelid = 0;//车型id
+var detailid = 0;//车系id
+var source = I("source",0);//跳转参数
+var uid = I("uid",getUserid());//嘀嘀号
+var oFirst = true;
+var didinumber = I("didinumber");
+function onStart(){
+  if(didinumber){
+    uid = didinumber;
+  }else{
+    if(source=="home"||uid==getUserid()){//更替页面标题
+      $("title").text("我的参赛记录");
+    };
+  };
+  _initMui();
+  getData(true);
+  loadEnd();
+
+}
+function getData(type){ //获取数据
+    var obj={
+    'userid':uid,
+    'page':page,
+    'brandid':arguments[1]?arguments[1]:brandid,
+    'modelid':arguments[2]?arguments[2]:modelid,
+    'detailid':arguments[3]?arguments[3]:detailid
+    }
+  jsonAjax(API.API_LIST.HOME_ENTRYRECORD, obj, function (data) {
+    if(data.status==1){
+      WxShare.title=data.data.share.title;
+      WxShare.imgUrl=data.data.share.img_link;
+      WxShare.link=data.data.share.share_link;
+      WxShare.desc=data.data.share.desc;
+      loadWxObject(true); //获取微信分享对象
+      if(type){
+        $("header").html(render(data));//渲染头部
+        var len=$(".car-record").find("span").length;
+        if(len<8){
+          $(".swiper-wrapper").css("flex-direction","row-reverse");
+        };
+        $(".car-record").find("span").eq(0).find("i").show();
+        var swiper = new Swiper ('.swiper-container', {
+              roundLengths : true,
+              slidesPerView:"auto",//设置slider容器能够同时显示的slides数量
+              paginationClickable: true,
+              observer: true,
+              loop : false,//循环
+          });
+      }
+        if(data.data.header.length<=0&&type){
+          console.log($("header").css("height"))
+          $("#pullrefresh").css("margin-top","23.65rem");
+          $(".car-record").hide();
+          $("section").html('<div class="nodata">'+
+                                '<div class="qsPic">'+
+                                  '<img src="/web/assets/image/smdg/jilu-quesheng@2x.png" />'+
+                                '</div>'+
+                                '<p class="qsword">'+'参与嘉年华活动，来获得更多的记录和成就吧！'+'</p>'+
+                                '<div class="goto">'+'查看活动'+'</div>'+
+                              '</div>').css({"height":"100%","background":"#fff","overflow":"auto"});//缺省页
+          $("#pullrefresh").css("background","#fff");
+          $(".goto").on("click",function(){ //查看活动，跳转活动首页
+              Interface('gotoCarnivalHome');
+          });
+        }else{
+          $("header .wrap-head").html('<div class="wrap-head">'+
+                                        '<img class="car-pic" src="'+data.data.car.image+'"/>'+
+                                        '<span>'+data.data.car.brand+'&nbsp'+data.data.car.detail+'&nbsp'+data.data.car.model+'</span>'+
+                                      '</div>');
+          // $(".wrap-box").html(render1(data));
+          if(data.data.record.length<=0){
+              if(pull_action ==  'up'){
+                  mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+              }
+              else if(pull_action == 'down'){
+                  mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+              }
+              if(oFirst){
+                $(".wrap-box").html('');
+              };
+              return;
+          };
+          oFirst = false;
+          if(page==1){
+              $(".wrap-box").html(render1(data));//渲染参赛记录内容
+          }else{
+              $(".wrap-box").append(render1(data));
+          }
+          $('.mui-pull-caption').show();
+
+          if(data.data.record.length< 10){
+            $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+          };
+          setTimeout(function(){
+              mui('#pullrefresh').pullRefresh().setStopped(false);
+          },200);
+          page++;
+          if(pull_action ==  'up'){
+              mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+          }else if(pull_action == 'down'){
+              mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+          }
+        };
+    }else{
+        if(pull_action == 'up'){
+            mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+        }else if(pull_action == 'down'){
+            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+        };
+        if(page==1){
+            $('.lottery-empty').show().parents('.buy-records').css('background','none');
+            $('.mui-pull-caption').hide();
+            mui('#pullrefresh').pullRefresh().setStopped(true);
+        };
+    };
+  });
+
+};
+
+
+$('header').on('click','.car-record span',function(){ //切换车辆参赛记录
+    // mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+    $('.car-record i').each(function(i,item){
+      $(item).attr('style','display:none');
+    });
+    $(".wrap-box").html('');
+    pull_action ='';
+    page=1;
+    oFirst = true;
+
+    brandid = $(this).attr('brandid');
+    modelid = $(this).attr('modelid');
+    detailid = $(this).attr('detailid');
+    $(this).find("i").show();
+    getData(false,brandid,modelid,detailid);
+
+    $('.mui-pull-caption').hide();
+    mui('#pullrefresh').pullRefresh().refresh();
+});
+$(".wrap-box").on("tap click","li",function(){ //跳转活动详情
+  var obj=M();
+  obj.activity_id = $(this).attr("aid");
+  Interface('gotoCarnivalDetail',obj);
+});
+</script>
+</html>

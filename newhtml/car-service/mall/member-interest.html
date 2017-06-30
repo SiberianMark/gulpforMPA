@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>会员权益</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/member.css"/>
+</head>
+<body class="inerest">
+<section class="inerest-section">
+    <ul class="clear">
+    </ul>
+</section>
+<script type="text/template" id="temp">
+    {{var arr=it,len=arr.length;}}
+    {{for(var i=0;i<len;i++){}}
+    <li><img src="{{=arr[i].icon}}" alt=""/><p>{{=arr[i].name}}</p></li>
+    {{}}}
+</script>
+</body>
+<script type="text/javascript">
+    function onStart(){
+        getData();
+    }
+    function getData(){
+        var render=getRender('temp');
+        jsonAjax(API.API_LIST.CAR_USER_MYMEMBER,{userid:getUserid()},function(data){
+            if(data.status=1){
+               $('.inerest-section>ul').html(render(data.data.equities));
+                loadEnd();
+            }
+        })
+    }
+</script>
+</html>

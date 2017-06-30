@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>幸运大转盘</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/turntable.css">
+    <script src="/web/assets/js/mui.3.0.min.js?v=41cb80c42a"></script>
+</head>
+<body>
+    <div id="main"></div>
+</body>
+<script type="text/template" id="tmpl">
+    {{?!it.mobile}}
+    <div class="game-input">
+        <div class="input-box">
+            <input type="text" placeholder="输入手机号码参与游戏" name="phone"/>
+        </div>
+        <div class="img-box">
+            <img src="/web/car-service/assets/image/game/xiayibu@2x.png"/>
+        </div>
+    </div>
+    {{??}}
+    <div class="user-info">
+        <div class="user">
+            <img src="{{=it.photo}}" />
+            <span>{{=it.nickname}}</span>
+        </div>
+        <div class="btn">立即参与</div>
+    </div>
+    {{?}}
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var isStart = true;
+    var isfirst = true;
+    var game_id = I('game_id');
+    var dial_id;
+    var render = getRender('tmpl');
+    function onStart(){
+        getBackground();
+        setInterval(getBackground,10000);
+    }
+    //获取背景图
+    function getBackground(){
+        var data = {
+            game_id:game_id
+        }
+        jsonAjax(API.API_LIST.CAR_DIAL_GAME_INDEX,data,function(res){
+            if(res.status==1){
+                $("body").css({
+                    'background':'url("'+res.data.start_bg_img+'")',
+                    'background-size':'cover'
+                });
+                dial_id = res.data.id;
+
+            }else{
+                isStart = false;
+                $("body").css({
+                    'background':'url("'+res.code.start_bg_img+'")',
+                    'background-size':'cover'
+                });
+                inputTipsText(res.info);
+
+            }
+            if(res.code.type_type==1){
+                var param = M();
+                param.game_id = game_id;
+                param.dial_id = dial_id;
+                if(UserInfo.mobile){
+                    param.phone = UserInfo.mobile;
+                    PageJump('gotoTurnTable',param);
+                }
+            }
+            isfirst = false;
+            loadEnd();
+        });
+        if(isfirst){
+            $("#main").append(render(UserInfo));
+        }
+    }
+
+    function getShare(){
+        var data = M();
+        data.id = game_id;
+        data.userid = getUserid();
+        jsonAjax(API.API_LIST.CAR_DIAL_DIALSHARE,data,function(res){
+            if(res.status==1){
+                console.log(res);
+                WxShare.title = res.data.title;
+                WxShare.desc = res.data.desc;
+                WxShare.imgUrl = res.data.imgUrl;
+                WxShare.link = res.data.link;
+                onWxShare();
+            }
+        })
+    }
+
+    $("#main").on("click",".img-box",function(){
+        var param = M();
+        param.game_id = game_id;
+        param.dial_id = dial_id;
+        param.phone = $("input[name='phone']").val();
+        if(!param.phone.isMobile()){
+            inputTipsText("请输入正确的手机号码!");
+        }else if(!isStart) {
+            inputTipsText("活动未开始！");
+        }else{
+            PageJump('gotoTurnTable',param);
+        }
+    });
+
+    $("#main").on("click",".btn",function(){
+        var param = M();
+        param.game_id = game_id;
+        param.dial_id = dial_id;
+        param.phone = $("input[name='phone']").val();
+        if(!isStart) {
+            inputTipsText("活动未开始！");
+        }else{
+            PageJump('gotoTurnTable',param);
+        }
+    });
+
+    /*on wx sdk config ready*/
+    function onWxReady(){
+        getShare();
+    }
+</script>
+</html>

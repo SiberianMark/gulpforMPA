@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>报名凭证</title>
+	<!-- 共用浏览器初始化↓ -->
+	<script src="/web/assets/js/load.meta.js"></script>
+	<link rel="stylesheet" href="/web/assets/css/smdg/voucher.css">
+	<!-- <script src="/web/assets/js/head-lottery3.js"></script> -->
+	<!-- 共用头文件↓ -->
+	<script src="/web/assets/js/load.head3.js"></script>
+	<script>
+		loadWxObject();  //加载微信对象
+	</script>
+
+</head>
+<body>
+<div class="body">
+	<div class="voucher-info">
+		
+	</div>
+	<p class="notes">请妥善保管此凭证，在活动现场签到使用</p>
+
+		 <div id="foot-nav">
+	            <div class="save-vouter son">
+	                <div class="icon-save-vouter"></div>
+	                <div class="foot-save-vouter-title">下载APP</div>
+	            </div>
+	            <div class="goto-avtivity son">
+	                <div class="icon-goto-avtivity"></div>
+	                <div class="foot-goto-avtivity-title">查看活动</div>
+	            </div>
+	            <div class="share son">
+	                 <div class="icon-share"></div>
+	                <div class="foot-share-title">分享活动</div>
+	            </div>
+	     </div>
+	     <div class="mask-level">
+        	<img src="/web/assets/image/smdg/share-icon.png">
+    	 </div>
+     <div class="modal">
+        <div class="modal-content ol-content">
+            <div class="ol-pn">只有APP上才能查看我的活动哦</div>
+            <div class="ol-cover-btn" border="top">
+               <a  id="btn-cancel" style="cursor: pointer;">取消</a>
+               <a  border="left" id="btn-use">立即使用</a>
+            </div>
+        </div>
+ </div>
+
+</div>
+</body>
+<!-- 构建数据引擎↓ -->
+<script type="text/template" id="voucher-card-info">
+	<div class="vouche-title">
+			<img class="headimg" src="/web/assets/image/smdg/pingzhengruchang@2x.png" alt="">
+			<p>入场凭证</p>
+		</div>
+		<div class="activity-info">
+			<img class="activity-img" src="{{=it.data.image}}" alt="">
+			<h3>{{=it.data.title}}</h3>
+			<p class="time">{{=it.data.begin_time}}-{{=it.data.end_time}}</p>
+			<p class="address">{{=it.data.address}}</p>
+			<p class="host">发起方:<span>{{=it.data.unit}}</span></p>
+		</div>
+		<div class="spraline"><img src="/web/assets/image/smdg/fengexian@2x.png" alt=""></div>
+		<div class="apply-info">
+			<div class="qrcode"><img src="{{=it.data.qrcode}}" alt=""></div>
+			<div class="apply-detail">
+				<p><span>数字码&nbsp;:</span><span>&nbsp;{{=it.data.code}}</span></p>
+				{{?it.data.price>0}}
+					<p><span>票&nbsp;&nbsp;&nbsp;价&nbsp;:</span><span style="color:rgb(245,182,23)">&nbsp;￥{{=it.data.price}}</span></p>
+				{{??}}
+					<p><span>票&nbsp;&nbsp;&nbsp;价&nbsp;:</span><span style="color:rgb(245,182,23)">&nbsp;免费</span></p>
+				{{?}}
+				
+				<p><span>报名人&nbsp;:</span><span>&nbsp;{{=it.data.name}}</span></p>
+				<p><span>电&nbsp;&nbsp;&nbsp;话&nbsp;:</span><span>&nbsp;{{=it.data.mobile}}</span></p>
+			</div>
+		</div>
+</script>
+<script>
+	var render = getRender('voucher-card-info');
+	var share=I('isshare');
+	var source=I('source',0);
+	console.log(share);
+	// var id=19;
+	// var userid=1002586;
+	function onStart(){
+		isLogin(function(ret){
+			if(ret){
+			 	//获取数据并渲染
+				getVoucherData();			
+			}
+		});
+			//获取数据并渲染
+
+
+		//绑定事件
+		if(is_smdd()){//app
+			$('.save-vouter').css('display','none');
+		}else if(!is_weixn(true) && !is_smdd()){
+			$('.share').css('display','none');
+		}
+		//下载app
+		$('.save-vouter').on('click',function(){
+			// if(is_weixn()){
+        		InterfaceTap('downApp');
+        	// }else{
+        	// 	//下载活动凭证
+        	// 	$('.modal .modal-content').html('<div class="ol-pn">请移步到生活板块进行下载</div><div class="ol-cover-btn" border="top" ><a id="btn-cancel" style="width: 100%;cursor: pointer;">确定</a></div>');
+        	// 	$('.modal').addClass('fade');
+        	// }
+		});
+		$(".goto-avtivity").on("click",{},function(){
+			if(is_weixn()){
+				// $('.modal .modal-content').html(' <div class="ol-pn">只有APP上才能查看我的活动哦</div><div class="ol-cover-btn" border="top"><a  id="btn-cancel">取消</a><a  border="left" id="btn-use">立即使用</a></div>');
+				$('.modal').addClass('fade');
+			}else {
+				var obj= new Object();
+				obj.activity_id=I('id');
+				if(source==1){
+					Interface('gotoCarnivalDetail',JSON.stringify(obj));
+				}else {
+					Interface('gotosmdgActivityDetail',JSON.stringify(obj));
+				}
+			}
+		});
+		$('#btn-use').click(function(){
+	      $(this).addClass('hv');
+	      InterfaceTap('downApp');
+	    })
+
+	    $(document).on('click','#btn-cancel',function(){
+	      $('.modal').removeClass('fade');
+	    });
+		$('.share').on('click',function(){
+			//弹出分享框
+			$('.mask-level').show();
+			setTimeout(function(){$('.mask-level').hide();},3000);
+			// if(is_weixn()){
+			// 	$('.mask-level').show();
+			// }else{
+			// 	if(isLogin()){
+   //              	wxShare(WxShare); //获取微信分享对象
+   //         		}
+			// };
+
+		});
+		$('.mask-level').on('click',function(){
+    		$(this).hide();
+		});
+		 loadEnd();
+	}
+	//获取活动凭证
+	function getVoucherData(){
+		jsonAjax(API.API_LIST.GOLD_HOME_VOUCHERINFO,{'userid':getUserid(),'id':I('id',0)},function(data){
+			if(data.status==1){
+				//初始化微信分享页
+				console.log(data.data.title);
+				WxShare.title=data.data.share_title;
+				WxShare.imgUrl=data.data.share_pic;
+				WxShare.desc=data.data.share_content;
+				WxShare.link=data.data.share_url;
+				//WxShare.linkUrl=data.data.share_url;//分享到其他平台时可用
+				loadWxObject(true);  //加载微信对象
+				//渲染引擎
+				$(".voucher-info").html(render(data));
+			}else{
+				//全网通浏览器打开有登录缓存的情况下默认跳转到当前活动
+				if(!is_weixn(true) && !is_smdd()){
+					var obj={};
+					obj.activity_id=I('id',0);
+					if(source==1){//跳转到嘉年华活动详情
+						gotoCarnivalDetail(obj);
+					}else{//跳转到smdg活动详情
+						gotosmdgActivityDetail(obj);
+					}
+				}else{
+					 inputTipsText(data.info);		
+				}	
+			};
+			loadEnd();
+		});
+	}
+</script>
+</html>

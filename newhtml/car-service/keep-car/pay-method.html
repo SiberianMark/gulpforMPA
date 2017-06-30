@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title></title>
+    <<script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+    <div class="pay-amout">
+        <ul>
+            <li class="pr">
+                <span>总需支付金额：</span>
+                <span class="pay">&yen;55.00</span>
+            </li>
+            <li class="pr">
+                <div class="clear">
+                    <span class="selected fl"></span>
+                    <span class="ml1 fl">可以使用20马蹄抵扣&yen;20.00</span>
+                </div>
+                <div class="mati">你可以使用的马蹄为20MT</div>
+                <span class="pay" style="top: 2.5rem;">-&yen;20.00</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="still-pay">
+        <ul>
+            <li class="pr">
+                <span>还需支付金额：</span>
+                <span class="pay">&yen;35.00</span>
+            </li>
+            <li class="pr">
+                <img src="/web/car-service/assets/image/pay/lingqian@2x.png"/>
+                <span class="type">零钱<i>(&yen;299)</i></span>
+                <span class="no_sel"></span>
+           </li>
+            <li class="pr">
+                <img src="/web/car-service/assets/image/pay/dika@2x.png"/>
+                <span class="type">滴卡<i>(&yen;478)</i></span>
+                <span class="no_sel"></span>
+            </li>
+            <li class="pr">
+                <img src="/web/car-service/assets/image/pay/weixin@2x.png"/>
+                <span class="type">微信支付</span>
+                <span class="sel"></span>
+            </li>
+            <li>
+                <div class="btn-box">
+                    <a class="btn">确认支付</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    function onStart(){
+        //Interface('gotoIndex');
+        loadEnd();
+    }
+</script>
+</html>

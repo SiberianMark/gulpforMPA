@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>我的尾箱</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/style.css">
+</head>
+<body >
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="margin-bottom:0;">
+    <div class="mui-scroll">
+    <section  class="tailboxs" >
+        <!-- <p class="garage-title"><我的车库</p> -->
+    <!--     <div class="heading clear">
+        <img class="headimg" src="/web/assets/image/smdg/back.jpg" alt="">
+        <div class="private-letter">私信他</div>
+        <p>JEFFREY一起玩宝马<i class="user-sex female"></i><i class="user-lv v3"></i></p>
+        <p>宝马黑科技 维邦技术</p>
+    </div>
+    <ul class="showcar">
+        <li border="bottom">
+            <img class="carimg" border="all" src="/web/assets/image/smdg/tt1.png" alt="">
+            <p><span class="mark" border="all">新品</span>MC for BMW 手机远控</p>
+            <p>￥ 5980</p>
+            <span class="buy">立即购买</span>
+        </li>
+         <li border="bottom">
+            <img class="carimg" border="all" src="/web/assets/image/smdg/tt1.png" alt="">
+            <p><span class="mark" border="all">新品</span>MC for BMW 手机远控</p>
+            <p>￥ 5980</p>
+            <span class="buy">立即购买</span>
+        </li>
+        <li border="bottom">
+            <img class="carimg" border="all" src="/web/assets/image/smdg/tt1.png" alt="">
+            <p><span class="mark" border="all">新品</span>MC for BMW 手机远控</p>
+            <p>￥ 5980</p>
+            <span class="buy">立即购买</span>
+        </li>
+    </ul> -->
+    </section>
+    </div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="templist">
+{{ var val = it.data;}}
+    <div class="heading clear">
+        <img class="headimg" src="{{=val.photo}}" alt="">
+        <div class="private-letter">私信他</div>
+        <p  class="userinfo">{{=val.name}}<i></i><i class="user-lv"></i></p>
+        <p>宝马黑科技 维邦技术</p>
+    </div>
+
+    <ul class="showcar">
+    {{~val.list:i:index}}
+        <li border="bottom" goodsid="{{=i.id}}">
+            <img class="carimg" border="all" src="{{=i.goodsimg}}" alt="">
+            <p><span class="mark" border="all">新品</span>{{=i.goodsname}}</p>
+            <p>￥ {{=i.sell_price}}</p>
+            <span class="buy">立即购买</span>
+        </li>
+    {{~}}
+    </ul>
+</script>
+
+<script>
+    var render=getRender('templist'),
+        mid = I('mid',1001503);
+        page = I('page',1),
+        pull_action='';
+    function onStart(){
+        _initMui();
+        getData();//渲染数据
+        loadEnd();
+    }
+    
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_BOSS_TAILBOX,{mid:mid,page:page},function(data){
+            if(data.status==1){
+                 if(data.data.list.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(page==1){
+                   getinfo();
+                }else{
+                    $('.tailboxs').append(render(data));
+                }
+                $('.mui-pull-caption').show();
+                if(data.data.list.length < 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                 setTimeout(function(){
+                        mui('#pullrefresh').pullRefresh().setStopped(false);
+                 },200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                           mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(page==1){
+                        //$('.lottery-cvx').show().parents('.buy-records').css('background','none');
+                        $('.mui-pull-caption').hide();
+                        mui('#pullrefresh').pullRefresh().setStopped(true);
+                    }
+            }
+
+            loadEnd();
+        });
+    }
+    function getinfo(){
+         $('.tailboxs').html(render(data));
+         //如果有性别信息 添加显示性别
+        if(data.data.sex){
+            $('.tailboxs i:eq(0)').addClass("user-sex");
+        }
+        switch (data.data.sex){
+            case '0':
+                break;
+            case '1':
+                $(".userinfo .user-sex").addClass("male");
+                break;
+            case '2':
+                $(".userinfo .user-sex").addClass("female");
+                break;
+            default:
+                break;
+        }
+        //显示vip等级
+        switch (data.data.status){
+                case '0':
+                    break;
+                case '1':
+                    $(".userinfo .user-lv").addClass("v1");
+                    break;
+                case '2':
+                    $(".userinfo .user-lv").addClass("v2");
+                    break;
+                case '3':
+                    $(".userinfo .user-lv").addClass("v3");
+                    break;
+                case '4':
+                    $(".userinfo .user-lv").addClass("v4");
+                    break;
+                default:
+                    break;
+        }
+    }
+</script>
+</html>

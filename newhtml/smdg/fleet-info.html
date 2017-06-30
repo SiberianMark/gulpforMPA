@@ -1,0 +1,483 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <title>车队信息</title>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/bd-phone.css">
+    <style>
+      body{
+        background:#fff;
+      }
+      p{
+        margin:0;
+      }
+      header{
+        background:rgb(24,24,28);
+        height:11.95rem;
+        position:relative;
+        overflow:hidden;
+      }
+      header .quite{
+        position:absolute;
+        right:1.2rem;
+        bottom:1rem;
+        width:5.5rem;
+        height:2.5rem;
+        background:#f5b617;
+        border-radius:0.4rem;
+        line-height:2.5rem;
+        text-align:center;
+        font-size:1.2rem;
+        color:#fff;}
+      header img{
+        width:100%;
+      }
+      section div{
+        height:4.4rem;
+        font-size:1.5rem;
+        margin:0 4.7%;
+        background:url("/web/assets/image/smdg/fanhui.png") no-repeat right center;
+        background-size:0.6rem 1.2rem;
+        line-height:4.4rem;
+      }
+      section span{
+        display:inline-block;
+        text-align:left;
+        width:75%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        float:left;
+      }
+      section div span:nth-child(1){
+        display:inline-block;
+        width:25%;
+        color:rgb(153,153,153);
+        text-align:left;
+      }
+      section .fleet-capacity{
+        margin-right:4%;
+        background:url("/web/assets/image/smdg/bangzhu.png") no-repeat right center;
+        background-size:1.25rem 1.25rem;
+        background:none;
+        position:relative;
+      }
+      section .fleet-capacity img{
+        position:absolute;
+        right:0;
+        top:50%;
+        margin-top:-0.625rem;
+        width:1.25rem;
+      }
+      section .fleet-rank{
+        background:none;
+      }
+      .alert-box{
+        width:100%;
+        height:100%;
+        position:absolute;
+        top:0;
+        left:0;
+        z-index:200;
+        background:rgba(0,0,0,0.2);
+        display:none;
+      }
+      .alert-box > div{
+        width:85%;
+        height:10rem;
+        background:#fff;
+        border-radius:0.4rem;
+        font-size:1.5rem;
+        margin:50% auto 0 auto;
+      }
+      .alert-box > div > p{
+        height:5rem;
+        line-height:5rem;
+        margin:0;
+        padding:0;
+      }
+      .alert-box > div > div{
+        margin-top:1rem;
+      }
+      .alert-box > div > div > span{
+        height:3rem;
+        display:inline-block;
+        width:44%;
+        margin:0 2%;
+        line-height:3rem;
+        border-radius:0.4rem
+      }
+      .alert-box > div > div .confirm{
+        background:#f55;
+      }
+      .new-notice{
+        height:4.6rem;
+        background-color:#fafafa;
+        padding:0 4.7%;
+        background-image:none;
+        margin-bottom:1.2rem
+      }
+      .new-notice .notice-pic{
+        margin:0.95rem 0;
+        height:2.7rem;
+        background:none;
+        padding-right:0.85rem;
+      }
+      .new-notice .notice-pic > img{
+        width:3.5rem;
+        height:2.7rem;
+      }
+      .new-notice .notice-wrap{
+        line-height:1.5rem;
+        margin:0;
+        padding-left:1.8rem;
+        text-align:left;
+        font-size:1.2rem;
+        overflow:hidden;
+      }
+      .fleet-photo{
+        height:8.1rem;
+        line-height:8.1rem;
+      }
+      .fleet-photo > p{
+        width:75%;
+      }
+      .fleet-photo > p > i{
+        width:5.4rem;
+        height:5.4rem;
+        margin-right:0.7rem;
+        overflow:hidden
+      }
+      .fleet-photo > p > i > img{
+        width:100%;
+      }
+    </style>
+</head>
+<body>
+  <header class="flex-y">
+    <img src="/web/assets/image/default_ico.svg" />
+  </header>
+  <section>
+    <div class="fleet-name">
+      <span>名称</span>
+      <span></span>
+    </div>
+    <div class="fleet-address">
+      <span>所在地</span>
+      <span class="sel_area"></span>
+    </div>
+    <div class="fleet-slogan">
+      <span>口号</span>
+      <span></span>
+    </div>
+    <div class="fleet-capacity">
+      <span>战力值</span>
+      <span></span>
+    </div>
+  </section>
+
+</body>
+<script type="text/template" id='fleet-info'>
+  <header class="flex-y">
+    <img src="{{=it.data.logo}}" />
+    <div class="quite">退出车队</div>
+  </header>
+  <section>
+    <article class="new-notice flex-y" title="0">
+      <div class="notice-pic" border="right">
+        <img src="/web/assets/image/smdg/v2.41Demon/new@2x.png" >
+      </div>
+      <p class="notice-wrap" border="left">{{=it.data.comment}}</p>
+    </article>
+    <div class="fleet-name">
+      <span title="1">名称</span>
+      <span border="bottom">{{=it.data.name}}</span>
+    </div>
+    <div class="fleet-address new_sel_area">
+      <span>所在地</span>
+      <span class="sel_area" border="bottom">{{=it.data.address}}</span>
+    </div>
+    <div class="fleet-slogan">
+      <span title="2">口号</span>
+      <span border="bottom">{{=it.data.slogan}}</span>
+    </div>
+    <div class="fleet-capacity">
+      <span>战力值</span>
+      <span border="bottom">{{=it.data.total}}分</span>
+      <img src="/web/assets/image/smdg/bangzhu.png" />
+    </div>
+    <!-- <div class="fleet-rank">
+      <span>榜单</span>
+      {{?it.data.rank==0}}
+      <span border="bottom">未上榜</span>
+      {{??}}
+      <span border="bottom">{{=it.data.rank}}</span>
+      {{?}}
+    </div> -->
+    <div class="fleet-photo flex">
+      <span>车队相册</span>
+      <p class="flex-y" border="bottom">
+      {{~it.data.img:item:index}}
+        <i class="flex-y">
+          <img src="{{=item}}" />
+        </i>
+      {{~}}
+      </p>
+    </div>
+  </section>
+  <div class="ps-pro newpage">
+      <ul>
+
+      </ul>
+  </div>
+  <div class="ps-city newpage">
+      <div class="last_select"></div>
+      <ul>
+
+      </ul>
+  </div>
+  <div class="ps-dt newpage">
+      <div class="last_select"></div>
+      <ul>
+
+      </ul>
+  </div>
+  <div class="alert-box">
+    <div>
+    {{?it.data.userid==getUserid()}}
+      <p>退出后将解散车队</p>
+    {{??}}
+      <p>是否退出车队</p>
+    {{?}}
+      <div class="clear">
+        <span class="cancel" scl-pe="before">再忍忍</span>
+        <span class="confirm">去意已决</span>
+      </div>
+    </div>
+  </div>
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+var tid=I("tid");//车队ID
+var car_id=I("id");//车库车辆ID
+var render=getRender("fleet-info");
+var openedSelect=0;
+var selectedName ='';//已选取地点名称
+var proid;//省份id
+var cityid;//城市id
+function onStart(){
+  var firstLoad = true;
+  window.addEventListener("popstate", function(e) {
+      if(openedSelect > 0){
+          $('.ps-pro').slideLeftHide(200);
+          $('.ps-city').slideLeftHide(200);
+          hidebackground(false);
+          selectedName = '';
+          openedSelect=0;
+      }else{
+          if(!firstLoad){
+              window.history.back();
+          }
+          firstLoad = false;
+      }
+  }, false);
+  jsonAjax(API.API_LIST.TEAM_LIST, {'tid':tid,'userid':getUserid()}, function (data) {
+    if(data.status==1){
+      $("body").html(render(data));
+      pushHistory();
+      $('.ps-pro').hide();
+      $('.ps-city').hide();
+      $('.ps-dt').hide();
+      third();
+
+      if(data.data.img.length == 0) {
+        $(".fleet-photo").css("background","none");
+      }
+
+      if(data.data.status==0){
+        var obj=M();
+        obj.tid=tid;
+        // 修改名称，口号
+        $(".fleet-name,.fleet-slogan").on("click","span:nth-child(2)",function(){
+          obj.title=$(this).siblings("span").attr("title");
+          Interface('gotoEditor',obj);
+        });
+
+        // 修改公告
+        $(".new-notice").on("click",function() {
+          obj.title=$(this).attr("title");
+          Interface('gotoEditor',obj);
+        });
+
+        $('.new_sel_area').on('click',function(){
+          hidebackground(true);
+          $('.ps-pro').slideLeftShow(200);
+          openedSelect = 1;
+          pushHistory();
+        });
+      }else{
+        $(".fleet-name,.fleet-address,.fleet-slogan").css("background","none");
+        if(data.data.status==2){//隐藏'退出车队''
+          $(".quite").hide();
+        }
+      };
+      //是否退出车队
+      $(".quite").on("click",function(){
+        $(".alert-box").show();
+      });
+      $(".cancel,.confirm").on("click",function(){
+        $(".alert-box").hide();
+        if($(this).attr("class")=="confirm"){
+        jsonAjax(API.API_LIST.RETURN_CAR, {'tid':tid,'userid':getUserid(),'id':car_id}, function (data) {
+          if(data.status==1){
+            setTimeout(function(){
+              Interface('gotoMyGarage');
+            },3000);
+            inputTipsText(data.info);
+          };
+        });
+        }
+      });
+    }else{
+      $(".fleet-name,.fleet-address,.fleet-slogan").css("background","none");
+      inputTipsText(data.info);
+    };
+    //战斗力值说明
+    $(".fleet-capacity").on("click","img",function(){
+      var param=M();
+      param.code='TEAM_POWER';
+      redirect('https://test.didi365.com/home/config/preview',param);
+    });
+  loadEnd();
+  });
+};
+//城市二级联动
+function third() {
+    $.ajax({
+        type: 'get',    //请求方式  get  post
+        url: '../assets/json/city.json',      //请求url
+        timeout: 30, //超时时间设置，单位毫秒 30秒
+        data: '',    //请求参数
+        dataType: 'json',  //返回类型
+        async:false,
+        success: function (data){
+              //console.log(data);
+              //var Arr = new Array();
+              var arrayLi = new Array();
+              var Al = 0;
+                citydata = data;
+                for (var j = 0 in data) {
+                    var only = true;
+                    for (var n = 0; n < j; n++) {
+                        if (data[n].provinceid == data[j].provinceid) {
+                            only = false;
+                            break;
+                        }
+                    }
+                    if (only) {
+                        var provinceid = data[j].provinceid;
+                        var provincename = data[j].provincename;
+                        arrayLi[Al] = "<li border='bottom' value='" + provinceid + "'>" + provincename + "</li>";
+                        Al++;
+                    }
+                }
+                for (var k = 0 in arrayLi) {
+                    $(".ps-pro>ul").append(arrayLi[k]);
+                }
+                $(".ps-pro>ul>li").bind('click',function(){
+                    $('.ps-pro').hide();
+                    $('.ps-city').slideLeftShow(200);
+                    var pname=$(this).text();
+                    var id=$(this).attr('value');
+                    proid = id;
+                    cityid = undefined;
+                    // dte = undefined;
+                    selectedName += pname;
+                    $('.ps-city .last_select').text(pname);
+                    $(".ps-city>ul").empty();
+                    for (var i = 0 in citydata) {
+                        if (citydata[i].provinceid == id) {
+                            $(".ps-city>ul").append("<li border='bottom' value=" + citydata[i].cityid + ">" + citydata[i]['cityname'] + "</li>");
+                        }
+                    }
+                    $(".ps-city>ul>li").bind('click',function(){
+                        // $('.ps-city').hide();
+                        cityid = $(this).attr('value');
+                        $('.ps-city').slideLeftHide(200);
+                        hidebackground(false);
+                        selectedName += $(this).text();
+                        $('.sel_area').text(selectedName);
+                        console.log(selectedName);
+                        selectedName='';
+                        openedSelect = 0;
+                        jsonAjax(API.API_LIST.TEAM_LIST, {'tid':tid,'tad':proid,'ted':cityid,'userid':getUserid()}, function (data) {
+                            if(data.status==1){
+                              console.log(proid,cityid);
+                              inputTipsText('修改成功');
+                            }
+                        });
+                    });
+                });
+        }
+    });
+};
+
+function hidebackground(flag){
+    if(flag){
+        $('header').hide();
+        $('section').hide();
+    }else{
+        $('header').show();
+        $('section').show();
+    }
+};
+
+function pushHistory() {
+    var obj = arguments[0]?arguments[0]:undefined;
+    if(obj == undefined){
+        obj = {
+            title: "deft",
+            url: "#"
+        };
+    }
+    window.history.pushState(obj, '', '');
+};
+
+jQuery.fn.extend({
+  slideLeftHide: function(speed, callback) {
+    return this.each(function() {
+      $(this).hide('slide', {direction: 'left'}, 1000);
+    });
+  },
+  slideLeftShow: function(speed, callback) {
+    return this.each(function() {
+      $(this).show('slide', {direction: 'left'}, 1000);
+    });
+  }
+});
+
+jQuery.fn.slideLeftHide = function(speed, callback) {
+  this.animate({
+    width: "hide",
+    paddingLeft: "hide",
+    paddingRight: "hide",
+    marginLeft: "hide",
+    marginRight: "hide"
+  }, speed, callback);
+}
+
+jQuery.fn.slideLeftShow = function(speed, callback) {
+  this.animate({
+    width: "show",
+    paddingLeft: "show",
+    paddingRight: "show",
+    marginLeft: "show",
+    marginRight: "show"
+  }, speed, callback);
+}
+</script>
+</html>

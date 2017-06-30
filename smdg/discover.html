@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>发现</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/discover.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+</head>
+<body>
+<div class="attention-now"><a href="javascrip:;" style=""></a></div>
+<div class="flex-x-about dishead regular"></div>
+<div class="discover-banner regular">
+    <div class="swiper-wrapper"></div>
+</div>
+<div class="flex-x-about trunk-market">
+    <div class="flex-center">后尾箱集市</div>
+    <div class="flex-center">
+        <div class="trunk-market-something" type="0">推荐</div>
+        <i></i>
+        <div class="trunk-market-something" type="1">热门</div>
+        <i></i>
+        <div class="trunk-market-something new" type="2">最新</div>
+    </div>
+</div>
+<div id="pullrefresh" class="mui-scroll-wrapper">
+    <div class="mui-scroll">
+        <ul class="trunk-market-list"></ul>
+    </div>
+</div>
+</body>
+<script type="text/template" id="dishead">
+    {{~it.data:item:index}}
+    <ul url="{{=item.url}}">
+        <li class="life-img">
+            <img src="{{=item.image}}" alt="">
+            {{?item.show_red=="1"}}
+            <div class="discover-status"></div>
+            {{?}}
+        </li>
+        <!--<li>{{=item.name}}</li>-->
+    </ul>
+    {{~}}
+</script>
+
+<script type="text/template" id="trunk-market-banner">
+    {{~it.data:item:index}}
+    <img src="{{=item.image}}" alt="" class="swiper-slide" url="{{=item.url}}">
+    {{~}}
+</script>
+
+<script type="text/template" id="trunk-market-list">
+    {{~it.data:item:index}}
+    <li class="flex-y trunk-market-range" uid="{{=item.userid}}">
+        <div>
+            <img src="{{=item.photo}}" alt="" class="trunk-market-image">
+        </div>
+        <div class="flex-c trunk-market-message">
+            <div class="trunk-market-nickname">
+                <div>{{=item.name}}</div>
+                {{?item.sex=="1"}}
+                <div class="trunk-market-sex man"></div>
+                {{??item.status=="2"}}
+                <div class="trunk-market-sex man"></div>
+                {{?}}
+            </div>
+            <div class="trunk-market-lable">
+                {{?!empty(item.detail)&&item.detail!=null}}
+                {{=item.detail}}
+                {{?}}
+            </div>
+            <div class="trunk-market-belong">
+                {{?item.status=="1"}}
+                <div class="trunk-market-mark"></div>
+                {{?}}
+                {{?!empty(item.introduce)&&item.introduce!=null}}
+                <div class="authentication">{{=item.introduce}}</div>
+                {{?}}
+            </div>
+        </div>
+        <div class="open-know" trunkid="{{=item.id}}" type="{{=item.type}}" brandid="{{=item.brandid}}" trunklink="{{=item.link}}"">打开看看</div>
+    </li>
+    <hr>
+    {{~}}
+</script>
+
+<script>
+    var page =I('page',1);
+    var nav_type = I("type",2);
+    var trunk_market_type = I('type',3);
+    var _tid = I('tid',32);
+    var dishead = getRender('dishead');
+    var trunk_market_banner = getRender('trunk-market-banner');
+    var trunk_market_list = getRender('trunk-market-list');
+    var trunkMarketChoose = $(".trunk-market-something");
+    var share = I('share');   //是否为分享,是1;否0;
+    var attHeight = 0;
+    var bannerHeight = 0;
+    var navHeight = 0;
+    var marketHeight = 0;
+    var shareClick = true;
+
+    if (share){
+        $('.attention-now').show();
+    }else{
+        $('.attention-now').hide();
+    }
+
+    function onStart() {
+        _initMui();
+        Toshare();
+        getNav();
+    }
+    function getData() {
+        jsonAjax(API.API_LIST.GOLD_PLAY_MARKETLITS, {userid: getUserid(), page: page,type:trunk_market_type}, function (data) {
+            if (data.status == 1) {
+                trunkMarketChoose.each(function (index) {
+                    if(data.data[0].type_id == trunkMarketChoose.eq(index).attr("type")){
+                        $(this).addClass("choose");
+                    }
+                });
+                if(data.data.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(page == 1){
+                    $('.trunk-market-list').html(trunk_market_list(data));
+                }else{
+                    $('.trunk-market-list').append(trunk_market_list(data));
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                page++;
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+
+            }
+            $('.mui-pull-caption').show();
+            loadEnd();
+        });
+    }
+    function getBanner() {
+        jsonAjax(API.API_LIST.INDEX_BANLER,{tid : _tid},function(data){
+            if(data.status==1){
+                if(data.data.length <= 0){
+                    $("#pullrefresh").css("margin-top",parseFloat(attHeight)+parseFloat(bannerHeight)+parseFloat(marketHeight)+"px");
+                    return;
+                }
+                $('.swiper-wrapper').html(trunk_market_banner(data));
+                new Swiper ('.discover-banner', {
+                    roundLengths : true,
+                    initialSlide : 0,//设定初始化时slide的索引
+                    slidesPerView:"auto",//设置slider容器能够同时显示的slides数量
+                    autoplay : 3000,
+                    autoplayDisableOnInteraction : false,
+                    spaceBetween : 16,//活动块间隔
+                    speed:300,
+                    loop : true//循环
+                });
+                if(share){
+                    attHeight = document.querySelector('.attention-now').offsetHeight;
+                }
+                navHeight = document.querySelector('.dishead').offsetHeight;
+                bannerHeight = document.querySelector('.discover-banner').offsetHeight;
+                marketHeight = document.querySelector('.trunk-market').offsetHeight;
+                $("#pullrefresh").css("margin-top",(+attHeight)+(+navHeight)+(+bannerHeight)+(+marketHeight)+"px");
+                console.log((+attHeight),(+navHeight),(+bannerHeight),(+marketHeight));
+                getData();
+            }
+        });
+    }
+    function getNav() {
+        jsonAjax(API.API_LIST.INDEX_GET_COLUMNLIST,{type : nav_type},function(data){
+            if(data.status==1){
+                $('.dishead').html(dishead(data));
+                getBanner();
+            }
+        });
+    }
+    function Toshare() {
+        jsonAjax(API.API_LIST.GOLD_PLAY_INDEXSHARE,{userid: getUserid()},function(data){
+            if(data.status==1){
+                WxShare.title = data.data.share_title;
+                WxShare.desc = data.data.share_content;
+                WxShare.imgUrl = data.data.share_image;
+                WxShare.link = data.data.share_link;
+                loadWxObject(true);
+            }
+        });
+    }
+    //跳转
+    $(".dishead").on("click","ul",function () {
+        var obj = new Object();
+        obj.link = $(this).attr("url");
+        InterfaceTap('gotoLink', JSON.stringify(obj));
+    });
+    //切换
+    $(".trunk-market-something").on("click",function () {
+        $(".trunk-market-something").removeClass("choose");
+        $(this).addClass("choose");
+        trunk_market_type = $(this).attr("type");
+        page=1;
+        $(".trunk-market-list").html("");
+        $(".mui-scroll").css({'transform': 'translate3d(0px, 0px, 0px) translateZ(0px)'});
+        getData();
+    });
+    //广告
+    $(".discover-banner").on("click","img",function () {
+        var obj = new Object();
+        obj.link = $(this).attr("url");
+        InterfaceTap('gotoLink', JSON.stringify(obj));
+    });
+
+    //个人详情
+    $(".trunk-market-list").on("tap",".trunk-market-range",function () {
+        var obj = new Object();
+        obj.uid = $(this).attr("uid");
+        InterfaceTap('gotoPersonInfo', JSON.stringify(obj));
+    });
+    //个人店铺
+    $(".trunk-market-list").on("tap",".trunk-market-range .open-know",function (e) {
+        e.stopPropagation();
+        var type = $(this).attr("type");
+        var obj = new Object();
+        obj.brandid = $(this).attr("brandid");
+        if(type==1){
+            obj.link = $(this).attr("trunklink");
+            InterfaceTap('gotoLink', JSON.stringify(obj));
+        }else if(type==0){
+            InterfaceTap('gotoBrand', JSON.stringify(obj));
+        }
+    });
+    //下载引导
+    $(".attention-now a").on("click tap",function (event){
+        event.stopPropagation();
+        attHeight = 0;
+        shareClick = false;
+        $("#pullrefresh").css("margin-top",(+attHeight)+(+navHeight)+(+bannerHeight)+(+marketHeight)+"px");
+    });
+
+    $("#pullrefresh").on("scroll",function(e){
+        if(share&&shareClick){
+        }else {
+            attHeight = 0;
+        }
+        if(e.originalEvent.detail.lastY<0){
+            if($(".attention-now").length==1){
+                $(".attention-now").fadeOut();
+            }
+            $(".regular").fadeOut();
+            $("#pullrefresh").css(
+                {
+                    "margin-top":"5.2rem",
+                    "transition":"margin-top 0.5s",
+                    "-webkit-transition":"margin-top 0.5s"
+                }
+            );
+        }else if(e.originalEvent.detail.lastY>0){
+            if(share&&shareClick){
+                $(".attention-now").fadeIn();
+            }
+            $(".regular").fadeIn();
+            if($(".discover-banner:has(img)").length<=0){
+                $("#pullrefresh").css(
+                    {
+                        "margin-top":(+bannerHeight)+(+navHeight)+(+marketHeight)+"px",
+                        "transition":"margin-top 0.5s",
+                        "-webkit-transition":"margin-top 0.5s"
+                    }
+                );
+            }else {
+                $("#pullrefresh").css(
+                    {
+                        "margin-top":(+attHeight)+(+navHeight)+(+bannerHeight)+(+marketHeight)+"px",
+                        "transition":"margin-top 0.5s",
+                        "-webkit-transition":"margin-top 0.5s"
+                    }
+                );
+            }
+        }
+    });
+</script>
+</html>

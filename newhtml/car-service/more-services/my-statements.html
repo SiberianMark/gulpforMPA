@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>我的结算单</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.min.css"/>
+    <!--<link rel="stylesheet" href="/web/assets/css/lottery/swiper-3.3.1.min.css">-->
+    <link rel="stylesheet" href="/web/car-service/assets/css/my-statements.css"/>
+    <!--<script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>-->
+    <script src="/web/car-service/assets/js/mui.min.js?v=41cb80c42a"></script>
+</head>
+<body>
+<header class="statements-header" scl-pe="before">
+    <!--<div class="swiper-container nav-box" >-->
+        <ul class="flex-center nav">
+            <li class=" border" data-status="-1">全部</li>
+            <li data-status="0">待结算</li>
+            <li data-status="1">待商家确认</li>
+            <li data-status="2">已完成</li>
+        </ul>
+    <!--</div>-->
+</header>
+<section class="statements-section mui-content mui-scroll-wrapper" id="pullrefresh">
+    <div class="mui-scroll">
+        <ul class="data-box">
+            <li >
+                <div class="no-record"><span>暂无结算单记录</span></div>
+            </li>
+        </ul>
+    </div>
+</section>
+<script type="text/template" id="temp">
+    {{var data=it,len=data.length;}}
+    {{for(var i=0;i<len;i++){}}
+    {{var arr=data[i];}}
+    <li class="statements-box" data-id="{{=arr.id}}" data-merge-no="{{=arr.merge_no}}">
+        <div class="statements-order flex-x-center" scl-pe="before">
+            <div>编号：{{=arr.order_no}}</div>
+            <div>{{=arr.add_time}}</div>
+        </div>
+        {{var list=arr.list,l=list.length;}}
+        {{for(var j=0;j<l;j++){}}
+        {{var str=list[j];}}
+        <div class="statements-info">
+            <div class="item-name flex-x-about">
+                <span>{{=str.name}}</span><span>￥ {{=str.total_amount}}</span>
+            </div>
+            {{var card_name=str.card_name,coupon_name=str.coupon_name;}}
+            {{?card_name!=''||coupon_name!=''}}
+            <div class="coupon" scl-pe="before">
+                {{?card_name!=''}}
+                <div class="flex-x-about"><span>套餐卡:{{=card_name}}</span><span>保养{{=str.num}}次</span></div>
+                {{??}}
+                {{?}}
+                {{?coupon_name!=''}}
+                <div class="flex-x-about"><span>优惠劵:{{=coupon_name}}</span><span>-￥ {{=str.coupon_money}}</span></div>
+                {{??}}
+                {{?}}
+            </div>
+            {{??}}
+            {{?}}
+        </div>
+        {{}}}
+        <div class="statements-submit flex-x-about" scl-pe="before">
+            <div>总计 <span>￥ {{=arr.totalMoney}}</span></div>
+            {{var status=arr.status;}}
+            {{?status==0}}
+            <div class="submit red">待确认/结算</div>
+            {{??status==2}}
+            <div class="submit hui">已完成</div>
+            {{??status==1}}
+            <div class="submit cheng">等待商家确认</div>
+            {{?}}
+        </div>
+    </li>
+    {{}}}
+</script>
+</body>
+<script type="text/javascript">
+    function onStart(){
+        _initMui();
+        getData();
+//        var swiper = new Swiper('#header .nav-box', {
+//            loop : false,
+//            observer: true,
+//            slidesPerView: 'auto',
+//            paginationClickable: true,
+//            freeMode: true
+//        });
+    }
+    var status= '-1',//列表状态
+            page= 1,//分页
+            order=null,
+            is_first=true;
+    function getData(){
+        var render=getRender('temp');
+        jsonAjax('car/user/statements',{
+            userid:getUserid(),
+            status:status,
+            page:page
+        },function(data){
+            if(data.status==1){
+                var _data=data.data,
+                len=_data.length;
+                if(len <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+//                    if(is_first){
+//                        var html='<li><div class="no-record"><span>暂无结算单记录</span></div> </li>';
+//                        $('.data-box').html(html);
+//                    }
+                    loadEnd();
+                    return;
+                }
+                if(page==1){
+                    $('.data-box').html(render(_data))
+                }else{
+                    $('.data-box').append(render(_data))
+                }
+                $('.mui-pull-caption').show();
+                if(len< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                page++;
+            }else{
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh(true);
+                }
+                if(page==1){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+                if(is_first){
+                    var html='<li><div class="no-record"><span>暂无结算单记录</span></div> </li>';
+                    $('.data-box').html(html);
+                }
+            }
+
+            is_first=false;
+            loadEnd();
+        })
+    }
+    //切换选项卡
+    $('.nav').on('tap','li',function(){
+        var _this=$(this);
+        status=_this.attr('data-status');
+        page=1;
+        is_first=true;
+        $('.nav').find('li').each(function(i,item){
+            $(item).removeClass('border');
+        });
+        _this.addClass('border');
+        getData();
+    });
+    //跳转结算单详情页面
+    $('.data-box').on('tap','li',function(){
+        var obj={
+            id:this.getAttribute('data-id'),
+            merge_no:this.getAttribute('data-merge-no')
+        };
+        PageJumpTap('gotoMallAdvice',obj);
+    })
+    //去结算
+    /*$('.data-box').on('tap','.red',function(){
+        var li=$(this).find('li'),obj={
+            id:li.getAttribute('data-id'),
+            merge_no:li.getAttribute('data-merge-no')
+        };
+        inputTipsText('正在生成订单，请稍后...');
+        jsonAjax('car/user/pay_statements',obj,function(data){
+            if(data.status==1){
+                order=data.data;
+                buyFn(obj);
+            }else if(data.status==2){
+                showLoad(data.info);
+                getOrderNo(data.data,obj);
+            }else{
+                order = null;
+                buy = 0;
+                inputTipsText(data.info, 3000);
+            }
+        })
+    })
+    //生产订单
+    function getOrderNo(token,obj) {
+        var t = setInterval(function () {
+            jsonAjax(API.API_LIST.ORDER_GETORDERNO, {'userid': getUserid(), 'token': token}, function (data) {
+                if (data.status == 1) {
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad('订单生成成功正在进行跳转...');
+                    $('.inputTipsText').addClass('hide');
+                    order = data.data;
+//                    order.id = record_id;
+                    $("#cover").removeClass("fade");
+                    $('.apply-immediately').slideUp(100);
+                    $('.now-in-progress').slideDown(200);
+                    buyFn(obj);
+                    //unableAll();
+                } else if(data.status == 0){
+                    //关闭定时器
+                    clearInterval(t);
+                    showLoad(data.info);
+                }else{
+                    showLoad(data.info);
+                }
+            });
+        }, 2000);
+    }
+    //支付
+    function buyFn(obj) {
+        var obj1=obj;
+        if (is_weixn(true)) {
+            //获取微信支付参数
+            //wxPay(order, 0);
+            var obj = M();
+            var go_param = M();
+            go_param.id = obj1.id;
+            go_param.merge_no = obj1.merge_no;
+            obj.orderid = order.orderid;
+//            obj.merge_no = order.merge_no;
+//            obj.expsId = expsId;
+            obj.go_action = "gotoPubAcctMyInfo";
+            obj.go_param = go_param;
+            obj.from_page = 'mystatements';
+//            obj.expsType = type;
+//            console.log(obj);
+            PageJumpTap('gotoCashier', obj);
+//            console.log(obj);
+        } else if(is_smdd()) {
+            //APP端购买
+            if (order.orderid == 0) {
+                order.orderid = order.merge_no;  //合并订单号赋值给订单id
+            }
+            if (order.merge_no == '') {
+                order.merge_no = 0;
+            }
+            event_link(API.SERVER_URL + 'sdp/' + API.API_LIST.ORDER_ORDERPAY + '?userid=' + getUserid() + '&order_type=' + order.order_type + '&orderid=' + order.orderid + '&merge_no=' + order.merge_no);
+        } else {
+            //获取微信支付参数
+            //wxPay(order, 0);
+            var obj = M();
+            var go_param = M();
+            go_param.id = obj1.id;
+            go_param.merge_no = obj1.merge_no;
+            obj.orderid = order.orderid;
+//            obj.merge_no = order.merge_no;
+//            obj.expsId = expsId;
+            obj.go_action = "gotoPubAcctMyInfo";
+            obj.go_param = go_param;
+            obj.from_page = 'mystatements';
+//            obj.expsType = type;
+//            console.log(obj);
+            PageJumpTap('gotoCashier', obj);
+        }
+    }*/
+</script>
+</html>

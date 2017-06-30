@@ -1,0 +1,387 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>添加车辆</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=iEBTRIhxqdpxM1Mq0mTLOc1q"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.min.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.picker.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.poppicker.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script src="/web/car-service/assets/js/mui.min.js?v=41cb80c42a"></script>
+    <script src="/web/car-service/assets/js/mui.picker.js?v=81933de995"></script>
+    <script src="/web/car-service/assets/js/mui.poppicker.js?v=8bce2da9e5"></script>
+    <script src="/web/car-service/assets/js/license.data.js?v=ea58ef2292"></script>
+    <script src="/web/car-service/assets/js/chose_car.js?v=11b9147205"></script>
+</head>
+<body style="background-color:#eee;">
+    <div class="fill-tips">请根据《机动车行驶证》仔细填写</div>
+    <div class="main">
+        <div class="input-box" scl-pe="before">
+            <label>车牌号码</label>
+            <div class="quyu" id="quyu">
+                <div><span id="license">粤A</span><span class="down" id="arrow"></span></div>
+            </div>
+            <input type="text" name="carNum" placeholder="请输入车牌号" maxlength="5" verify="1" style="width: 50%;vertical-align:inherit;height:100%;">
+        </div>
+        <div class="input-box brand" scl-pe="before">
+            <label>发动机号</label>
+            <input type="text" name="engineno" placeholder="请输入完整的发动机号" maxlength="17" verify="1"/>
+            <span class="warn"></span>
+        </div>
+        <div class="input-box car-body" scl-pe="before">
+            <label>车&nbsp;架&nbsp;号</label>
+            <input type="text" name="vin" placeholder="请输入完整的车架号" maxlength="17" verify="1"/>
+            <span class="warn"></span>
+        </div>
+        <div class="input-box" id="choseCar" scl-pe="before">
+            <label>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;款</label>
+            <span id="res">请选择你爱车的车款</span>
+            <span class="arrow"></span>
+            <input type="hidden" id="brandid" name="brandid" placeholder="请选择你爱车的车款" verify="1"/>
+            <input type="hidden" id="modelid" name="modelid"/>
+            <input type="hidden" id="detailid" name="detailid"/>
+        </div>
+        <div class="input-box" style="display: none;">
+            <label>备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</label>
+            <input type="text" name="remark" placeholder="如张三的车" maxlength="20"/>
+        </div>
+
+        <div class="input-box licheng" scl-pe="before" style="padding-right:1rem;color:#999;">
+            <label>里&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;程</label>
+            <input type="text" name="mileage"  maxlength="6" placeholder="请输入行驶里程" verify="1" value="" style="color:#333"/>
+            公里
+        </div>
+    </div>
+    <div class="tips">所填信息为当地交管局查询所需，你的信息将被严格保密</div>
+    <div class="btn-box" id="save">
+        <span class="btn" >保存并查询</span>
+    </div>
+    <div class="btn-box" id="delete" style="display:none">
+        <span class="btn delete" >删除</span>
+    </div>
+
+    <div class="mask">
+        <div class="show-content">
+            <img src="/web/car-service/assets/image/chejiahao@2x.png"/>
+        </div>
+    </div>
+
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    function onStart(){
+        getdata();
+
+//        getLocation();
+    }
+    var type=true;
+    var _cid;
+    //获得数据
+    function getdata(){
+        if(I('source')=='index'||I('source')=='insurance'||I('source')=='lipei'||I('source')=='fillM'||I('source')=='repair'||I('source')=='pq'||I('source')=='pgzh'||I('source')=='keep-insurance'){
+            $('#save span').text('添加');
+            $('#delete').hide();
+            $('.brand').hide();
+            $('.car-body').hide();
+            $('.fill-tips').hide();
+            $('.tips').hide();
+            $('.main').css('padding','2rem 0 0 0');
+            $('.brand input').attr('verify','');
+            $('.car-body input').attr('verify','');
+        }else{
+            $('.licheng').hide();
+            $('.licheng input').attr('verify','');
+        }
+        if(I('source')=='modify'){
+            $('#delete').show();
+            $('#res').css('color','#333');
+            if(I('engineno')==0||I('vin')==0){
+                $('input[name="engineno"]').val('');
+                $('input[name="vin"]').val('');
+            }else{
+                $('input[name="engineno"]').val(I('engineno',' '));
+                $('input[name="vin"]').val(I('vin',''));
+            }
+        }
+        if(I('source5')==1){
+            $('#license').text(decodeURIComponent(I('brand','')));
+            $('input[name="carNum"]').val(decodeURIComponent(I('car_num','')));
+            $( 'input[name="brandid"]').attr('verify','');
+            jsonAjax(API.API_LIST.CAR_CARINFO_GETONECARINFO,{carid:I('cid',0),source:1},function(data) {
+                if (data.status == 1) {
+                    if (data.data.detail == null || data.data.detail == '') {
+                        $('#res').text(data.data.brand + data.data.model);
+                    } else {
+                        $('#res').text(data.data.brand + data.data.model + data.data.detail);
+                    }
+                    $('#res').css('color', '#333');
+                    if (I('engineno') == 0 || I('vin') == 0) {
+                        inputTipsText('请输入发动机号和车身架号');
+                    }
+                }
+            });
+        }
+        if(I('source1')==2){
+            $('#license').text(decodeURI(I('car_region')));//车地区
+            $("input[name='carNum']").val(I('car_number'));//车牌号
+            $("input[name='engineno']").val(I('engine_nimber'));//发动机号
+            $("input[name='vin']").val(I('car_body_number'));//车身机架号
+            $("input[name='mileage']").val(decodeURIComponent(I('milenge')));//里程
+            var car=decodeURIComponent(I('car')).split('=');
+            $('#res').text(car[0]+' '+car[1]+' '+car[2]);//车系
+            $('#res').css('color','#333');
+            $("input[name='brandid']").val(I('brandid'));//车品牌id
+            $("input[name='modelid']").val(I('modelid'));//车型id
+            $("input[name='detailid']").val(I('detailid'));//车款id
+        }
+        choseLicense('license','quyu');
+        $('.mui-poppicker').css('display','none');
+        loadEnd();
+    }
+    //选择车款
+    $('#choseCar').on('click',function(){
+        var obj=M();
+        obj.source=I('source');
+        obj.source2 = I('source2','10');
+        obj.source4=0;
+        obj.car_region=$('#license').html();//车地区
+        obj.car_number=$("input[name='carNum']").val();//车牌号
+        obj.engine_nimber=$("input[name='engineno']").val();//发动机号
+        obj.car_body_number=$("input[name='vin']").val();//车身机架号
+        obj.milenge=$("input[name='mileage']").val();//里程
+        PageJumpTap('gotoCarLosts',obj)
+    });
+    //限制输入
+    $('input[verify="1"]').on('input',function(){
+        //只能输入数字和字母
+        var pattern5=/^[a-zA-Z0-9]*$/;
+        //只能输入数字
+        var pattern6=/^[1-9]{1}[0-9]*$/g;
+        var value=$(this).val();
+        var _name=$(this).attr('name');
+       if(value.isExistChinese()){
+           $('input[name="'+_name+'"]').val('');
+            return false;
+       }
+       if(_name=='carNum'||_name=='vin'||_name=='engineno') {
+           if (!pattern5.test(value)) {
+               $(this).val(value.slice(0, (value.length - 1)));
+           }
+       }else if(_name=='mileage'){
+               if(!pattern6.test(value)){
+                   $(this).val(value.slice(0,(value.length-1)));
+//                   inputTipsText('只能输入数字')
+               }
+       }
+
+    });
+    //弹出
+    $(".warn").on('click',function(){
+        $(".mask").show();
+    });
+
+    $(".mask").on('click',function(){
+        $(".mask").hide();
+    });
+    //我的车辆页面添加车辆
+    $("#save").on('click',function(){
+        var carNum = $('#license').text()+$("input[name='carNum']").val();
+        var vin = $("input[name='vin']").val();
+        var engineno = $("input[name='engineno']").val();
+        var brandid = parseInt($("input[name='brandid']").val());
+        var modelid = parseInt($("input[name='modelid']").val());
+        var detailid = parseInt($("input[name='detailid']").val());
+        var mileage = parseFloat($("input[name='mileage']").val());
+        console.log(engineno,vin+'====');
+        //验证车牌号
+        var pattern1 = /^[\u4e00-\u9fa5]{1}[a-zA-Z]{1}[a-zA-Z0-9]{5}$/;
+        //        验证发动机号
+        var pattern2 = /^[a-zA-Z0-9]{0,17}$/;
+        //        验证车架号
+        var pattern3 = /^[a-zA-Z0-9]{0,17}$/;
+        //验证里程
+        var pattern4=/^[0-9\.]{0,17}$/;
+        //验证是否为空
+        for(var i=0;i<$("input[verify='1']").length;i++){
+            if(empty($("input[verify='1']").eq(i).val())){
+                inputTipsText($("input[verify='1']").eq(i).attr('placeholder'));
+                return false;
+            }
+        }
+        //验证车牌号
+        if(!pattern1.test(carNum)){
+            inputTipsText('请输入正确的车牌号');
+            return false;
+        }
+        if( I('source')!='index' && I('source')!='insurance'&&I('source')!='lipei'&&I('source')!='fillM'&&I('source')!='repair'&&I('source')!='pq'&&I('source')!='pgzh' ){
+            //验证发动机及车架号
+            if(!pattern2.test(engineno)){
+                inputTipsText('请输入正确的发动机号');
+                return false;
+            }
+            if(!pattern3.test(vin)){
+                inputTipsText('请输入正确的车架机号');
+                return false;
+            }
+        }else{
+            //验证里程
+            if(!pattern4.test(mileage)){
+                inputTipsText('请输入数字');
+                return false;
+            }
+            if(mileage>1000000||mileage<0){
+                inputTipsText('请输入不大于1000000的整数字');
+                return false;
+            }
+        }
+        var datas={
+            userid:getUserid(),
+            carnum:carNum,//车牌号码
+            brandid:brandid,//车品牌id
+            modelid:modelid,//车型id
+            detailid:detailid,//车款id
+            mileage:mileage,//行驶里程
+            vin:vin,//车架号
+            engineno:engineno//发动机号
+        };
+        var jsObj=M();
+        jsObj.userid=getUserid();
+        jsObj.type=0;
+        jsObj.lastid=0;
+        console.log(datas);
+//        return;
+      if(I('source5')==1){//修改并查询
+          datas.carid=I('cid');
+          datas.brandid='';
+          datas.modelid='';
+          datas.detailid='';
+            jsonAjax(API.API_LIST.CAR_CARINFO_EDITCAR,datas,function(data){
+                if(data.status==1){
+                    carIsEffective();
+                }else{
+                    inputTipsText(data.info);
+                }
+            });
+      }else{//添加并查询
+          if(type){
+              jsonAjax(API.API_LIST.CAR_CARINFO_ADDCAR,datas,function (res) {
+                  if(res.status == 1){
+                      _cid=res.data;
+                      if(I('source2')==0){//跳转我的车辆页面
+                          var obj = M();
+                          obj.source = I('source');
+                          PageJump('gotoMyCar',obj);
+                      }
+                      if(I('source')==1){//跳到违章列表页面
+                          carIsEffective();
+                      }
+                      type=false;
+                  }else{
+                      inputTipsText(res.info);
+                  }
+
+              });
+          }else{
+              datas.carid=_cid;
+              datas.brandid='';
+              datas.modelid='';
+              datas.detailid='';
+              jsonAjax(API.API_LIST.CAR_CARINFO_EDITCAR,datas,function(data){
+                  if(data.status==1){
+                      carIsEffective();
+                  }else{
+                      inputTipsText(data.info);
+                  }
+              });
+          }
+
+        }
+        //判断车牌、发动机号、车身架号是否有效
+        function carIsEffective(){
+            if(I('source5')==1){
+                jsObj.cid=I('cid');
+            }else{
+                jsObj.cid=_cid;
+            }
+            jsonAjax(API.API_LIST.CAR_VIOLATE_GETCARVIOLATION,jsObj,function(data){//判断车牌、发动机号、车身架号是否有效
+                if(data.status==1){
+                    if(data.data.error==0){
+                        var obj=M();
+                        obj.userid=getUserid();
+                        obj.wid=I('wid',0);
+                        obj.cid= jsObj.cid;
+                        console.log(obj);
+                        changeBackUrlL("car-service/more-services/peccancy-agency",{pub_acct:1});
+                        PageJump('gotoPeccancyList',obj);
+                    }else if(data.data.error==203607){
+                        inputTipsText('信息填写错误')
+                    }else{
+                        inputTipsText(data.data.errormsg);
+                    }
+                }else{
+                    inputTipsText(data.info);
+                }
+            });
+        }
+    });
+    //删除当前车辆
+    $('.delete').on('click',function(){
+        jsonAjax(API.API_LIST.CAR_VIOLATE_DELETECAR,{cid:I('cid')},function(data){
+           if(data.status==1){
+               PageJumpTap('gotoPeccancyAgency');
+           }else{
+               PageJumpTap('gotoAgency');
+           }
+        });
+    });
+    //获取当前省份
+    function getLocation(){
+        var geolocation = new BMap.Geolocation();
+        geolocation.getCurrentPosition(function(r){
+            if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                var result = provinceForShort(r.address.province);
+                if(I('source1')!=2&&I('source5')!=1){
+                    $('#license').html(result+'A');
+                }
+            }
+            else {
+                inputTipsText('failed'+this.getStatus());
+            }
+            locEnd = true;
+            load_all_end();
+        },{enableHighAccuracy: true})
+    }
+
+    var result = '粤';
+    function provinceForShort(province){
+        $.each(licenseData,function(index,item){
+            if(item.province==province){
+                //将获取到的地区简称置于选择的顶部
+                licenseData = licenseData.sort(function(a,b){
+                        if(a.province==province){
+                            return -1;
+                        }else if(b.province==province){
+                            return 1;
+                        }else{
+                            return 0;
+                        }
+                    }
+                );
+                result = item.value;
+            }
+        });
+        console.log(result);
+        return result;
+    }
+
+//    function load_all_end(){
+//        if(locEnd){
+//            loadEnd();
+//        }
+//    }
+</script>
+</html>

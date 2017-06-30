@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>场地列表</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/racetracks.css">
+    <style type="text/css">
+        .nullData{text-align: center;padding-top: 10rem;color: #666;display:none;}
+        .nullData img{display: inline-block;width: 7rem;height: auto;margin-bottom: .2rem;}
+        .nullData p{color:#999;}
+    </style>
+</head>
+<body>
+<div class="racetracks-nav">
+    <ul></ul>
+</div>
+<div class="racetracks-container">
+    <div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="background-color:#fff;" >
+       <div class="mui-scroll">
+            <ul class="racetracks-adds"></ul>
+            <div class="nullData">
+                <img src="/web/assets/image/wudingdan_ico.png">
+                <p>暂无数据</p>
+            </div>
+         </div>
+    </div>        
+</div>
+</body>
+</html>
+<script type="text/template" id="contest-nav">
+    {{ var val = it.data; }}
+    {{ for(var i in val.arr){ }}
+        <li type="{{=val.arr[i].type}}" class="sports-contest">{{=val.arr[i].name}}</li>
+    {{ } }}
+</script>
+<script type="text/template" id="contest-container">
+    {{ var val = it.data; }}
+    {{ for(var i in val.tit){ }}
+        <li id="{{=val.tit[i].id}}" class="mt" border="bottom">
+            <div class="competition-types">
+                <h2>{{=val.tit[i].name}}</h2>
+                <img src="{{=val.tit[i].img}}">
+            </div>
+        </li>
+    {{ } }}
+</script>
+
+<script type="text/template" id="racetracks-nav">
+    {{ var val = it.data; }}
+    {{ for(var i in val.arr){ }}
+        <li type="{{=val.arr[i].type}}">{{=val.arr[i].name}}</li>
+    {{ } }}
+</script>
+<script type="text/template" id="racetracks-container">
+    {{ var val = it.data; }}
+    {{ for(var i in val.tit){ }}
+        {{
+            var live = parseInt(val.tit[i].live);
+        }}
+        <li id="{{=val.tit[i].id}}" border="bottom">
+            <img src="{{=val.tit[i].img}}">
+            <div class="racetracks-text">
+                <h4 class="tow-ellipsis">{{=val.tit[i].title}}
+                {{? live==1 }}
+                <i class=""></i>
+                {{?}}
+                </h4>
+                <p class="tow-ellipsis">{{=val.tit[i].address}}</p>
+                <p>{{=val.tit[i].buzz}}人去过</p>
+            </div>
+        </li>
+    {{ } }}
+</script>
+
+<script>
+   var li_index = 0; 
+   var num = 0;
+   var m = 1; 
+   var _type = I('type',1);
+   var page = I('page',1); 
+   var pull_action = '';
+   var racetracks_nav=getRender('racetracks-nav');
+   var racetracks_container=getRender('racetracks-container');
+   var contest_nav=getRender('contest-nav');
+   var contest_container=getRender('contest-container');
+   function onStart(){
+        var _num = $.cookie('num');
+        var ali_index = $.cookie('li_index');
+        if(_num >= 0){
+            num = _num;
+        }
+        _initMui();
+        getData();
+
+        jsonAjax(API.API_LIST.RACETRACKS, {'type':_type,'page':page}, function (data) {
+            if (data.status == 1) {
+                $('.racetracks-nav ul').html(racetracks_nav(data));
+                $('.racetracks-nav ul li').eq(ali_index).addClass('cur').siblings().removeClass('cur');
+            }
+        });
+        jsonAjax(API.API_LIST.CONTEST, {'type':_type,'page':page}, function (data) {
+            if (data.status == 1) {
+                $('.racetracks-nav ul').append(contest_nav(data));
+                $('.racetracks-nav ul li').eq(ali_index).addClass('cur').siblings().removeClass('cur');
+            }
+        });
+        
+
+        
+        
+        loadEnd();
+   }
+   
+
+   $('.racetracks-container').on('tap','.racetracks-adds li', function (){
+       var id = $(this).attr('id');
+       var _type = $(this).attr('type');
+       var _this = this;
+       var obj = new Object();
+       obj.id = id;
+       obj.type = _type;
+       isLogin(function(ret){
+            if(ret){
+               if($(_this).hasClass("mt")){
+                    InterfaceTap('gotoCompetitiveDetail',JSON.stringify(obj));
+               }else{
+                    InterfaceTap('gotoRaceTrackDetail',JSON.stringify(obj)); 
+               };
+            }
+        });
+
+   });
+
+   $(document).on('click','.racetracks-nav ul li', function (){
+       var conHtml = $(this).pa
+       li_index = $(this).index();
+       num = $(this).attr('type');
+       $.cookie('num', num, {expires: 30});
+       $.cookie('li_index', li_index, {expires: 30});
+       $(this).addClass('cur').siblings().removeClass('cur');
+       
+       if($(this).hasClass("sports-contest")){
+            m = 2;
+            pull_action ='';
+            page=1;
+            getData();
+            $('.mui-pull-caption,.mui-pull-caption-down').hide();
+            mui('#pullrefresh').pullRefresh().refresh();
+       }else{
+            m = 1;
+            pull_action ='';
+            page=1;
+            getData();
+            $('.mui-pull-caption,.mui-pull-caption-down').hide();
+            mui('#pullrefresh').pullRefresh().refresh();
+       };
+
+   });
+
+   function getData(){
+        var _url = '';
+        if(m == 1){
+            _url = API.API_LIST.RACETRACKS;
+        }else{
+            _url = API.API_LIST.CONTEST;
+        };
+        jsonAjax(_url, {'type':num,'page':page}, function (data) {
+            if(data.status==1){
+                /*if(data.data.tit == ''){
+                    $('.racetracks-adds').html('');
+                    $('.nullData').show();
+                }else{
+                    $('.nullData').hide();
+                };*/
+                if(data.data.tit.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(m == 1){
+                    if (page == 1) {
+                        $('.racetracks-adds').html(racetracks_container(data));
+                    }else {
+                        $('.racetracks-adds').append(racetracks_container(data));
+                    }
+                }else{
+                    if (page == 1) {
+                        $('.racetracks-adds').html(contest_container(data));
+                    }else {
+                        $('.racetracks-adds').append(contest_container(data));
+                    }
+                };
+
+                $('.mui-pull-caption').show();
+                if(data.data.tit.length< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                 setTimeout(function(){
+                        mui('#pullrefresh').pullRefresh().setStopped(false);
+                        },200);
+                        page++;
+                        if(pull_action ==  'up'){
+                            mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                        }
+                        else if(pull_action == 'down'){
+                            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                        }
+            }else{
+                if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(page==1){
+                        $('.mui-pull-caption').hide();
+                        mui('#pullrefresh').pullRefresh().setStopped(true);
+                    }
+            }
+            loadEnd();
+        });
+    }
+
+
+
+
+</script>   
+
+

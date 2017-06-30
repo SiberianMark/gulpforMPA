@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>分享</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <script type="text/javascript">
+        loadWxObject();//加载微信对象
+    </script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/exclusive-adviser.css"/>
+    <style>
+        .box>img{width:100%;height:100%;}
+    </style>
+</head>
+<body>
+    <div class="box"><img src="" alt=""/></div>
+</body>
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    function onStart(){
+
+    }
+    function getData(){
+        var obj=M();
+        obj.userid=getUserid();
+        obj.aid=I('aid');
+        jsonAjax(API.API_LIST.CAR_USER_SHARE,obj,function(data){
+           if(data.status==1){
+               $('.box>img').attr('src',data.data.admincode);
+               loadEnd();
+               WxShare.title = data.data.title;
+               WxShare.desc = data.data.desc;
+               WxShare.imgUrl = data.data.imgUrl;
+               WxShare.link = data.data.link;
+               onWxShare();
+           }
+        });
+    }
+    function onWxReady(){
+        getData();
+    }
+</script>
+</html>

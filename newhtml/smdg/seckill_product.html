@@ -1,0 +1,353 @@
+    <!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>一折专区</title>
+    <script src="/web/assets/js/load.head2.js?v=d8595bd5c6"></script>
+    <link rel="stylesheet" href="/web/assets/css/wechat/seckill.css?v=201605112254">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script src="/web/assets/js/lottery/timegoing.js"></script>
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <style type="text/css">
+    .attent-mask{z-index:1000000;}
+    .code-pic a {width: 2.4rem;height: 2.4rem;display: block;position: absolute;top: 0;right: 0;z-index: 1200;background: url('/web/assets/image/float_mesu/ddcode-close.png') left center no-repeat;background-size: 2.4rem 2.4rem;}
+    .addcart-tip {display: inline-block;position: absolute;right: 1rem;bottom: -1rem;color: #f55;font-size: 1.3rem;z-index: 10;opacity: 0;}
+    .goto-mall{border-right:1px solid #999;}
+    .down-app{border-left:1px solid #999;}
+    </style>
+</head>
+<body>
+<div class="mask">
+    <div class="box">
+        <div class="text">
+            <p>您还没完善收货信息哦</p>
+            <i>取消</i>
+            <div class="a">立即完善</div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="showSharePic">
+    <div class="sharepic-right">
+        <img src="/web/assets/image/fenxiangtishi_ico.png"></div>
+</div>
+<div class="attention-now"><a href="javascrip:;"></a></div>
+<div class="swiper-container index-banner">
+    <div class="swiper-wrapper"></div>
+    <div class="swiper-pagination"></div>
+</div>
+<div class="pro-xx"></div>
+<div class="rush">
+    <div class="rush-list"></div>
+    <div class="more">
+        <span>继续拖动，查看商品详情</span>
+    </div>
+</div>
+<div class="content">
+
+</div>
+<div class="rush">
+    <h1>猜你喜欢</h1>
+    <div class="fruit-box-li">
+        <ul></ul>
+    </div>
+</div>
+
+<div class="suspension-menu">
+    <div class="sus-list" style="border-radius: .3rem 0 0 .3rem;display:none;">
+        <span id="sus-mall-icon" border="bottom"><i class="sus-icon sus-mall-icon">商城</i></span>
+        <span id="sus-shopcart-icon" border="bottom"><i class="sus-icon sus-shopcart-icon">礼品车</i><div class="sus-nun"></div></span>
+        <span id="sus-user-icon"><i class="sus-icon sus-user-icon">我的</i></span>
+        <em class="triangle-down"></em>
+    </div>
+    <span class="addcart-tip">+1</span>
+    <img style="border-radius: .3rem 0 0 .3rem;" src="/web/assets/image/float_mesu/float-menu.png">
+</div>
+<div class='Foot-line'></div>
+<div class='Foot-brand'>
+    <!-- <p class='p-tel' style='text-align: center;height: 1rem;line-height: 1rem;color: #999;'>服务热线:&nbsp;&nbsp;<a href="" class="a-tel" style="color: #999;text-decoration: none;">400-880-1621</a></p><p class='didi'></p><p class='ensure'>本平台已由 深圳市点嘀互联网络有限公司 承保</p> -->
+    <!--<p class="foot-addnav">-->
+        <!--<a class="goto-mall" href="javascript:;" border="right,ccc">神马生活</a>-->
+        <!--<a class="one-pai" href="javascript:;">神马互动</a>-->
+        <!--<a class="down-app"  href="http://www.didi365.com" border="left,ccc">下载APP</a>-->
+    <!--</p>-->
+    <!--<p class='ensure'>本平台已由 深圳市点嘀互联网络有限公司 承保</p>-->
+    <!--<p class='p-tel' style='text-align: center;height: 1rem;line-height: 1rem;color: #999;'>服务热线:&nbsp;&nbsp;<a href="" class="a-tel" style="color: #999;text-decoration: none;">400-880-1621</a></p>-->
+</div>
+<div class="buyBox">
+    <script type="text/template">
+        {{?it.data.info.can_buy==1&&it.data.info.remain_quantity!=0&&it.data.info.status==1}}
+        <div class="buy-height"></div>
+        <a class="buy-but">立即抢购</a>
+        {{??it.data.info.can_buy==0}}
+        <div class="buy-height"></div>
+        <a class="buy-but2">今日抢购次数已用完</a>
+        {{?}}
+    </script>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id="tmpl-data-banner">
+    <div class="swiper-slide">
+        <img class="swiper-lazy" src="{{=it.data.info.good_img?it.data.info.good_img:'/web/assets/image/default_ico.png'}}">
+    </div>
+</script>
+<script type="text/template" id="tmpl-data-proxx">
+    <div class="price">
+        <div class="left">
+            <div class="l-l">¥ <span>{{=it.data.info.good_special}}</span></div>
+            <div class="l-r">
+                <em>¥ {{=it.data.info.good_price}}</em>
+                {{?it.data.info.status==1}}
+                <p id="leftcount" leftcount='{{=it.data.info.remain_quantity}}'>剩余{{=it.data.info.remain_quantity}}件<!--img src="/web/assets/image/seckill/miaosha.png"--></p>
+                {{?}}
+            </div>
+        </div>
+        <div class="right">距结束仅剩
+            <div class="time" id="cutdown">
+                <span class="hour">00</span>:
+                <span class="mini">00</span>:
+                <span class="sec">00</span>
+            </div>
+        </div>
+    </div>
+    <div class="title">
+        <div class="share" id="share_details_footerBtn3"><img src="/web/assets/image/seckill/fengxiang2.png">分享</div>
+        <h1>{{=it.data.info.good_name}}</h1>
+        <p><span><img src="/web/assets/image/seckill/gou.png">实物拍摄</span><span><img src="/web/assets/image/seckill/gou.png">正品保障</span><span><img src="/web/assets/image/seckill/gou.png">包邮</span>
+        </p>
+    </div>
+</script>
+<script type="text/template" id="tmpl-data-rushlist">
+    {{?it.data.info.status==1||it.data.info.status==2}}
+    <h1>抢购记录</h1>
+    {{~it.data.list:list:index}}
+    <div class="list">
+        <div class="pic">
+            <img src="{{=list.photo?list.photo:'/web/assets/image/default_ico.png'}}">
+        </div>
+        <div class="name">
+            <p>{{=list.nickname}}</p>
+            <p>{{=list.mobile.substring(0,3)+"****"+list.mobile.substring(8,11)}}</p>
+        </div>
+        <div class="time">
+            <p>抢购价 ¥ {{=list.money}}</p>
+            <p>{{=list.add_time}}</p>
+        </div>
+    </div>
+    {{~}}
+    <div class="but-more"><a>点击查看更多<img src="/web/assets/image/seckill/bmbg.png"></a></div>
+    {{?}}
+</script>
+<script type="text/template" id="tmpl-data-content">
+    {{ var i = it.data.description;}}
+    {{ for(var k=0 in i){ }}
+    <div class="bd-img">
+        <img src="{{=i[k].img}}" alt="">
+    </div>
+    <span>{{=(i[k].description==null?"":i[k].description)}}</span>
+    {{ } }}
+</script>
+<script type="text/template" id="tmpl-data-like">
+    {{~it.data.like:list:index}}
+    <li goodsid="{{=list.id}}" border="all" num="500">
+        <div style="position: relative;">
+            <div class="saleout" store-num="500"></div>
+            <img src="{{=list.img}}"></div>
+        <div class="fruit-box-word"><p><span>{{=list.name}}</span></p>
+            <div class="fruit-box-detail"><p class="f-price">￥<span>{{=list.sell_price}}</span></p>
+                <p class="f-ward"><span>奖励</span><span>￥0.00</span></p></div>
+            <div class="fruit-box-addcart" goods_id="{{=list.id}}"></div>
+        </div>
+    </li>
+    {{~}}
+</script>
+<script>
+    var serverTime = new Date().getTime();//服务器当前时间戳
+    var render_banner = getRender('tmpl-data-banner');
+    var render_proxx = getRender('tmpl-data-proxx');
+    var render_rushlist = getRender('tmpl-data-rushlist');
+    var render_content = getRender('tmpl-data-content');
+    var render_like = getRender('tmpl-data-like');
+    var begin_time,end_time;
+    var sta = 0;
+    var share=I('share');
+    var firstload2 = true;
+    var is_bind = 0 ;
+    var is_address = 0 ;
+    var is_pub_acct=I('pub_acct','0')=="1"?true:false;//是否来自专属公众号
+    function onStart() {
+        getCarInfo();
+        OnepayCopyright(is_pub_acct?1:0,false);//一元拍底部导航，版权信息。
+
+        console.log('local_Time',serverTime,formatDate(parseInt(serverTime),'yyyy-MM-dd HH:mm:ss'));
+        jsonAjax(API.API_LIST.GOLD_SECKILL_GETSECKILLDETAIL,{'userid': getUserid(),'id':I('id',0)},function(data) {
+            if (data.status==1) {
+                WxShare.title = data.data.share.title;
+                WxShare.desc = data.data.share.desc;
+                WxShare.imgUrl = data.data.share.image;
+                WxShare.link = data.data.share.link;
+                loadWxObject(true); //获取微信分享对象
+                if(data.data.list.length==0){
+                    $('.rush-list').hide();
+                }
+                sta = parseInt(data.data.info.status);
+                serverTime = parseInt(data.data.info.now_time)*1000;
+                begin_time = parseInt(data.data.info.begin_time)*1000;
+                end_time = parseInt(data.data.info.end_time)*1000;
+                //begin_time = new Date('2016/04/22 10:00:00').getTime();
+                //end_time = new Date('2016/04/21 23:59:59').getTime();
+                console.log('server_Time',serverTime,formatDate(parseInt(serverTime),'yyyy-MM-dd HH:mm:ss'));
+                console.log('begin_time',formatDate(begin_time,'yyyy-MM-dd HH:mm:ss'));
+                console.log('end_time',formatDate(end_time,'yyyy-MM-dd HH:mm:ss'));
+                $('.index-banner .swiper-wrapper').html(render_banner(data));
+                $('.pro-xx').html(render_proxx(data));
+                $('.rush-list').html(render_rushlist(data));
+                $('.content').html(render_content(data));
+                $('.fruit-box-li ul').html(render_like(data));
+                doTer(data , $(".buyBox"));
+
+                checkStarCutDown();
+
+                if(data.data.info.status==0){
+                    $(".price").addClass("lv");
+                }
+                if(data.data.info.remain_quantity==0){
+                    $(".price").removeClass("lv");
+                    $('.price .right').html('已抢光');
+                }
+
+                $('.but-more').on('click',function(){
+                    var obj = new Object();
+                    obj.id=I('id',0);
+                    Interface('gotoSeckill_comment',obj);
+                });
+
+                $('.fruit-box-li').on('click', '.fruit-box-addcart', function (e) {  //添加到礼品车
+                    e.stopPropagation();
+                    jsonAjax(API.API_LIST.CART_ADDTOCART, {
+                        'goods_id': $(this).attr("goods_id"),
+                        'userid': getUserid()
+                    }, function (data) {
+                        if (data.status == 1) {
+                             getCarInfo();
+                            //$('.float_ShopCart').attr('hasPro', 'add');
+                            setTimeout(function () {
+                                $('.addcart-tip').animate({opacity:'0.9'},"slow").animate({opacity:'0'},"slow");
+                                //$('.float_ShopCart').attr('hasPro', 'yes');
+                            }, 300);
+                            inputTipsText('已成功加入到礼品车');
+                        } else {
+                            inputTipsText(data.info);
+                        }
+                    });
+                });
+
+                /////分享
+                $('#share_details_footerBtn3').on("click",function(){
+                    if(is_weixn()){
+                        $("#showSharePic").addClass("fade");
+                    }else{
+                        wxShare(WxShare); //获取微信分享对象
+                    }
+                });
+                $('#showSharePic').on('click',function(){
+                    $("#showSharePic").removeClass("fade");
+                });
+
+                $('.fruit-box-li').on('click', 'li', function () {    //到商品详情
+                    var _goodsid = $(this).attr('goodsid');
+                    var obj = new Object();
+                    obj.goodsid = _goodsid;
+                    Interface('gotoGoodsMsg', JSON.stringify(obj));
+                });
+
+                //立即购买
+                $('.buy-but').on('click',function () {
+                    if(parseInt($('#leftcount').attr('leftcount')) > 0 && sta == 1){
+                        var obj = M();
+                        obj.is_crowd="2";
+                        obj.goods_id = I('id',0);
+                        Interface('gotoDeterOrder',JSON.stringify(obj));
+                    }
+                });
+
+                if((data.data.info.has_address==0||data.data.info.has_mobile==0)&&firstload2==true){
+                    $('.mask').show();
+                    firstload2 = false;
+                }
+                is_address =parseInt(data.data.info.has_address);
+                is_bind = parseInt(data.data.info.has_mobile);
+
+
+
+                if(share==1&&data.data.info.is_subscribe==0){
+                    $('.attention-now').show();
+                }else{
+                    $('.attention-now').hide();
+                }
+            }
+            loadEnd();
+        });
+
+    }
+
+    $('.mask').on('tap','.a', function (event) {
+        event.stopPropagation();
+        var obj = new Object();
+        obj.source = "seckill";
+        obj.is_bind = is_bind ;
+        obj.is_address = is_address == 1 ? 0 : 1;
+        Interface('gotoAddAddress', obj);
+        return false;
+    });
+
+    $('.mask i').click(function(event){
+        event.stopPropagation();
+        $('.mask').hide();
+        return false;
+    });
+
+    //获取购物车信息
+    function getCarInfo(){
+        jsonAjax(API.API_LIST.CART_GETCARTINFO, {'userid': getUserid()}, function (data) {
+            if (data.status == 1) {
+                //console.log(data.data);
+                if (data.data.totalNum > 0) {
+                    //$('.float_ShopCart').attr('hasPro', 'yes');
+                    console.log(data.data.totalNum);
+                    $('.sus-nun').show().html(data.data.totalNum);
+                }else{
+                    $('.sus-nun').hide();
+                }
+            }
+
+        });
+    }
+
+    $(document).on('click','.codePic-close',function (event){
+        event.stopPropagation();
+        $('.attent-mask').hide();
+    });
+
+    function checkStarCutDown(){
+        if(end_time < serverTime || end_time < begin_time){
+            $('.price .right').html('已结束');
+        }else if(begin_time < serverTime){
+            console.log('cut down started ... ');
+            $('#cutdown').fnTimeCountDown(
+            formatDate(end_time,'yyyy-MM-dd HH:mm:ss'),
+            formatDate(serverTime,'yyyy-MM-dd HH:mm:ss'),
+            null,null,false,true);
+            //clearInterval(itv_start);
+        }else{
+            var t= formatDate(begin_time,'yyyy-MM-dd HH:mm:ss');
+            $('.price .right').html('即将开始<p>'+t+'</p>');
+            setTimeout(checkStarCutDown,3000);
+            serverTime+=3000;
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,119 @@
+@charset "utf-8";
+html, body { height: 100%; overflow: hidden; overflow-y: hidden; }
+.msginfo { padding: 0.5rem; text-align: center; width: 100%; margin: 0.5rem; float: left; color: red; }
+.content { padding: 0.5rem 1rem 1rem 1rem; background: #eee;/* margin-bottom: 6rem; */ overflow: hidden; overflow-y: hidden; width: 100%; height: 100%; }
+.message_content { width: 100%; margin-top: 2rem; clear: both; float: left; font-size: 1.4rem; }
+.message_content.left>div { float: left; }
+.message_content.right>div { float: right; }
+.face { width: 4.2rem; height: 4.2rem; }
+.face img { width: 100%; height: 100%; clear: both; border-radius: 100%; -webkit-border-radius: 100%; }
+.message img { width: 18.2rem; height: 18.2rem; border-radius: 6px; -webkit-border-radius: 6px; }
+.messageleft img { width: 18.2rem; height: 18.2rem; border-radius: 6px; -webkit-border-radius: 6px; }
+.message { background-color: #fff; padding: 10px; max-width: 75%; margin-left: 15px; -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px; position: relative; background-image: -moz-linear-gradient(hsla(0, 0%, 100%, 0.6), hsla(0, 0%, 100%, 0)  30px); background-image: -webkit-gradient(linear, 0 0, 0 30, from(hsla(0, 0%, 100%, 0.6)), to(hsla(0, 0%, 100%, 0))); border: 1px solid #cccccc; }
+.messageleft { background-color: #65d778; padding: 10px; max-width: 75%; margin-left: 5px; margin-right: 15px; -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px; position: relative; background-image: -moz-linear-gradient(hsla(0, 0%, 100%, 0.6), hsla(0, 0%, 100%, 0)  30px); background-image: -webkit-gradient(linear, 0 0, 0 30, from(hsla(0, 0%, 100%, 0.6)), to(hsla(0, 0%, 100%, 0))); border: 1px solid #3bc052; }
+.message:before { position: absolute; content: "\00a0"; width: 0px; height: 0px; border-width: 6px 10px 6px 0; border-style: solid; border-color: transparent #ccc transparent transparent; top: 12px; left: -11px; }
+.message .msg-after-block { position: absolute; content: "\00a0"; width: 0px; height: 0px; border-width: 6px 10px 6px 0; border-style: solid; border-color: transparent #fff transparent transparent; top: 12px; left: -10px; }
+.messageleft:before { position: absolute; content: "\00a0"; width: 0px; height: 0px; border-width: 6px 0px 6px 10px; border-style: solid; border-color: transparent transparent transparent #3bc052; right: -10px; top: 12px; }
+.messageleft .msg-after-block { position: absolute; content: "\00a0"; width: 0px; height: 0px; border-width: 6px 0px 6px 10px; border-style: solid; border-color: transparent transparent transparent #65d778; right: -9px; top: 12px; }
+.bot-info { position: absolute; bottom: 0; width: 100%; background: #fff; }
+.bot-info::after { content: ""; position: absolute; border-top: 1px solid #ccc; -webkit-transform-origin: 0 0; transform-origin: 0 0; z-index: 1; top: 0; left: 0; right: 0; -webkit-transform: scaleY(.5); transform: scaleY(.5); }
+.audio_dur { color: #999; font-size: 1.2rem; margin: 0 5px; height: 4.8rem; line-height: 4.8rem; }
+.msg-voice { color: #333; }
+.msg-voice-box { width: 6.3rem; }
+.msg-voice .ico_voice.left { background-image: url('/web/car-service/assets/image/im/ico_sound_1.png'); }
+.msg-voice .ico_voice.right { background-image: url('/web/car-service/assets/image/im/ico_sound_2.png'); float: right; }
+.msg-voice .ico_voice { width: 2.4rem; height: 2.4rem; background-image: url('/web/car-service/assets/image/im/ico_sound_2.png'); background-size: 100% 100%; background-repeat: no-repeat; background-position: center; }
+.send { height: 6rem; }
+.send .btn-send { width: 6.1rem; height: 3.5rem; line-height: 3.5rem; background: #18BD02; margin: 0 1.5rem; color: #fff; text-align: center; font-size: 1.8rem; border-radius: 6px; -webkit-border-radius: 6px; }
+.send input { border: none; width: 100%; height: 100%; padding-left: 0.5rem; font-size: 1.4rem; border-radius: 0; -webkit-border-radius: 0; }
+.send .input-box { margin: 0 1.25rem; height: 3.5rem; position: relative; border-bottom: 1px solid #ccc; }
+.send .input-box:before { content: ""; width: 1px; height: 1.5rem; background: #ccc; position: absolute; left: 0; bottom: 0; }
+.send .input-box:after { content: ""; width: 1px; height: 1.5rem; background: #ccc; position: absolute; right: 0; bottom: 0; }
+.send .recVoice-box { display: none; margin: 0 1.25rem; height: 3.5rem; line-height: 3.5rem; font-size: 1.6rem; position: relative; text-align: center; color: #666; border: 1px solid #eee; border-radius: 4px; -webkit-border-radius: 4px; }
+.send .voice { display: none; width: 3.3rem; height: 3.3rem; margin-left: 0.5rem; overflow: hidden; background-image: url('/web/car-service/assets/image/im/ico_voice@2x.png'); background-size: 100% 100%; background-repeat: no-repeat; background-position: center; }
+.send .add { width: 3.3rem; height: 3.3rem; overflow: hidden; background-image: url('/web/car-service/assets/image/im/ico_jia@2x.png'); background-size: 100% 100%; background-repeat: no-repeat; background-position: center; }
+.send .add input { line-height: 3.3rem; height: 3.3rem; width: 3.5rem; opacity: 0; filter: alpha(opacity=0); cursor: pointer; }
+.add-image { height: 9rem; padding: 1.8rem; width: 100%; border-top: 1px solid #ccc; display: none; }
+.add-image img { width: 5.4rem; height: 5.4rem; margin-right: 1rem; border-radius: 6px; -webkit-border-radius: 6px; }
+.fade { display: block; }
+
+/*音频播放动画效果----start*/
+.message .msg-voice .audio_effect { position: absolute; display: none; left: 12px; top: 33px; }
+.messageleft .msg-voice .audio_effect { position: absolute; display: none; right: 12px; top: 33px; }
+.msg-voice .audio_effect span { display: block; bottom: 9px; width: 3px; height: 5px; background: #9b59b6; position: absolute; -webkit-animation: kf_audio_effect 2s infinite ease-in-out; -moz-animation: kf_audio_effect 2s infinite ease-in-out; -ms-animation: kf_audio_effect 2s infinite ease-in-out; animation: kf_audio_effect 2s infinite ease-in-out; }
+.message .msg-voice .audio_effect span:nth-child(2) { left: 6px; -webkit-animation-delay: .2s; -moz-animation-delay: .2s; -ms-animation-delay: .2s; -o-animation-delay: .2s; animation-delay: .2s; }
+.message .msg-voice .audio_effect span:nth-child(3) { left: 12px; -webkit-animation-delay: .4s; -moz-animation-delay: .4s; -ms-animation-delay: .4s; -o-animation-delay: .4s; animation-delay: .4s; }
+.message .msg-voice .audio_effect span:nth-child(4) { left: 18px; -webkit-animation-delay: .6s; -moz-animation-delay: .6s; -ms-animation-delay: .6s; -o-animation-delay: .6s; animation-delay: .6s; }
+.message .msg-voice .audio_effect span:nth-child(5) { left: 24px; -webkit-animation-delay: .8s; -moz-animation-delay: .8s; -ms-animation-delay: .8s; -o-animation-delay: .8s; animation-delay: .8s; }
+.messageleft .msg-voice .audio_effect span { right: 0px; }
+.messageleft .msg-voice .audio_effect span:nth-child(2) { right: 6px; -webkit-animation-delay: .2s; -moz-animation-delay: .2s; -ms-animation-delay: .2s; -o-animation-delay: .2s; animation-delay: .2s; }
+.messageleft .msg-voice .audio_effect span:nth-child(3) { right: 12px; -webkit-animation-delay: .4s; -moz-animation-delay: .4s; -ms-animation-delay: .4s; -o-animation-delay: .4s; animation-delay: .4s; }
+.messageleft .msg-voice .audio_effect span:nth-child(4) { right: 18px; -webkit-animation-delay: .6s; -moz-animation-delay: .6s; -ms-animation-delay: .6s; -o-animation-delay: .6s; animation-delay: .6s; }
+.messageleft .msg-voice .audio_effect span:nth-child(5) { right: 24px; -webkit-animation-delay: .8s; -moz-animation-delay: .8s; -ms-animation-delay: .8s; -o-animation-delay: .8s; animation-delay: .8s; }
+@-webkit-keyframes kf_audio_effect {
+    0% { height: 5px; -webkit-transform: translateY(0px); background: #9b59b6; }
+    25% { height: 30px; -webkit-transform: translateY(15px); background: #3498db; }
+    50% { height: 5px; -webkit-transform: translateY(0px); background: #9b59b6; }
+    100% { height: 5px; -webkit-transform: translateY(0px); background: #9b59b6; }
+}
+@-moz-keyframes kf_audio_effect {
+    0% { height: 5px; -moz-transform: translateY(0px); background: #9b59b6; }
+    25% { height: 30px; -moz-transform: translateY(15px); background: #3498db; }
+    50% { height: 5px; -moz-transform: translateY(0px); background: #9b59b6; }
+    100% { height: 5px; -moz-transform: translateY(0px); background: #9b59b6; }
+}
+@-ms-keyframes kf_audio_effect {
+    0% { height: 5px; -ms-transform: translateY(0px); background: #9b59b6; }
+    25% { height: 30px; -ms-transform: translateY(15px); background: #3498db; }
+    50% { height: 5px; -ms-transform: translateY(0px); background: #9b59b6; }
+    100% { height: 5px; -ms-transform: translateY(0px); background: #9b59b6; }
+}
+@keyframes kf_audio_effect {
+    0% { height: 5px; transform: translateY(0px); background: #9b59b6; }
+    25% { height: 30px; transform: translateY(15px); background: #3498db; }
+    50% { height: 5px; transform: translateY(0px); background: #9b59b6; }
+    100% { height: 5px; transform: translateY(0px); background: #9b59b6; }
+}
+
+/*音频播放动画效果----end*/
+
+/*record.html*/
+.record-list { background: #fff; }
+.record-list .msg-item { padding: 1.25rem 1rem; position: relative; }
+.record-list .msg-item::after { content: ""; position: absolute; border-bottom: 1px solid #ccc; -webkit-transform-origin: 0 0; transform-origin: 0 0; z-index: 1; bottom: 0; left: 0; right: 0; -webkit-transform: scaleY(.5); transform: scaleY(.5); }
+.record-list .msg-item em { max-width: 2.4rem; min-width: 1.6rem; text-align: center; border-radius: 100%; -webkit-border-radius: 100%; font-style: normal; font-size: 1.2rem; color: #fff; background: red; position: absolute; top: 0.8rem; left: 4rem; }
+.record-list .msg-item p { margin: 0; padding: 0; }
+.record-list .msg-item img { width: 4.8rem; height: 4.8rem; border-radius: 100%; -webkit-border-radius: 100%; margin-right: 1rem; }
+.record-list .msg-item .nickname { font-size: 1.4rem; margin-bottom: 1rem; }
+.record-list .msg-item .content { font-size: 1.3rem; color: #999; background: #fff; }
+.record-list .msg-item .time { font-size: 1.3rem; color: #999; }
+
+/*swiperbox插件索引样式*/
+.swiperbox-indexs { position: absolute; bottom: 5rem; right: 2rem; height: 2rem; color: #fff; font-size: 2rem; }
+#pullrefresh { margin-bottom: 6rem; }
+#pullrefresh.upDataImg { margin-bottom: 15rem; }
+@media screen and (min-width:700px) {
+    body { background-color: #96B97D; }
+    .chatBox { position: absolute; overflow: hidden; width: 100%; height: 100%; }
+    .content { padding: 16px; }
+    #pullrefresh { margin-bottom: 70px; }
+    #pullrefresh.upDataImg { margin-bottom: 150px; }
+    .add-image { height: 80px; padding: 12px 20px; width: 100%; border-top: 1px solid #ccc; display: none; }
+    .add-image.fade { display: block; }
+    .add-image img { width: 56px; height: 56px; margin-right: 12px; }
+    .send { height: 70px; }
+    .send .add, .send .add input { width: 45px; height: 45px; }
+    .send .btn-send { width: 120px; height: 45px; line-height: 45px; margin: 0 15px; font-size: 22px; }
+    .send .input-box { margin: 0 20px; height: 50px; position: relative; }
+    .send .input-box::before, .send .input-box::after { height: 20px; }
+    .send input { padding: 0 10px; font-size: 14px; height: 49px; line-height: 49px; }
+    .message_content { width: 100%; margin-top: 16px; clear: both; float: left; font-size: 14px; }
+    .message img, .messageleft img { width: 112px; height: 112px; }
+    .face { width: 42px; height: 42px; }
+    .mui-pull-caption { font-size: 14px; }
+    .inputTipsText>div { width: 300px; min-width: 300px; text-align: center; background-clip: padding-box; border-radius: 6px; line-height: 34px; font-size: 14px; background-color: rgba(0, 0, 0, 0.8); color: #fff; margin: 0 auto; position: static; }
+    .msginfo { font-size: 14px; padding-bottom: 0; margin-bottom: 0; }
+    .msg-voice-box { width: 100px; }
+    .msg-voice .ico_voice { width: 24px; height: 24px; background-image: url('/web/car-service/assets/image/im/ico_sound_2.png'); background-size: 100% 100%; background-repeat: no-repeat; background-position: center; }
+    .audio_dur { color: #999; font-size: 14px; margin: 0 5px; height: 24px; line-height: 24px; }
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>预约成功</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body>
+    <div class="wrap suc-wrap ovh">
+        <div class="success tc">
+            <img src="/web/car-service/assets/image/success@2x.png">
+            <p class="reserve-num"></p>
+        </div>
+        <p class="text mgb-2 tc">恭喜您，已经成功预约了<span></span>的服务</p>
+        <p class="text tc">请在前往4S店之后出示您的预约编号</p>
+        <div class="btn-group">
+            <div class="reserve-btn btn tc auto">查看预约详情</div>
+            <div class="go-btn btn tc auto" scl-pe='before'>前往4S店</div>
+        </div>
+        <!--<p class="tc play" >玩游戏赚马蹄付保养费</p>-->
+    </div>
+</body>
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    var reserve_num=I('reserve_num');
+    function onStart(){
+        $('.mgb-2 span').text(decodeURIComponent(I('name')));
+        $('.reserve-num').text('预约编号：'+I('code'));
+        $('.reserve-btn').on('click',function(){ //进入预约详情
+            var obj = M();
+            obj.id = I('id');
+            obj.type = I('type');
+            // if(I('type')==6||I('type')==5){
+            //     PageJump('gotoMyPaintDetail',obj);
+            // }else {
+                PageJump('gotoMyBookDetail',obj);
+            // }
+
+        });
+        $('.go-btn').on('click',function(){//进入一键到店
+            PageJump('gotoNavtoShop');
+        });
+        $('.play').on('click',function(){//进入一键到店
+            PageJump('gotoGameShake');
+        });
+
+        loadEnd();
+    }
+</script>
+</html>

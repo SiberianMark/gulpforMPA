@@ -1,0 +1,303 @@
+html,body{
+    height: 100%; width: 100%;
+}
+*{
+    margin: 0; padding: 0; font-family:"微软雅黑";
+}
+.container.bg01{
+    height: 100%; background: url("/web/car-service/assets/image/game/bg.jpg") no-repeat; background-size: 100% 100%; position: relative;
+}
+.container.bg02{
+    height: 100%; background: url("/web/car-service/assets/image/game/bg-2@2x.jpg") no-repeat; background-size: 100% 100%; position: relative;
+}
+.container .rule{
+    position: absolute; right: 1rem; top:1.6rem; background: rgba(0,0,0,.6); height: 2.5rem; line-height: 2.5rem; width: 6rem; text-align: center; font-size: 1.4rem;
+    color: #fff; border-radius: 6px;
+}
+.container .rule img{
+    display: inline-block; width: 1.4rem; height: 1.4rem; position: relative; top:.2rem;
+}
+.container .inputBox{
+    height: 4.4rem; position: absolute; width: 100%; bottom: 4.7rem;display: -webkit-box; display: -webkit-flex; display: flex; padding: 0 5.3rem;
+}
+.container .inputBox .input-l{
+    -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; height: 4.4rem; margin: 0 .75rem 0 0;
+}
+.container .inputBox .input-l input{
+    width: 100%; height: 4.4rem; line-height: 4.4rem; border-radius: 6px; border: none; background:rgba(255,255,255,.8); font-size: 1.5rem; color: #999; padding-left: 1.25rem;
+}
+.container .inputBox .input-r{
+    width: 6rem; height: 4.4rem; border-radius: 6px; background:rgba(255,255,255,.8) url("/web/car-service/assets/image/game/jiantou@2x2.png") no-repeat center; background-size: 2.5rem 2.5rem;
+}
+.container .time-tit{
+    font-size: 2rem; color: #fff; padding: 3.5rem 0 1.5rem; text-align: center; line-height: 2rem;
+}
+.container .time-num{
+    font-size: 3rem; color: #fff; text-align: center; line-height: 3rem;height: 3rem;width: 100%;
+}
+.container .time-num span{
+    position: relative; top:.2rem;width: 4rem;display: inline-block;margin-left: 0;margin-right:0;padding: 0;
+}
+.container .time-num em{
+    position: relative;font-style: normal;width: 1.5rem;display: inline-block;margin-left: 0;margin-right:0;padding: 0;
+}
+.container .shakePic{
+    width: 22.2rem; height: 22.2rem; background: url("/web/car-service/assets/image/game/yaoyiyao@2x.png") no-repeat; background-size: 100% 100%; position: absolute;
+    left: 50%; margin-left: -11.1rem; top:20rem;
+}
+.container .userBox{
+    width: 100%; height: 14rem; bottom: 0; position: absolute;
+}
+.container .userBox .user{
+    width: 100%; height: 2.8rem; display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+    -webkit-box-align: center; -webkit-align-items: center; align-items: center; color: #fff; font-size: 1.5rem;
+}
+.container .userBox .user img{
+    width: 2.8rem; height: 2.8rem; border-radius: 50%; margin-right: .75rem; border: 1px solid #fff;
+}
+.container .userBox .user i{
+    font-style: normal;
+}
+.container .userBox .goal{
+    text-align: center; padding: 1rem 0;
+}
+.container .userBox .goal span{
+    display: inline-block; background: rgba(0,0,0,.4); height: 3.5rem; line-height: 3.5rem; padding: 0 2.4rem; text-align: center; color: #fff; border-radius: 12px;
+    font-size: 1.8rem;
+}
+.container .userBox .goal i{
+    display: inline-block; color: #fff; font-size: 1.5rem; height: 4rem; line-height: 4rem; text-align: center; width: 11.6rem; background: #4a96fd; border-radius: 6px;font-style: normal;
+}
+.container .userBox .goal span em{
+    padding-left: .4rem; font-style: normal;
+}
+.container .userBox a{
+    font-size: 1.3rem; color: #fff; text-align: center; display: block; text-decoration: underline;
+}
+.container .gameOver{
+    display: block; width: 19rem; height: 3.3rem; margin: 0 auto;
+}
+.shake-list .list{
+    width: 100%; height:4.6rem; display: -webkit-box; display: -webkit-flex; display: flex; background: #fff; padding: 0 1rem;
+}
+.shake-etc .list{
+    width: 100%; height:4.8rem; display: -webkit-box; display: -webkit-flex; display: flex;padding: 0 1.6rem 0 1.3rem; background: #fff;
+}
+.shake-etc .list:last-child{
+    border: none;
+}
+.shake-etc .list .pic{
+    width: 2.55rem; height: 2.55rem; margin-right: 1.5rem;
+}
+.shake-etc .list .name{
+    -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; font-size: 1rem; color: #999; line-height: 1rem;
+}
+.shake-etc .list .name p:first-child{
+    font-size: 1.4rem; color: #333; line-height: 1.4rem; margin: .9rem 0 .6rem;
+}
+.shake-etc .list .num{
+    width: 6rem; height:4.8rem; line-height: 4.8rem; color:#999; font-size:1.4rem; background: url("/web/car-service/assets/image/game/back@2x.png") no-repeat right center; background-size: .75rem 1.35rem;
+}
+.shake-etc .list .num.on{
+    color: #f55;
+}
+.shake-etc .list .pic img{
+    width: 2.55rem; height: 2.55rem; margin-top: 1.15rem;
+}
+.shake-list .list .pic{
+    width: 3.2rem; line-height: 3.2rem; margin-right: 1.2rem;
+}
+.shake-list .list .pic img{
+    width: 3.2rem; height: 3.2rem; border-radius: 50%; margin-top: .7rem;
+}
+.shake-list .list .name{
+    width: auto; line-height: 4.6rem; font-size: 1.3rem; color: #333;
+}
+.shake-list .list .num{
+    text-align: right; line-height: 4.6rem; color: #999; font-size: 1.3rem;-webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
+}
+.shake-list .list .num i{
+    display: inline-block; width: 2.45rem; height: 3rem; background: url("/web/car-service/assets/image/game/1@2x.png") no-repeat; background-size: 100% 100%;
+    font-style: normal; font-size: 1.8rem; color: #fff; text-align: center; line-height: 2rem; margin-left: 1rem;
+}
+.modal .box{
+    width: 100%; height: 100%; display: -webkit-box; display: -webkit-flex; display: flex;  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+    -webkit-box-align: center; -webkit-align-items: center; align-items: center; color: #fff;
+}
+.playBomb{
+    width: 23rem; background: #fff; border-radius: 6px; text-align: center; font-size: 1.4rem; color: #f55; position: relative;
+}
+.playBomb .txt{
+    padding: 3rem 0; text-align: center; color: #f55; font-size: 1.4rem; line-height:2.4rem;
+}
+.playBomb .txt p{
+    color: #666; font-size: 1.3rem;
+}
+.notWin .txt,.Win .txt{
+    padding-bottom: 3rem;
+}
+.playBomb .btn{
+    color: #333; height: 4.5rem; line-height: 4.5rem;
+}
+.playBomb .btn2{
+    color: #333; height: 4.5rem; line-height: 4.5rem; display: -webkit-box; display: -webkit-flex; display: flex;
+}
+.playBomb .btn2 > div{
+    color: #666; -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; height: 4.5rem; line-height: 4.5rem;
+}
+.playBomb .btn2 > div:last-child{
+    color: #f55;
+}
+.ruleBox{
+    width: 23rem; padding: 3rem 0 2rem; background: #fff; border-radius: 6px; text-align: center; font-size: 1.4rem; color: #f55; position: relative;
+}
+.ruleBox i{
+    position: absolute; width:1.4rem; height: 1.4rem; right: 1rem; top:1rem; background: url("/web/car-service/assets/image/game/clear-button@2x.png") no-repeat; background-size: 100% 100%;
+}
+.ruleBox .txt01{
+    color: #333; margin-bottom: 1rem;
+}
+.ruleBox .txt02{
+    margin-bottom: 1.6rem;
+}
+.ruleBox .txt03{
+    font-size: 1.4rem; color: #333; margin-bottom: 1.3rem;
+}
+.ruleBox .txt04{
+    margin-bottom: .6rem;
+}
+
+/* shake-pc */
+.flex-cc{
+    -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;-webkit-box-align: center; -webkit-align-items: center; align-items: center;display: -webkit-box;  display: -webkit-flex;  display: flex;
+}
+.shake-pc{
+    width: 100%; height: 100%; background-size: 100% 100%; position: relative;
+}
+.shake-pc .section{
+    width: 1260px; height: 680px; position: absolute; left: 50%; top: 50%; margin: -340px 0 0 -630px;
+}
+.shake-pc .section > div{
+    width: 635px; height: 680px; background: rgba(0,0,0,.6); float: left; border-radius: 20px; box-shadow: 0 0 20px #66bfff; position: relative;
+}
+.shake-pc .section > div:first-child{
+    margin-right: 40px; width: 585px;
+}
+.shake-pc .section .sec-l .tit{
+    font-size: 40px; color: #cfd0d2; text-shadow: 0 0 20px #66bfff; padding: 50px 0 42px; text-align: center;
+}
+.shake-pc .section .sec-l .ewm{
+    display:block; width: 86px; height: 86px; position: absolute; right: 24px; top:24px;
+}
+.shake-pc .section .sec-l .player-list{
+    width: 100%; padding: 0 0 0 20px; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; height: 36px;font-size: 18px; color: #fff; line-height: 36px;
+    display: -webkit-box; display: -webkit-flex; display: flex; margin-bottom: 20px;
+}
+.shake-pc .section .sec-l .player-list .num{
+    width: 74px; text-align: center; height: 36px; font-size: 22px; color: #eeeeee;
+}
+.shake-pc .section .sec-l .player-list .pic{
+    width: 36px; height: 36px; margin-right: 22px;
+}
+.shake-pc .section .sec-l .player-list .pic img{
+    border-radius: 50%; width: 36px; height: 36px;
+}
+.shake-pc .section .sec-l .player-list .name{
+    width: 95px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap; margin-right: 15px;
+}
+.shake-pc .section .sec-l .player-list .phone{
+    width: 120px; text-align: center; margin-right: 42px;
+}
+.shake-pc .section .sec-l .player-list .speed{
+    -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
+}
+.shake-pc .section .sec-r .time-box{
+    height: 74px; line-height: 74px; text-align: center; color: #fff; font-size: 38px;
+}
+.shake-pc .section .sec-r .time-box i{
+    font-size: 15px; font-style: normal; position: relative; top: -8px;
+}
+.shake-pc .section .sec-r .bw{
+    height: 66px; background: url("/web/car-service/assets/image/game/bw.png") repeat-x;
+}
+.shake-pc .section .sec-r .col-list{
+    display: -webkit-box; display: -webkit-flex; display: flex; height: 540px; position: relative;
+}
+.shake-pc .section .sec-r .col-list .begin{
+    width: 200px; height: 96px; background:url("/web/car-service/assets/image/game/begin-icon.png") no-repeat; position: absolute;
+    left: 50%; top:184px; margin-left: -100px;z-index: 100;
+}
+.shake-pc .section .sec-r .col-list .col{
+    height: 540px; -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; border-right: 1px solid #ccc;
+}
+.shake-pc .section .sec-r .col-list .col:last-child{
+    border: none;
+}
+.shake-pc .section .sec-r .col-list .col .track{
+    height: 450px; position: relative;
+}
+.shake-pc .section .sec-r .col-list .col .track .car-go{
+    position: relative; height: 384px;
+}
+.shake-pc .section .sec-r .col-list .col .track .car-do{
+    height: 66px;
+}
+.shake-pc .section .sec-r .col-list .col .track .car{
+    width: 98px; height: 48px; text-align: center; position: absolute;
+}
+.shake-pc .section .sec-r .col-list .col .track .car p{
+    font-size: 13px; color: #fff; background: #999999; border-radius: 10px; width: 90%; left: 5%; top:-18px; position: absolute; height: 18px; line-height: 18px;
+}
+.shake-pc .section .sec-r .col-list .col .num{
+    height: 90px; text-align: center; line-height: 90px; font-size: 35px; color: #999;-webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;
+    border-top: 1px solid #ccc;
+}
+.shake-pc .section .sec-r .winner{
+    width: 566px; height: 587px; background:url("/web/car-service/assets/image/game/tankuang-bg.png") no-repeat; position: absolute; left: 50%; top: 30px; margin-left: -283px;
+    -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; padding: 194px 14px 0;
+}
+.shake-pc .section .sec-r .winner i{
+    width: 14px; height: 14px; background:url("/web/car-service/assets/image/game/clear-button.png") no-repeat; right: 30px; top: 95px; position: absolute; display: block;
+}
+.shake-pc .section .sec-r .winner .list{
+    width: 100%; -webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; height: 30px; font-size: 16px; color: #ec9719; line-height: 30px;
+    display: -webkit-box; display: -webkit-flex; display: flex; margin-top: 10px;
+}
+.winner .list .pic{
+    width: 30px; margin: 0 8px 0 20px;
+}
+.winner .list .pic img{
+    width: 30px; height: 30px; border-radius: 50%;
+}
+.winner .list .name{
+     width: 86px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap; margin-right: 7px;
+}
+.winner .list .phone{
+    width: 149px; text-align: center;
+}
+.winner .list .win{
+    -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; text-align: center;
+}
+.winner .list .pro{
+    width: 145px; text-align: center;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;
+}
+/*share animation*/
+.shakePic.do_share{
+    animation        : fr_shake 2s 1 linear;
+    -moz-animation   : fr_shake 2s 1 linear;
+    -webkit-animation: fr_shake 2s 1 linear;
+    -ms-animation    : fr_shake 2s 1 linear;
+    -o-animation     : fr_shake 2s 1 linear;
+}
+@keyframes fr_shake {
+   0%,100%{transform:rotate(0deg)}
+   25%{transform:rotate(70deg)}
+   50%{transform:rotate(0deg)}
+   75%{transform:rotate(-50deg)}
+}
+@-webkit-keyframes fr_shake {
+   0%,100%{-webkit-transform:rotate(0deg)}
+   25%{-webkit-transform:rotate(70deg)}
+   50%{-webkit-transform:rotate(0deg)}
+   75%{-webkit-transform:rotate(-50deg)}
+}

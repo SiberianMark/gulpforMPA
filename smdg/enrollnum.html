@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+	<script src="/web/assets/js/load.meta.js"></script>
+    <title>报名</title>
+	<script src="/web/assets/js/load.head3.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="/web/assets/css/smdg/style.css"/>
+
+</head>
+<body>
+	<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+	<div class="mui-scroll" style="padding-bottom:3.6rem;">
+			<!--数据列表-->
+			<ul class="numinfo clear">
+			</ul>
+		</div>
+	</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="templist">
+{{ var val = it.data;}}
+{{~val:i:index}}
+   <li border="bottom" uid="{{=i.id}}">
+		<div class="numinfo-fl"><img class="smUsrImg" src="{{=i.photo}}" alt=""><strong>{{=(i.nickname)?(i.nickname):''}}</strong></div>
+		<label class="eltime">{{=i.add_time}}</label>
+	</li>
+{{~}}
+</script>
+<script>
+	var userid = 1002586;
+	var id = I('activity_id');
+	var page = 1;
+    var render=getRender('templist');
+    function onStart(){
+    	  // loadEnd();
+    	 _initMui();
+    	getData();
+    	// if(!mui_inited){
+	    //    _initMui(true);
+	    //    mui_inited = true;
+	    // }else{
+	    //     mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+	    //     mui('#pullrefresh').pullRefresh().refresh(true);
+	    // }
+
+    }
+    // function getData(){
+    //     jsonAjax(API.API_LIST.GOLD_HOME_ACTIVITYUSERJION,{id:id,userid:userid,page:page},function(data){
+    //         if(data.status==1){
+    //             $('.numinfo').html(render(data));
+    //             loadEnd();
+    //         }
+    //     });
+    // }
+    function getData () {
+		jsonAjax(API.API_LIST.GOLD_HOME_ACTIVITYUSERJION, {id:id,userid:userid,page:page}, function (data) {
+	        if (data.status == 1) {
+	        	// $('.myred-tips').html(data.data.tips).css('color',data.data.color);
+	            if(data.data.length <= 0){
+	                if(pull_action ==  'up'){
+	                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+	                }
+	                else if(pull_action == 'down'){
+	                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+	                }
+	                loadEnd();
+	                return;
+	            }
+	            if(page==1){
+	                $('.numinfo').html(render(data));
+	            }else{
+	                $('.numinfo').append(render(data));
+	            }
+	            $('.mui-pull-caption').show();
+	            if(data.data.length< 10){
+	                $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+	            }
+	             setTimeout(function(){
+	                    mui('#pullrefresh').pullRefresh().setStopped(false);
+				 },200);
+				page++;
+				if(pull_action ==  'up'){
+					mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+				}
+				else if(pull_action == 'down'){
+	                       mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+				}
+	        }else{
+	            if(pull_action == 'up'){
+	                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+	                }
+	                else if(pull_action == 'down'){
+	                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+	                }
+	                if(page==1){
+	                	//$('.lottery-cvx').show().parents('.buy-records').css('background','none');
+	                	$('.mui-pull-caption').hide();
+	                    mui('#pullrefresh').pullRefresh().setStopped(true);
+	                }
+	        }
+	        loadEnd();
+	    });
+	}
+  $('.numinfo').on('tap','li',function(){
+    var obj={
+      uid:$(this).attr('uid')
+    };
+    Interface('gotoPersonInfo',obj);
+  });
+</script>
+</html>

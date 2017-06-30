@@ -1,0 +1,250 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>精品推荐</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <script>
+        loadWxObject();  //加载微信对象
+    </script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/product-list.css">
+    <style type="text/css">
+        /*---神马嘀嘀底部引流条---*/
+        .smdd-tip{width:100%;height:5rem;background:#d8d8d8;position:fixed;bottom:0;z-index:1000;display:none; }
+        .smdd-tip img{width:5rem;height:5rem;position:absolute;top:-1.3rem;left:1.3rem; }
+        .smdd-tip-con{position:absolute;left:7.2rem;top:1rem;right:3.7rem;}
+        .smdd-tip-con p{text-align:left;color:#333;font-size:1.1rem;margin:0;  }
+        .user-now{width:6.2rem;height:2.5rem;line-height:2.5rem;background:#f55;text-align:center;color:#fff;position:absolute;top:.3rem;right:0.3rem;border-radius:.3rem; }
+        .smdd-close{width:1.2rem;height:1.2rem;position:absolute;top:2rem;right:1.4rem;background: url(/web/assets/image/close.png) no-repeat center center;background-size:1.1rem;}
+        .top-paihang{position: absolute;top: 1rem;right: -4.3rem;color: #fff;width: 12rem;height: 1.6rem;text-align: right;background: #f55;font-size: 1.4rem;-webkit-transform: rotate(45deg);-o-transform: rotate(45deg);text-align: center;}
+    </style>
+</head>
+<script type="text/template" id="gifts-recommend">
+    {{ var val = it.data; }}
+    
+            {{ for(var i in val.list){ }}
+            <li goodsid={{=val.list[i].goods_id}}>
+                <div class='search-img-box'>
+                    <img src='{{=val.list[i].mg_img}}' />
+                    <div class='saleout' store-num='12'></div>
+                </div>
+                <div class='search-con-box'>
+                    <p class="title">{{=val.list[i].name}}</p>
+                    <div class='fruit-box-detail'>
+                        <p class="f-price">￥<span>{{=val.list[i].sell_price}}</span></p>
+                        <p class='f-ward'><span>奖励</span><span>￥12</span></p>
+                        <p class="f-zt"><span>免运费</span>人气<span>235</span></p>
+                    </div>
+                    <div class='fruit-box-addcart' goodsid="{{=val.list[i].goods_id}}"></div>
+                </div>
+            </li>
+            {{ } }} 
+</script>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll" style="padding-bottom:4.6rem;">
+        <header>
+            <img src="" alt="">
+        </header>
+        <div class='search-content'>
+        <div class="tips">更多热门商品</div>
+            <ul class="search-result-pro clear">
+            </ul>           
+        </div>
+    </div>
+</div>
+<div class="suspension-menu">
+    <div class="sus-list" style="border-radius: .3rem 0 0 .3rem;display:none;">
+        <span id="sus-mall-icon" border="bottom"><i class="sus-icon sus-mall-icon">商城</i></span>
+        <span id="sus-shopcart-icon" border="bottom"><i class="sus-icon sus-shopcart-icon">礼品车</i><div class="sus-nun"></div></span>
+        <span id="sus-user-icon"><i class="sus-icon sus-user-icon">我的</i></span>
+        <em class="triangle-down"></em>
+    </div>
+    <span class="addcart-tip">+1</span>
+    <img style="border-radius: .3rem 0 0 .3rem;" src="/web/assets/image/float_mesu/float-menu.png">
+</div>
+<div class="smdd-tip">
+    <img src="/web/assets/image/smdd_ico.png">
+    <div class="smdd-tip-con">
+        <p>神马嘀嘀</p>
+        <p>人.车.生活移动互联社区</p>
+        <a class="user-now" href="javascript:;">立即使用</a>
+    </div>
+    <a class="smdd-close" href="javascript:;"></a>
+</div>
+</body>
+<script>
+   var pull_action='';
+    var page =I('page',1);
+    var render=getRender('gifts-recommend');
+    var sm_type = I('type',1);    //1/2神马集市、3神马假日
+    var share=I('share');   //是否为分享,是1;否0;
+    function onStart(){
+        console.log(page);
+        _initMui();
+        getData();
+        getCarInfo();
+        smddHomeShare();
+    }
+    if(share){
+        if(is_weixn()){
+            //if (sm_type==2){
+                $('.smdd-tip').show();
+            // };
+        };
+    }else{
+        $('.smdd-tip').hide();
+    };        
+    function getCarInfo(){
+        jsonAjax(API.API_LIST.CART_GETCARTINFO, {'userid': getUserid()}, function (data) {
+            if (data.status == 1) {
+                //console.log(data.data);
+                if (data.data.totalNum > 0) {
+                    //$('.float_ShopCart').attr('hasPro', 'yes');
+                    console.log(data.data.totalNum);
+                    $('.sus-nun').show().html(data.data.totalNum);
+                }else{
+                    $('.sus-nun').hide();
+                }
+            }
+
+        });
+    }
+    function getData () {
+        jsonAjax('gold/home/getCategroyList', {'cid':I('cid'),'user_id':getUserid(),'page':page}, function (data) {
+            if (data.status == 1) {
+                WxShare.title = data.data.share.title;
+                WxShare.desc = data.data.share.content;
+                WxShare.imgUrl = data.data.share.share_pic;
+                WxShare.link = data.data.share.share_link;
+                loadWxObject(true); //加载微信对象
+                if(share){
+                    if(is_weixn()){
+                        //if (sm_type==2){
+                            $('.smdd-tip').css('bottom','4rem').show();
+                            $('.suspension-menu img').css('bottom','0rem')
+                        // };
+                    };
+                }else{
+                    $('.smdd-tip').hide();
+                    $('.suspension-menu img').css('bottom','-4rem')
+                };    
+
+                $('header img').attr('src',data.data.share.share_pic);
+                if(data.data.length <= 0){
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return;
+                }
+                if(page==1){
+                    $('.search-result-pro').html(render(data));
+                }else{
+                    $('.search-result-pro').append(render(data));
+                }
+
+                $('.mui-pull-caption').show();
+
+                if(data.data.length< 10){
+                    $('.mui-pull-bottom-pocket .mui-pull-caption').text('没有更多了');
+                }
+                 setTimeout(function(){
+                        mui('#pullrefresh').pullRefresh().setStopped(false);
+                        },200);
+                        page++;
+                        if(pull_action ==  'up'){
+                            mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                        }
+                        else if(pull_action == 'down'){
+                            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                        }
+            }else{
+                if(pull_action == 'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    if(page==1){
+                        $('.lottery-empty').show().parents('.buy-records').css('background','none');
+                        $('.mui-pull-caption').hide();
+                        mui('#pullrefresh').pullRefresh().setStopped(true);
+                    }
+            }
+            loadEnd();
+        });
+    }
+    /*获取分享信息*/
+    function getHomeShare(){
+        jsonAjax(API.API_LIST.MALL_HOME_SHARE, {'userid': getUserid()}, function (data) {
+            if (data.status == 1) {
+                WxShare.title = data.data.title;
+                WxShare.desc = data.data.desc;
+                WxShare.imgUrl = data.data.imgUrl;
+                WxShare.link = data.data.link;
+                loadWxObject(true); //加载微信对象
+            }
+        });
+    }
+    /*获取神马集市分享信息*/
+    function smddHomeShare(){
+        jsonAjax(API.API_LIST.SMDD_HOME_SHARE, {'userid': getUserid(),'type':sm_type}, function (data) {
+            if (data.status == 1) {
+                WxShare.title = data.data.share_title;
+                WxShare.desc = data.data.share_content;
+                WxShare.imgUrl = data.data.share_img;
+                WxShare.link = data.data.share_link;
+                WxShare.id = data.data.id;
+                WxShare.link = data.data.type;
+                loadWxObject(true); //加载微信对象
+                if(is_weixn()){
+                    if (sm_type==2){
+                        $('.smdd-tip').show();
+                        $('.suspension-menu img').css('bottom','0rem')
+                    };
+                }    
+            }
+        });
+    }
+    $('.search-result-pro').on('tap', '.fruit-box-addcart', function (e) {  //添加到购物车
+        e.stopPropagation();
+        isLogin(function(ret){
+            if(ret){
+                jsonAjax(API.API_LIST.CART_ADDTOCART, {'goods_id': $(this).attr("goodsid"),'userid': getUserid()}, function (data) {
+                    if (data.status == 1) {
+                        getCarInfo();
+                        //$('.float_ShopCart').attr('hasPro', 'add');
+                        setTimeout(function () {
+                            //$('.float_ShopCart').attr('hasPro', 'yes');
+                            $('.addcart-tip').animate({opacity:'0.9'},"slow").animate({opacity:'0'},"slow");
+                        }, 300);
+                        inputTipsText('已成功加入到礼品车');
+                    } else {
+                        inputTipsText(data.info);
+                    }
+                });
+            }
+        });
+    });
+
+    $('.user-now').on('tap',function(){
+        InterfaceTap('downApp');
+    });
+    $('.smdd-close').on('tap',function(){
+        $('.smdd-tip').remove();
+    });
+    
+    $(".search-result-pro").on('tap', 'li ', function () {
+        var obj = new Object();
+        obj.goodsid = $(this).attr("goodsid");
+        InterfaceTap('gotoGoodsMsg', JSON.stringify(obj));
+    });
+
+</script>

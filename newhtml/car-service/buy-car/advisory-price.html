@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+
+    <title>咨询底价</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js?v=5c01d7aff0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.min.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.picker.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.poppicker.css"/>
+    <script src="/web/car-service/assets/js/mui.min.js?v=41cb80c42a"></script>
+    <script src="/web/car-service/assets/js/mui.picker.js?v=81933de995"></script>
+    <script src="/web/car-service/assets/js/mui.poppicker.js?v=8bce2da9e5"></script>
+    <script src="/web/car-service/assets/js/license.data.js?v=ea58ef2292"></script>
+    <script src="/web/car-service/assets/js/chose_car.js?v=11b9147205"></script>
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+    <style media="screen">
+        body{overflow: hidden;}
+    </style>
+</head>
+<body style="background-color:#eee;">
+            <div class="wrap">
+              <div class="tips tc">提交个人信息，获取本店底价</div>
+              <div class="phone_msg">
+                <div class="msg-ph clear choose-car ovh" id="choseCar" scl-pe="before">
+                    <dic class="col-3 pdl-25">选择车款</dic>
+                    <div class="col-9 pdl-1 car-name" id="res"></div>
+                    <span class="arrow"></span>
+                    <input type="hidden" id="brandid" name="brandid" placeholder="请选择你爱车的车型" verify/>
+                    <input type="hidden" id="modelid" name="modelid"/>
+                    <input type="hidden" id="detailid" name="detailid"/>
+                </div>
+                <div class="msg-ph clear mgt-2 ovh bg pr ">
+                    <div class="col-7 bgwh bd-radius" scl-pe="before">
+                        <div class="col-5 msg-contact pdl-25">联 系 人</div>
+                        <div class="col-7 ovh pdl-2"><input style="width:90%;" type="text" id="usr_name" class="in-ph tl" value="" maxlength="32" placeholder="请输入姓名" vity/></div>
+                    </div>
+					<div class="sex ovh col-5" style="padding-left:1rem;">
+						<label for="sex-man" class=" dib pr" style="margin-right:1.5rem;">
+							男<input id="sex-man" name="sex" class="vm mhl-2 mgl-2" type="radio"  value="1" style="margin:0">
+						</label>
+						<label for="sex-female" class="dib pr">
+							女<input id="sex-female" name="sex" class="vm mhl-2 mgl-2" type="radio"  value="0" style="margin:0">
+						</label>
+					</div>
+                </div>
+                <div class="msg-ph clear mgt-2 ovh before" scl-pe="before">
+                    <div class="col-3 pdl-25">手机号码</div>
+                    <div class="col-9 pdl-1"><input type="text" id="phone" class="in-ph tl" value="" maxlength="11" placeholder="请输入您的手机号" vity/></div>
+                </div>
+              </div>
+                <span class="tj-btn db">咨询底价</span>
+            </div>
+
+            <div class="guwen">
+            </div>
+
+            <div class="swiper_banner" >
+	        	<div class="swiper-container index-banner">
+	                <div class="swiper-wrapper"></div>
+	                <div class="swiper-pagination"></div>
+                    <div class="del"></div>
+	            </div>
+	        </div>
+</body>
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id="tmpl-data-ad">
+    {{~it.data:item:index}}
+    <div class="swiper-slide" hrefUrl="{{=item.url}}" adid="{{=item.id}}">
+        <img class="swiper-lazy" data-src="{{=item.image?item.image:'/web/assets/image/default_ico.png'}}">
+        <div class="swiper-lazy-preloader"></div>
+    </div>
+    {{~}}
+</script>
+<script>
+    var swiper_banner = null;
+    var swiper_pop = null;
+    var swiper_tag = null;
+    var car_name=decodeURIComponent(I('car_name'));
+    var detail_id=I('detail_id');
+    var render_ad = getRender('tmpl-data-ad');
+
+    function onStart(){
+        $('.car-name').html(car_name);
+        $('#detailid').val(detail_id);
+        getInfo();
+        getEmployee(API.API_LIST.CAR_BUYCAR_PRICECOUNSELOR,$(".guwen"));
+        getbnaner();
+    }
+    function allLoadEnd(){
+        if(empLoad){
+            loadEnd();
+        }
+    }
+    function getInfo(){
+        $('#usr_name').val(UserInfo.nickname);
+        $('#phone').val(UserInfo.mobile);
+        var sex=UserInfo.sex;
+        switch(parseInt(sex)){
+            case 0:
+                break;
+            case 1:
+                $('input[name="sex"]').eq(0).addClass('selected');
+
+                break;
+            case 2:
+                $('input[name="sex"]').eq(1).addClass('selected');
+                break;
+        }
+    }
+    $('.sex').on('click','input',function(){
+        $('input[name="sex"]').each(function(i,item){
+            $(item).removeClass('selected');
+        });
+        $(this).addClass('selected')
+    });
+    $('#phone').bind('keyup paste input propertychange',function(){
+        $(this).val($(this).val().replace(/[^\d]/ig,''));
+    });
+    // 咨询底价
+    $('.tj-btn').on('click',function(){
+        var reg_usr=/^[A-Za-z0-9\u4E00-\u9FA5]{1,32}$/;
+        var regex = /(13[0-9]|14[0-9]|15[0-9]|17[0-9]|18[0-9])[0-9]{8}$/;//手机号
+        var brandid = parseInt($("input[name='brandid']").val());
+        var modelid = parseInt($("input[name='modelid']").val());
+        var detailid = parseInt($("input[name='detailid']").val());
+        var advisorid = $("div[aid]").attr("aid");
+        var sex = $('.selected').val();
+        var commitData={
+            userid:getUserid(),
+            contacts:$('#usr_name').val(),
+            sex:sex,
+            phone:$('#phone').val(),
+            detailid:detailid,
+            advisorid:advisorid
+        };
+        if(commitData.contacts==''){
+            inputTipsText('联系人姓名不能为空！');
+            return false;
+        }
+        if(commitData.phone==''){
+                inputTipsText('请输入手机号！');
+            return false;
+        }
+        if (!regex.test(commitData.phone)) {
+                inputTipsText('请输入正确的手机号！');
+            return false;
+        }
+        if(!reg_usr.test(commitData.contacts)){
+                inputTipsText('联系人只能是中文或者英文！');
+            return false;
+        }
+        if(sex==undefined||sex==''){
+            inputTipsText('请选择性别');
+            return false;
+        }
+        jsonAjax(API.API_LIST.CAR_BUYCAR_CONSULTPRICEOK,commitData, function (data) {
+            if (data.status == 1) {
+                PageJump('gotoAdvisorySuccess');
+            }else{
+                inputTipsText(data.info);
+                BackBuyIndex()
+            }
+        });
+        // }
+
+    });
+    var a=getUserInfo();
+    console.log(UserInfo);
+    var value;//输入的内容
+    //限制联系人输入长度
+    $('#usr_name').on('input',function(){
+        var res=/^[A-Za-z0-9\u4E00-\u9FA5]*$/;
+        var len1=$(this).val().length;
+        value=$(this).val();
+        if(!res.test($(this).val())){
+            $(this).val(value.slice(0,len1-1));
+        }
+        var len=$(this).val().gblen();
+        if(len<32){
+            value=$(this).val();
+        }
+        if(len>=32){
+            $(this).val(value);
+        }
+    });
+    // 广告
+    function getbnaner(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_BUYCARAD, {}, function (data) {
+            if (data.status == 1) {
+                if (swiper_banner != null) {
+                    swiper_banner.destroy();
+                    swiper_banner = null;
+                }
+                if(data.data.length>0){
+                    $('.index-banner .swiper-wrapper').html(render_ad(data));
+                    swiper_banner = new Swiper('.index-banner', {
+                        loop: true,
+                        autoplay: 3000,
+                        observer: true,
+                        preloadImages: false,
+                        speed: 500,
+                        pagination: '.swiper-pagination',
+                        paginationClickable: true,
+                        autoplayDisableOnInteraction: false,
+                        lazyLoading : true
+                    });
+                    $('div.swiper-slide[hrefUrl]').on("click", function () {
+                        if ($(this).attr('hrefUrl').length > 0) {
+                            var adid=$(this).attr('adid');
+                            var obj = new Object();
+                            obj.link=$(this).attr('hrefUrl');
+                            collectClick(adid,obj);
+                        }
+                    });
+                }else {
+                    $('.swiper_banner .del').remove();
+                }
+                LazyLoad();
+                loadEnd();
+            }else {
+                $('.swiper_banner .del').remove();
+            }
+        });
+    }
+    $(".del").click(function(){
+        $(this).parent().remove();
+    });
+    function LazyLoad(){
+        $("img.lazy").lazyload({
+            effect : "fadeIn",
+            threshold : 10,
+            placeholder:"/web/assets/image/default_ico.svg"
+        });
+    }
+
+    //车型三级联动
+//    choseCar('choseCar','res','brandid','modelid','detailid');
+    $('.choose-car').on('click',function(){
+        PageJump('gotoBuyCarIndex',{});
+    });
+//弹出
+    $(".warn").on('click',function(){
+        $(".mask,.show-content").show();
+    });
+
+    $(".show-content").on('click',function(){
+        $(".mask,.show-content").hide();
+    });
+    //修改position地位方式
+    var heigth=window.innerHeight;
+
+    $(window).resize(function(){
+        var height1=window.innerHeight;
+        if(height1<heigth){
+            $('.swiper_banner').hide();
+        }else if(height1==heigth){
+            $('.swiper_banner').show();
+        }
+    });
+   /* $('input[vity]').on('focus',function(){
+        clearTimeout(time);
+        $('.swiper_banner').css('bottom','-12rem');
+    });
+    $('input[vity]').on('blur',function(){
+
+        time=setTimeout(function(){
+            $('.swiper_banner').css('bottom','0');
+        },500);
+    });
+    var time=setTimeout(function(){
+        $('.swiper_banner').css('bottom','0');
+    },500)*/
+</script>
+</html>

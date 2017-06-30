@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>违章列表</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body>
+    <div class="wrap illegal-wrap">
+        <div class="car-info tc">
+            <h3 class="mgb-2">粤B 0794Z</h3>
+            <p>凌派 2016款 1.8L 手动风尚版</p>
+        </div>
+        <ul class="tab-menus ovh tc">
+            <li class="col-3 on"><a>全部</a></li>
+            <li class="col-3"><a>待处理</a></li>
+            <li class="col-3"><a>正在处理</a></li>
+            <li class="col-3"><a>历史违章</a></li>
+        </ul>
+        <ul class="record-list hide"></ul>
+        <div class="no-record tc">
+            <img src="/web/car-service/assets/image/search@2x.png" alt="">
+            <p class="mgt-3">本车辆目前没有违章记录</p>
+        </div>
+    </div>
+</body>
+<script>
+	function onStart(){
+		loadEnd();
+	}
+    $(".tab-menus li").click(function(){
+        var $tabs_menu=$(".tab-menus");
+        // var $tabs_con=$(".tabs-con .con-list");
+        var $t=$(this).index();
+        $(this).siblings().removeClass('on');
+        $(this).addClass('on');
+        // $tabs_con.addClass('dn');
+        // $tabs_con.eq($t).removeClass('dn');
+    });
+</script>
+</html>

@@ -1,0 +1,491 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>工位看板</title>
+    <script src="/web/assets/js/jquery.min.js?v=6631a77932"></script>
+    <script src="/web/assets/js/doT.min.js?v=10d9e033a4"></script>
+    <script src="/web/assets/js/jquery.cookie.js?v=d5528dde00"></script>
+    <link rel="stylesheet" type="text/css" href="/web/car-service/station.css?v=3.3.4">
+</head>
+<body>
+    <div class="wkf">
+        <div class="wkstation">
+            <span>工位选择</span>
+            <div class="wk">
+            </div>
+        </div>
+        <div class="form-data">
+            <span>车牌</span><input id="carnum" value=""/>
+            <span>车主手机</span><input id="phone" value="" maxlength="13" />
+            <span class="search">查询</span>
+        </div>
+    </div>
+    <div class="wkf wkf-tips">
+        <span class='gr'>作业中</span>
+        <span class='rd'>作业超时</span>
+        <span class='gy'>作业完成</span>
+    </div>
+    <div class="main-box">
+        <!-- <p class="title">工位统计</p>
+        <div class="tongji">
+            <ul>
+                <li>
+                    <p>全部</p>
+                    <p>66</p>
+                </li>
+                <li>
+                    <p>正在作业车辆</p>
+                    <p>22</p>
+                </li>
+                <li>
+                    <p>已完成作业车辆</p>
+                    <p>66</p>
+                </li>
+                <li>
+                    <p>维修</p>
+                    <p>12</p>
+                </li>
+                <li>
+                    <p>钣金</p>
+                    <p>12</p>
+                </li>
+                <li>
+                    <p>喷漆</p>
+                    <p>12</p>
+                </li>
+                <li>
+                    <p>美容</p>
+                    <p>12</p>
+                </li>
+            </ul>
+        </div>
+        <p class="title">工位明细</p> -->
+        <div class="station"></div>
+        <div class="cars"></div>
+        <div class="show-box"></div>
+    </div>
+</body>
+<script type="text/template" id="data-list">
+    {{~station_list:station:i}}
+        {{~hour_section:station:k}}
+            {{?i==0}}
+                <div class="flex-x fhead" h="{{=hour_section[k].h}}">{{=hour_section[k].str}}</div>
+            {{??}}
+                <div class="flex-x" h="{{=hour_section[k].h}}" s="{{=station_list[i].station_id}}">{{=k==0?station_list[i].name:''}}<br>{{=k==0?station_list[i].leader:''}}
+                {{?k>0}}
+                    /*<a class="more" href="javascript:void(0);">查看更多&gt;</a>*/
+                {{?}}
+            </div>
+            {{?}}
+        {{~}}
+    {{~}}
+</script>
+<script type="text/template" id="cars-list">
+    {{~car_list:car:i}}
+        {{
+            /*计算车辆应显示的单元格*/
+            var top=52,left=STATION_WIDTH*0.076,width=0,station_row=1,hour_row=1;
+            var show_dot=false;
+            var bgc='gr';
+            console.log('-----',car.station_id,car.enter_hour);
+            for(var k=1;k<station_list.length;k++){
+                if(station_list[k].station_id==car.station_id){
+                    station_row=k;
+                    break;
+                }
+            }
+            for(var k=1;k<hour_section.length;k++){
+                if(hour_section[k].h==car.enter_hour){
+                    hour_row=k;
+                    break;
+                }
+            }
+            top+=(station_row-1)*CELL_HEIGHT;
+            left+=(hour_row-1)*CELL_WIDTH;
+            console.log('top&left',top,left);
+            console.log('min&,per',car.enter_min,parseFloat(car.enter_min/60),parseInt(parseFloat(car.enter_min/60)*CELL_WIDTH));
+            if(car.enter_min){
+                var per=parseFloat(car.enter_min/60);
+                left+=parseInt(per*CELL_WIDTH);
+            }
+            if(car.duration){
+                width=(CELL_WIDTH/60)*car.duration;
+            }
+            if(width<85){
+                show_dot=true;
+                width=20;
+            }
+            if(car.flag==0){
+                bgc='gr';
+            }else if(Number(car.flag)==1){
+                bgc='rd';
+            }else if(Number(car.flag)==2){
+                bgc='gy';
+            }
+            width=width>200?200:width;
+            var hs=car.enter_hour+','+car.station_id;
+            /*var flag=repeat_list.indexOf(hs)>=0;*/
+            /*if(flag){
+                $('.station>div[h='+car.enter_hour+'][s='+car.station_id+']').find('.more').show();
+            }*/
+        }}
+        {{console.log('#'+i,top,left,car.license,station_row+','+hour_row);}}
+        <div class="car flex-x {{=bgc}} {{=show_dot?'expand':''}}" style="top:{{=top}}px;left:{{=left}}px;width:{{=width}}px;{{=width==0?'display: none;':''}}" xy="{{=car.enter_hour}},{{=car.station_id}}">
+                <span class="{{=show_dot?'hide':''}}">{{=car.license}}</span>
+                <span class="{{=show_dot?'hide':''}}">{{=car.note}}</span>
+                {{?show_dot}}
+                    <a style="color:#fff;" href="javascript:void(0);">...</a>
+                {{?}}
+        </div>
+        {{repeat_list.push(hs);}}
+    {{~}}
+</script>
+<script type="text/template" id="wks-list">
+    <span station_id="0" class="{{=stationArr.length<=0?'active':''}}">全部</span>
+    {{~it:station:index}}
+        {{?index>0}}
+        <span station_id="{{=station.station_id}}" class="{{=stationArr.indexOf(station.station_id)>=0?'active':''}}">{{=station.name}}</span>
+        {{?}}
+    {{~}}
+</script>
+<script>
+    var H_START=7,H_END=21;
+    var STATION_WIDTH = $('.station').width();
+    var CELL_HEIGHT=48;
+    var CELL_WIDTH = STATION_WIDTH * 0.066;
+    var hour_section=[],station_list=[],car_list=[];
+    var repeat_list=[];
+    var interval=0,interval_time=30000;
+    var carnum='',phone='',stationArr=[];
+    var render_data=getRender('data-list');
+    var render_cars=getRender('cars-list');
+    var render_wks=getRender('wks-list');
+
+    $(document).ready(function () {
+
+        /*初始化*/
+        initHourSection(H_START,H_END);
+        initStation();
+        //initCars();
+
+        /*创建工位，时间表格*/
+        //$('.station').html(render_data());
+
+        /*数据渲染*/
+        //markCurrentTime();
+        //addCar();
+    });
+
+    $('.cars').on('click','.expand',function(){
+        var $this=$(this);
+        $(this).css({'width':'100px','z-index':'999'});
+        $(this).find('a').hide();
+        setTimeout(function(){
+            $this.find('span').removeClass('hide');
+        },300);
+        $.each($('.cars .expanded'),function(n,obj){
+            $(obj).css({'width':'20px','cursor':'pointer','z-index':'1'});
+            $(obj).find('a').show();
+            $(obj).find('span').addClass('hide');
+            $(obj).removeClass('expanded').addClass('expand');
+        });
+        $(this).removeClass('expand').addClass('expanded');
+    });
+    $('.cars').on('click','.expanded',function(){
+        $(this).css({'width':'20px','cursor':'pointer','z-index':'1'});
+        $(this).find('a').show();
+        $(this).find('span').addClass('hide');
+        $(this).removeClass('expanded').addClass('expand');
+    });
+
+    $('.search').on('click',function(e){
+        carnum=$('#carnum').val();
+        phone=$('#phone').val().toString();
+        var REGX_MOBILE = /^1[3|4|5|7|8]\d{9}$/i;
+        if(carnum==''&&phone==''){
+            return;
+        }
+        if(phone!='' && !REGX_MOBILE.test(phone)){
+            $('#phone').val('');
+            alert('请输入正确的手机号');
+            return;
+        }
+        getData();
+    });
+
+    $('.station').on('click',function(e){
+        $('.show-box').hide();
+    });
+
+    $('.station').on('click','div .more',function(e){
+        e.stopPropagation();
+        if(!$('.show-box').is(':hidden')){
+            $('.show-box').hide();
+            return;
+        }
+        var h=$(this).parent('div').attr('h');
+        var s=$(this).parent('div').attr('s');
+        $('.show-box').html('');
+        $('.show-box').css({'top':($(this).offset().top+20)+'px','left':($(this).offset().left+30)+'px'});
+        $.each($('.cars .car[xy="'+(h+','+s)+'"].hide'),function(n,obj){
+            $(obj)[0].style='';
+            var out=$(obj).prop("outerHTML").replace('hide','').replace('car', 'car-in-box');
+            $('.show-box').append(out);
+        });
+        $('.show-box').show();
+        /*if($('.cars .car[xy="'+(h+','+s)+'"].hided').length>0){
+            $('.cars .car[xy="'+(h+','+s)+'"].hided').removeClass('hided').addClass('hide');
+        }else{
+            $('.cars .car[xy="'+(h+','+s)+'"].hide').removeClass('hide').addClass('hided');
+        }*/
+    });
+
+    $('.wk').on('click','span',function(e){
+        if($(this).hasClass('active')){
+            $(this).removeClass('active');
+            stationArr.removeByValue($(this).attr('station_id'));
+            clearInterval(interval);
+            getData();
+            interval=setInterval(getData,interval_time);
+            return;
+        }
+        if($(this).attr('station_id')==0){
+            $(this).addClass('active').siblings().removeClass('active');
+            stationArr=[];
+        }else{
+            stationArr.push($(this).attr('station_id'));
+            $(this).addClass('active');
+            $('.wk span:first').removeClass('active');
+        }
+        clearInterval(interval);
+        getData();
+        interval=setInterval(getData,interval_time);
+    });
+
+    //标注当前时间栏
+    function markCurrentTime(){
+        var hour=new Date().getHours();
+        $('.station>div[h='+hour+']').addClass('current-cell');
+    }
+
+    //添加车辆
+    function addCar(){
+        $('.cars').html(render_cars());
+        // for(var i in repeat_list){
+        //     var r_w=$('.station>div[h='+repeat_list[i].split(',')[0]+']').outerWidth();
+        //     var h=repeat_list[i].split(',')[0];
+        //     var s=repeat_list[i].split(',')[1];
+        //     $('.station>div[h='+h+']').css('width',r_w*2+'px');
+        //     $.each($('.cars .car[xy="'+repeat_list[i]+'"]'),function(n,obj){
+        //         console.log(n,obj,repeat_list[i]);
+        //         if(n>0){
+        //             $(obj).css({'left':Number($(obj).css('left').replace('px',''))+(n*130)+'px'});
+        //         }
+        //     });
+        // }
+        // $('.station').css('width',hour_section.length*CELL_WIDTH+repeat_list.length*CELL_WIDTH+'px');
+    }
+
+    //处理一个时间段中有多辆车的情况
+    function fixCar(index){
+        if(index>=car_list.length-1)
+            return;
+        //console.log('fixCar-'+index);
+        var car=car_list[index];
+        var str=car.enter_hour+','+car.station_id;
+        //console.log(str);
+        for(var i=(index+1);i<car_list.length;i++){
+            var _car=car_list[i];
+            var _str=_car.enter_hour+','+_car.station_id;
+            //console.log('---------',_str);
+            if(str===_str){//console.log('****************',_str);
+                if(repeat_list.indexOf(_str)<0){
+                    repeat_list.push(_str);
+                }
+            }
+        }
+        fixCar(++index);
+    }
+
+    //初始化车辆
+    function initCars(){
+        car_list.push({
+                'duration':10,
+                'enter_hour':7,//车辆进入工位时间，只取小时;如：07:21:00，只需要'7'即可。
+                'enter_min':23,//车辆进入工位时间-分钟
+                'station_id':1,//工位id
+                'license':'粤A00G65',//车牌
+                'note':'已作业时间3分钟',//作业描述信息
+                'flag':0,//车辆作业是否超时状态
+            },{
+                'duration':40,
+                'enter_hour':7,
+                'enter_min':10,
+                'station_id':4,
+                'license':'粤B77889',
+                'note':'已作业时间15分钟',
+                'flag':0,
+            },{
+                'duration':20,
+                'enter_hour':8,
+                'enter_min':320,
+                'station_id':4,
+                'license':'粤B88888',
+                'note':'已作业时间15分钟',
+                'flag':1,
+            },{
+                'duration':50,
+                'enter_hour':9,
+                'enter_min':30,
+                'station_id':2,
+                'license':'粤B66666',
+                'note':'已作业时间10分钟',
+                'flag':0,
+            },{
+                'duration':100,
+                'enter_hour':12,
+                'enter_min':50,
+                'station_id':2,
+                'license':'粤B99999',
+                'note':'已作业时间40分钟',
+                'flag':0,
+            },{
+                'duration':30,
+                'enter_hour':11,
+                'enter_min':2,
+                'station_id':1,
+                'license':'粤B77777',
+                'note':'已作业时间55分钟',
+                'flag':1,
+            },{
+                'duration':34,
+                'enter_hour':7,
+                'enter_min':50,
+                'station_id':1,
+                'license':'粤B77777',
+                'note':'已作业时间55分钟',
+                'flag':1,
+            },{
+                'duration':20,
+                'enter_hour':7,
+                'enter_min':10,
+                'station_id':4,
+                'license':'粤B4reed',
+                'note':'已作业时间15分钟',
+                'flag':0,
+            },{
+                'duration':10,
+                'enter_hour':7,
+                'enter_min':10,
+                'station_id':4,
+                'license':'粤B32222',
+                'note':'已作业时间15分钟',
+                'flag':0,
+            }
+        );
+        // if(car_list.length>0){
+        //     repeat_list=[];
+        //     fixCar(0);
+        // }
+        console.log(car_list);
+        //console.log('repeat_list',repeat_list);
+        // console.log('sort',car_list.sort(function(a,b){
+        //     return a.enter_hour-b.enter_hour;
+        // }));
+    }
+
+    //初始化时间线
+    function initHourSection(start,end){
+        hour_section.push({'str':'','h':''});
+        for(var i=start;i<end;i++){
+           hour_section.push({'str':number_ex(i)+':00~'+number_ex(i)+':59','h':i});
+        }
+        //$('.station').css('width',hour_section.length*CELL_WIDTH+'px');
+        console.log(hour_section);
+    }
+
+    //初始化工位
+    function initStation(){
+        /*station_list.push('');
+        station_list.push({'station_id':'1','name':'机电区-工位1','leader':'Michael'});
+        station_list.push({'station_id':'2','name':'机电区-工位2','leader':'David'});
+        station_list.push({'station_id':'3','name':'机电区-工位3','leader':'Jacky'});
+        station_list.push({'station_id':'4','name':'机电区-工位4','leader':'Tom'});
+        station_list.push({'station_id':'5','name':'机电区-工位5','leader':'Colbert'});
+        console.log(station_list);*/
+        getData();
+        interval=setInterval(getData,interval_time);
+    }
+
+    function getData(){
+        station_list=[];
+        car_list=[];
+        repeat_list=[];
+        station_list.push('');
+        var urltest='https://ddstore.didi365.com/brandstore/workshop/get_workshop_detail/?callback=?';
+        var urldd365='https://carwk.didi365.com/brandstore/workshop/get_workshop_detail/?callback=?';
+        $.ajax({
+            async:false,//同步
+            timeout: 3000,//超时
+            url:urltest,
+            type: 'GET',//请求方法
+            data:{'carnum':carnum,'phone':phone,'station_id':stationArr.toString()},//参数
+            dataType: 'json',//返回数据类型
+            success: function(data,textStatus){
+                if(data.status==1){
+                    station_list=station_list.concat(data.data.yAxis);
+                    car_list=car_list.concat(data.data.data);
+                    console.log('station_list',station_list);
+                    console.log('car_list',car_list);
+                    $('.station').html(render_data());
+                    $('.wkstation .wk').html(render_wks(station_list));
+                    markCurrentTime();
+                    addCar();
+                }else{
+                    console.log(data.info);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log(textStatus,errorThrown);
+            }
+        });
+    }
+
+    //时间不足2未补'0'
+    function number_ex(num){
+        var res="";
+        if(num.toString().length==1&&num>0){
+            res="0"+num;
+        }else{
+            res=num+"";
+        }
+        return res;
+    }
+
+    //获取模版渲染器
+    function getRender(id){
+        var tmpl = document.getElementById(id);
+        if(tmpl != undefined){
+            var doTtmpl = doT.template(tmpl.innerHTML);
+            return doTtmpl;
+        }else{
+            throw new Error('template: ['+id+'] is not exsits!');
+        }
+    }
+    Array.prototype.removeByValue = function(val) {
+        for(var i=0; i<this.length; i++) {
+            if(this[i] == val) {
+                this.splice(i, 1);
+                break;
+            }
+        }
+    }
+</script>
+</html>

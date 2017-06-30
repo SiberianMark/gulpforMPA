@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>确认金额</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body>
+	<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+        <div class="mui-scroll amount-wrap ovh">
+          <div class="phone_msg">
+            <div class="msg-ph clear mgt-2" border="bottom">
+                <span class="ph-num">消费总额</span>
+                <label for="" class="clear min db fr tc pr">
+                    <input type="tel" class="in-ph" value="55.0"/>
+                </label>
+            </div>
+            <div class="msg-ph clear mgt-2" id="msg-ph">
+                <span class="ph-yzm">实付金额</span>
+                <label for="" class="clear min db fr tc pr color-red">
+                    <input type="tel" class="in-ph code color-red" value="55.0"/>
+                </label>
+            </div>
+          </div>
+            <div class="modal" id="modal-Pop">
+                <div class="pop-cover modal-content tc">
+                </div>
+            </div>
+            <span class="db-btn db tc mgl-2 mgr-2 mgt-3">确认金额</span>
+	    </div>
+	</div>
+</body>
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+	function onStart(){
+		loadEnd();
+	}
+</script>
+</html>

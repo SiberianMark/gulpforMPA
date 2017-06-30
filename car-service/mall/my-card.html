@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>我的卡券</title>
+		<script src="../assets/js/load.meta.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../assets/js/load-head.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			* {
+				margin: 0;
+				padding: 0;
+			}
+
+			.card-list {
+				background-color: white;
+				margin-bottom: 1rem;
+				padding: 0 1rem;
+				font-size: 1.4rem;
+				line-height: 1.4rem;
+				color: #333;
+			}
+
+			.card-list>div.tit {
+				/*border-bottom: solid 0.1rem #ddd;*/
+				height: 3.6rem;
+			}
+
+			.card-list>div.tit:before {
+				border: 0rem;
+				border-bottom: solid 0.2rem #ddd;
+			}
+
+			.card-list>div.tit>p {
+				border-left: solid #ff5555 0.3rem;
+				padding-left: 0.5rem;
+				top: 50%;
+				position: relative;
+				transform: translateY(-50%);
+			}
+
+			.card-list>div.card {
+				padding: 1rem 0;
+				display: flex;
+				align-items: center;
+				height: 6.9rem;
+			}
+
+			.card-list>div.card>p {
+				flex-grow: 1;
+				padding-left: 1.5rem;
+			}
+
+			.card-list>div.card>img:nth-of-type(1) {
+				width: 4.9rem;
+			}
+
+			.card-list>div.card>img:nth-of-type(2) {
+				width: 1rem;
+			}
+		</style>
+		<script type="text/javascript">
+			function onStart() {
+
+				if(isLogin()) {
+
+					$(".card").each(function(index) {
+						$(this).on("click", function() {
+							var goto_action = ['gotoMyRecharge', 'gotoMyPackageCard', 'gotoMallMyDraw']
+
+							PageJump(goto_action[index])
+						})
+
+					})
+					jsonAjax(API.API_LIST.CAR_CARD_CARDLIST, {
+						userid: 1002030,
+//						userid:getUserid(),
+					}, function(data) {
+						if(data.status) {
+							$(".card").eq(1).children("p").html("套餐卡(" + data.data.list.length + ")")
+						}
+					})
+
+				}
+
+				loadEnd();
+			}
+		</script>
+	</head>
+
+	<body>
+		<ul>
+			<li class="card-list">
+				<div class="tit" scl-pe='before'>
+					<p>充值卡</p>
+				</div>
+				<div class="card">
+					<img src="../assets/image/mall/ico_chongzhika@2x.png" />
+					<p>充值卡</p>
+					<img src="../assets/image/mall/back@2x.png" />
+				</div>
+			</li>
+			<li class="card-list">
+				<div class="tit" scl-pe='before'>
+					<p>套餐卡</p>
+				</div>
+				<div class="card">
+					<img src="../assets/image/mall/ico_taocanka@2x.png" />
+					<p>套餐卡(0)</p>
+					<img src="../assets/image/mall/back@2x.png" />
+				</div>
+			</li>
+			<li class="card-list">
+				<div class="tit" scl-pe='before'>
+					<p>优惠券</p>
+				</div>
+				<div class="card">
+					<img src="../assets/image/mall/ico_youhuiquan@2x.png" />
+					<p>我的优惠券</p>
+					<img src="../assets/image/mall/back@2x.png" />
+				</div>
+			</li>
+		</ul>
+
+	</body>
+
+</html>

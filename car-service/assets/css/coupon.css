@@ -1,0 +1,220 @@
+@charset "utf-8";
+*{
+    margin: 0; padding: 0;
+}
+body,html{
+    height: 100%; width: 100%;
+}
+i,em{
+    font-style: normal;
+}
+.dm-list{
+    width: 35.5rem; height: 10.7rem; background: url('/web/car-service/assets/image/mall/youhuiquan_BG@2x.png'); background-size: 100% 100%; margin: 1rem auto;
+    padding: 2.2rem 1rem 0; position: relative;
+}
+.dm-list.lose{
+    background: url('/web/car-service/assets/image/mall/youhuiquan-BG_hui@2x.png'); background-size: 100% 100%;
+}
+.dm-list .tit{
+    font-size: 1.4rem; line-height: 1.4rem; color: #ff5555; font-weight: bold; margin-bottom: .8rem;
+}
+.dm-list.lose .tit,.dm-list.lose span,.dm-list.lose span i,.dm-list.lose .name,.dm-list.lose .handle .bot{
+    color: #999;
+}
+.dm-list span{
+    position: absolute; right: 1rem; top:2.4rem; color: #ff5555; font-size: 1rem;
+}
+.dm-list span i{
+    font-size: 2.5rem; font-weight: bold;
+}
+.dm-list .time{
+    font-size: 1rem; color: #b6b6b6; line-height: 1rem; margin-bottom: 2rem;
+}
+.dm-list .handle .bot{
+    width: 7.5rem; height: 2.6rem; text-align: center; line-height: 2.6rem; color: #333; font-size: 1.2rem; border: 1px solid #ccc; border-radius: 4px; margin-left: .8rem;
+}
+.dm-list .handle .bot.close{
+    background: #ccc; color: #fff;
+}
+.dm-list > em{
+    display: block; width: 5.25rem; height: 5.25rem; position: absolute; right: 8.6rem; top: 1.6rem;
+}
+.dm-list > em.top{
+    top: 3rem;
+}
+.dm-list > em.lq{
+    background: url('/web/car-service/assets/image/mall/lingqu@2x.png'); background-size: 100% 100%;
+}
+.dm-list > em.sx{
+    background: url('/web/car-service/assets/image/mall/shxiao@2x.png'); background-size: 100% 100%;
+}
+.dm-list > em.dj{
+    background: url('/web/car-service/assets/image/mall/dongjie@2x.png'); background-size: 100% 100%;
+}
+.dm-list > em.sy{
+    background: url('/web/car-service/assets/image/mall/shiyong@2x.png'); background-size: 100% 100%;
+}
+.dm-list > em.zs{
+    background: url('/web/car-service/assets/image/mall/zs@2x.png'); background-size: 100% 100%;
+}
+.dm-list > em.lw{
+    background: url('/web/car-service/assets/image/mall/lw@2x.png'); background-size: 100% 100%;
+}
+.shopHandle{
+    margin: 2.5rem 0 2.8rem; text-align: center; font-size: 1.4rem; height: 4.1rem;
+}
+.shopHandle > div{
+    width: 12.5rem; height: 4.1rem; display: inline-block; text-align: center; line-height: 4.1rem; border-radius: 6px;
+}
+.shopHandle .pull{
+    border: 1px solid #f55; background: #f55; color: #fff; margin-right: 3rem;
+}
+.shopHandle .share{
+     border: 1px solid #ccc; background: #fff; color: #333;
+}
+.shopHandle .pull.gray,.shopHandle .share.gray{
+    background: #f8f8f8; border: 1px solid #ddd; color: #bdbdbd;
+}
+.ewmTxt{
+    padding: 0 2rem; font-size: 1.3rem; color: #333; text-align: center; line-height: 2rem;
+}
+.ewmPic{
+    display: block; margin: 3rem auto 2rem; width: 21.4rem; height: auto;
+}
+.drawRule{
+    text-align: right; padding: 1rem 1rem 0; font-size: 1.1rem; color: #666;
+}
+.drawRule > img{
+    display: inline-block; width: 1.4rem; height: 1.4rem; margin-right: .4rem; position: relative; top:.2rem;
+}
+.sharepic-right > img {
+    float: right; right: 1em; position: relative; width: 14.8rem; height: 10.4rem;
+}
+.pt-list{
+    background: #fff; margin-bottom: 1rem; padding: 1.2rem 0;
+}
+.pt-list .select{
+    width: 5rem;
+}
+.pt-list .select > i{
+    width: 2rem; height: 2rem; background: url('/web/car-service/assets/image/no_sel_btn.png'); background-size: 100% 100%;
+}
+.pt-list.cur .select > i{
+    width: 2rem; height: 2rem; background: url('/web/car-service/assets/image/sel_btn.png'); background-size: 100% 100%;
+}
+.pt-list .pt-pic,.pt-list .pt-pic > img{
+    height: 8.25rem; width: 8.25rem;
+}
+.pt-list .pt-con{
+    margin: 0 1.7rem 0 1rem;
+}
+.pt-list .pt-con .tit{
+    font-size: 1.4rem; line-height: 1.8rem; color: #333; height: 3.6rem;
+}
+.pt-list .pt-con .ms{
+    font-size: 1.2rem; color: #999; height: 1.2rem; line-height: 1.2rem; overflow: hidden; margin: .9rem 0 .7rem;
+}
+.pt-list .pt-con .price span{
+    color: #f55; font-size: 1rem;
+}
+.pt-list .pt-con .price i{
+    font-size: 1.5rem;
+}
+.ensure{
+    background: #fff; position: fixed; bottom: 0; width: 100%; z-index: 2; text-align: right; height: 4.8rem;
+}
+.ensure span{
+    width: 100%; color: #fff; background: #ff5555; display: inline-block; height: 4.8rem; font-size: 1.3rem; line-height: 4.8rem; text-align: center;
+}
+.card-list{
+    background: #fff; margin-bottom: 1rem; padding: 1rem 1rem 0; font-size: 1.4rem; color: #333;
+}
+.card-list .tit{
+    border-left: 3px solid #f55; padding-left: .4rem; line-height: 1.4rem; margin: 0 0 1rem;
+}
+.card-list .con{
+    padding: 1rem 0;
+}
+.card-list .con .pic,.card-list .con .pic > img{
+    width: 4.8rem; height: 4.8rem;
+}
+.card-list .con .txt{
+    line-height: 4.8rem; margin-left: 1.5rem; background: url('/web/car-service/assets/image/back@2x.png') no-repeat right center; background-size: 1rem 1.8rem;
+}
+.drawDetail{
+    min-height: 100%; background: #fff; font-size: 1.4rem; color: #999; line-height: 1.4rem; text-align: center;
+}
+.drawDetail .det-tit{
+    height: 4rem; line-height: 4rem; padding: 0 1rem; font-size: 1.4rem; color: #333; position: absolute; top: 0; left: 0; width: 100%; text-align: left;
+}
+.drawDetail .det-tit span{
+    padding-left: .4rem; border-left: 3px solid #f55;
+}
+.drawDetail .name{
+    padding: 6rem 0 1.4rem;
+}
+.drawDetail .tit{
+    font-size: 2.1rem; color: #333; font-weight: bold; line-height: 2.1rem; padding: 0 1rem;
+}
+.drawDetail .but{
+    width: 12.5rem; height: 4.1rem; display: block; text-align: center; line-height: 4.1rem; background: #f55; color: #fff; margin: 2.5rem auto 1rem; border-radius: 4px;
+}
+.drawDetail .but.lose{
+    background: #f8f8f8; border: 1px solid #ddd; color: #bdbdbd;
+}
+.drawDetail .txt{
+    color: #333; margin-bottom: 6rem;
+}
+.drawDetail ul{
+    text-align: left; padding: 0 1rem;
+}
+.drawDetail ul li{
+    margin-bottom: 1.4rem;
+}
+.drawDetail ul li > div:first-child{
+    width: 9rem;
+}
+.drawDetail ul li > div:last-child{
+    color: #333; margin-left: .5rem;
+}
+.drawDetail > i.lose {
+    display: block; width: 5.25rem; height: 5.25rem; position: absolute; right: 8.6rem; top: 2.6rem;
+}
+.drawDetail > i.lose.sx{
+    background: url('/web/car-service/assets/image/mall/shxiao@2x.png'); background-size: 100% 100%;
+}
+.drawDetail > i.lose.dj{
+    background: url('/web/car-service/assets/image/mall/dongjie@2x.png'); background-size: 100% 100%;
+}
+.drawDetail > i.lose.sy{
+    background: url('/web/car-service/assets/image/mall/shiyong@2x.png'); background-size: 100% 100%;
+}
+.drawDetail > i.lose.zs{
+    background: url('/web/car-service/assets/image/mall/zs@2x.png'); background-size: 100% 100%;
+}
+.pt-list-box{
+    padding-bottom: 3rem;
+}
+.live-rule img {
+    width: 100%; height: auto; display: block;
+}
+
+.noData{
+    width: 8.1rem; margin: 17rem auto 0; color: #999; font-size: 1.2rem; line-height: 2.4rem; display: none; text-align: center;
+}
+.noData.fade{
+    display: block;
+}
+.noData img{
+    display: block; width: 100%; height: auto; margin-bottom: .5rem;
+}
+.nullify{
+    height: 20rem; padding-top: 7rem;
+}
+.nullify > img{
+    width: 8.65rem; height: 6.05rem; margin: 0 auto 1.5rem; display: block;
+}
+.nullify > p{
+    text-align: center; color: #9b9b9b; font-size: 1.2rem; line-height: 1.2rem;
+}
+

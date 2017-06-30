@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>一键咨询</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/change.css?1">
+</head>
+<body>
+<div class="onclick">
+    <div class="onceConsult ImChange">
+
+    </div>
+</div>
+</body>
+<script type="text/template" id="tpl-consult">
+<div class="my-consultant">
+{{~it.data:item}}
+    <div class="hou-data">
+        <div class="project-list">
+            <i class="arrow-down-icon arrow-right-icon"></i>
+            <i class="project-icon consult-icon">
+                <img src="/web/car-service/assets/img/ico_zixun@2x.png">
+            </i>
+            <div class="left-section">
+                <div class="buy-car">{{= item.name }}</div>
+                <div class="serve">{{= item.desc }}</div>
+            </div>
+        </div>
+        <div class="show none">
+        {{~item.list:list:index}}
+        <section class="">
+            <div class="guwen flex-box" aid="{{= list.aid }}">
+                <div scl-pe='before'>
+                    <img src="{{= list.logo }}" alt=""/>
+                </div>
+                <div class="info box-item">
+                    <div class="name"><span>{{= list.realname }}</span></div>
+                    <div class="call-number">
+                        <span></span><span  class="phone"><a href="javascript:">{{= list.mobile }}</a></span>
+                    </div>
+                    <div class="hello" border="top">您好，我是您的专属顾问，您可以直接联系我！</div>
+                </div>
+            </div>
+        </section>
+        {{~}}
+        </div>
+    </div>
+{{~}}
+</div>
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+var render = getRender('tpl-consult');
+$('.onclick').on('click','.project-list',function(){
+    var exist = $(this).next().hasClass("none");
+    if(exist) {
+        $(this).next().removeClass('none');
+        $(this).children(".arrow-down-icon").removeClass('arrow-right-icon');
+    } else {
+        $(this).children(".arrow-down-icon").addClass('arrow-right-icon');
+        $(this).next().addClass('none');
+    }
+
+})
+function onStart(){
+    loadEnd();
+    getDate();
+}
+function getDate() {
+    jsonAjax(API.API_LIST.CAR_USER_ADVICE,{'userid': getUserid()},function(data){
+        $(".onceConsult").html(render(data));
+        $('.project-list').first().next().removeClass('none');
+        $('.project-list').first().children().removeClass('arrow-right-icon');
+    });
+}
+$('.ImChange').on('click','.guwen',function(){
+    consult($(this).attr('aid'));
+
+})
+</script>
+</html>

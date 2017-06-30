@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>生活优选</title>
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/lifeoptimization.css">
+</head>
+<body id="lifeBody">
+<header class="navigation" id="header">
+    <div class="titles">
+        <div class="groups swiper-container"></div>
+        <div class="search icon" border="left">&#xe902;</div>
+    </div>
+    <div class="banner swiper-container"></div>
+</header>
+<article>
+    <div id="data"></div>
+    <div class="havent">
+        <div class="haventImg"></div>
+        <div class="haventTip">别着急，等人家添加商品嘛~</div>
+    </div>
+</article>
+</body>
+<script type="text/template" id="channelTitle">
+    <ul class="swiper-wrapper navige">
+        {{~it.data.res:item:index}}
+        {{?item.id==it.data.buy_car.did}}
+            <li class="slide slideon swiper-slide" index="{{=item.id}}"><span>{{=item.title}}</span></li>
+        {{??}}
+            <li class="slide swiper-slide" index="{{=item.id}}"><span>{{=item.title}}</span></li>
+        {{?}}
+        {{~}}
+    </ul>
+</script>
+<script type="text/template" id="channelTitleImg">
+    <div class="swiper-wrapper imgCarousel">
+        {{~it.data.fir_result:item:index}}
+            <img src="{{=item.img}}" alt="" class="swiper-slide imgMsg" url="{{=item.url}}">
+        {{~}}
+    </div>
+    <div class="swiper-pagination"></div>
+</script>
+<script type="text/template" id="mainBody">
+    {{~it.data.las_result:item:index}}
+    <div class="labelMsg">
+        <div class="labelTitle flex-x">
+            <div class=""></div>
+            <div class="">{{=item.title}}</div>
+            <div class=""></div>
+        </div>
+        <div class="labelImg swiper-container">
+            <div class="swiper-wrapper imgCarousel">
+                {{~item.tit:item1:index1}}
+                    <img src="{{=item1.img}}" alt="" class="swiper-slide" url="{{=item1.url}}">
+                {{~}}
+            </div>
+        </div>
+        {{~item.goods:item2:index2}}
+            <div class="labelGoods flex" border="bottom" goodsid="{{=item2.id}}">
+                <div class="goodsImg">
+                    <img src="{{=item2.img}}" alt="">
+                </div>
+                <div class="flex-c goodsMsg">
+                    <div class="goodName">{{=item2.name}}</div>
+                    <span class="goodLabel clear">
+                        {{?item2.plan_type==1}}
+                            <span class="labelFd">福</span>
+                        {{?}}
+                        {{?item2.jd_status==1}}
+                            <span class="labelJd">京东发货</span>
+                        {{?}}
+                        {{?item2.off_status==1}}
+                            <span class="labelSpecial">限时特惠</span>
+                        {{?}}
+                    </span>
+                    {{?item2.jd_status==1}}
+                        <span class="goodoPrice">京东价¥<span>{{=item2.jd_price}}</span></span>
+                    {{??}}
+                        <span class="goodoPrice">市场价¥<span>{{=item2.sell_price}}</span></span>
+                    {{?}}
+                    {{?item2.off_status==1}}
+                        <span class="goodpPrice">特惠价¥<span>{{=item2.off_price}}</span></span>
+                    {{?}}
+                </div>
+            </div>
+        {{~}}
+    </div>
+    {{~}}
+</script>
+<script>
+    var id = I("id","1"),
+        page = I("page","1"),
+        title = true,
+        specif_status = 0,
+        channelTitle = getRender('channelTitle'),
+        channelTitleImg = getRender('channelTitleImg'),
+        mainBody = getRender('mainBody');
+
+    function onStart() {
+        getData();
+    }
+
+    function getData() {
+        jsonAjax(API.API_LIST.GOLD_INDEX_CHANNELSUB, {userid: getUserid(), page: page, id: id}, function (data) {
+            if(data.status==1){
+                if (data.data!="") {
+                    if(title){
+                        $('.groups').html(channelTitle(data));
+                        new Swiper('#header .groups', {
+                            loop : false,
+                            observer: true,
+                            slidesPerView: 'auto',
+                            paginationClickable: true,
+                            freeMode: true,
+                        });
+                        // var li_width= 0,div_width= $('.groups').width();
+                        // $('.swiper-wrapper>li').each(function(i,item){
+                        //     li_width+=1*$(item).width();
+                        // });
+                        // if(li_width<div_width){
+                        //     $('.groups').css('width',li_width+'px');
+                        // }
+                    }
+                    if(data.data.fir_result.length>0){
+                        $('.banner').html(channelTitleImg(data));
+                        new Swiper ('.banner', {
+                            roundLengths : true,
+                            initialSlide : 0,//设定初始化时slide的索引
+                            slidesPerView:"auto",//设置slider容器能够同时显示的slides数量
+                            autoplay : 3000,
+                            autoplayDisableOnInteraction : false,
+                            spaceBetween : 16,//活动块间隔
+                            speed:300,
+                            loop : true,//循环
+                            pagination : '.swiper-pagination',
+                            paginationType : 'bullets',//分页器样式类型
+                        });
+                    }
+                    if(data.data.las_result.length>0) {
+                        $('#data').html(mainBody(data));
+                        new Swiper('#data .labelImg', {
+                            roundLengths: true,
+                            initialSlide: 0,//设定初始化时slide的索引
+                            slidesPerView: "auto",//设置slider容器能够同时显示的slides数量
+                            autoplay: 3000,
+                            autoplayDisableOnInteraction: false,
+                            spaceBetween: 16,//活动块间隔
+                            speed: 300,
+                            loop: true,//循环
+                            pagination: '.swiper-pagination',
+                            paginationType: 'bullets',//分页器样式类型
+                        });
+                        $(".allPrice .price").text(data.data.buy_car.carMoney);
+                        $(".allnum .shopnum").text(data.data.buy_car.carNum);
+                    }else {
+                        $(".havent").show();
+                    }
+                    WxShare.title=data.data.share[0].title;
+                    WxShare.imgUrl=data.data.share[0].imgUrl;
+                    WxShare.link=data.data.share[0].link;
+                    WxShare.desc=data.data.share[0].desc;
+                    loadWxObject(true); //获取微信分享对象
+                    loadEnd();
+                }else if (data.data=="") {
+                    $(".havent").show();
+                }
+                loadEnd();
+            }else if(data.status==0){
+                inputTipsText(data.info);
+            }
+        });
+    }
+
+    $('input').bind('keyup paste input propertychange',function(){
+        $(this).val($(this).val().replace(/[^\d]/ig,''));
+    });
+    //切换
+    $(".groups").on("click",".slide",function () {
+        $(".slide").removeClass("slideon");
+        $(this).addClass("slideon");
+        title = false;
+        id = $(this).attr("index");
+        $('#data').html("");
+        $('#header .banner').html("");
+        $(".havent").hide();
+        getData();
+    });
+    //搜索
+    $(".search").on("click",function () {
+        InterfaceTap('gotoBGSearch');
+    });
+    //广告
+    $("#lifeBody").on("click",".banner .imgMsg,#data .imgCarousel img",function () {
+        var url = $(this).attr("url");
+        var obj = M();
+        if(url!=''){
+            redirect(url, obj);
+        }
+    });
+    //商品
+    $("#data").on("click",".labelGoods",function () {
+        var goodsid = $(this).attr("goodsid"),
+            obj =M();
+        obj.goodsid = goodsid;
+        Interface('gotoGoodsMsg',JSON.stringify(obj));
+    });
+</script>
+</html>

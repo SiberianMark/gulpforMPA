@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>保养手册</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+</head>
+<body >
+<div id="dataBox">
+    <script type="text/template">
+    <div class="chose-car">
+        <div class="attr1">
+            <img src="{{=it.data.top.logo}}"/>
+        </div>
+        <div class="attr3">
+            <!--<div>{{=it.data.top.model_name}}</div>-->
+            <!--UPDATE BY CK 2016-8-11 21:42-->
+            <div style="padding-top: 1rem;">{{=it.data.top.model_name}} {{=it.data.top.detail_name}}</div>
+            <!--<div>暂无车牌</div>-->
+            <!--UPDATE BY CK 2016-8-11 21:42-->
+            <div>{{=I('mileage')}}公里</div>
+        </div>
+        <!--UPDATE BY CK 2016-8-11 21:42-->
+        <!--<div class="index"></div>-->
+        <!--UPDATE BY CK 2016-8-11 21:42-->
+    </div>
+
+    <div class="item-prograss">
+        <ul>
+            {{~it.data.middle:val:index}}
+            <li class="{{?index==0}}cur{{?}}">
+                <div class="km">{{=val.mileage}}km</div>
+                <div class="line"><span></span></div>
+                <div class="item">
+                    <div>{{=val.content}}</div>
+                    <div><span>&yen;{{=val.discount_price}}</span><s>&yen;{{=val.price}}</s></div>
+                </div>
+                {{?index==0}}
+                <a class="btn3">去保养</a>
+                {{?}}
+            </li>
+            {{~}}
+
+        </ul>
+    </div>
+
+    <div class="maunal-bottom">
+        <span class="ganth"></span>
+        未来{{=it.data.middle.length}}次保养将至少为您节省&yen;{{=it.data.buttom}}元
+    </div>
+    </script>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    function onStart(){
+        jsonAjax(API.API_LIST.CAR_UPKEEP_MANUALINFO,{userid:getUserid(),'car_id':I('car_id'),'mileage':I('mileage')},function (res) {
+            if(res.status == 1){
+                doTer(res, $('#dataBox'));
+                $('.btn3').on('click',function(){
+                    var obj = M();
+                    obj.car_id = I('car_id');
+                    obj.mileage = I('mileage');
+                    PageJump('gotoChoseProject',JSON.stringify(obj));
+                });
+
+            }else {
+                inputTipsText(res.code);
+                setTimeout(function(){
+                    PageJump('gotoFillMileage')
+                },2000);
+            }
+            loadEnd();
+        });
+    }
+
+    function onWxReady(){
+        getShare();
+    }
+
+    function getShare () {
+        jsonAjax(API.API_LIST.CAR_UPKEEP_MANUALSHARE,{'userid':getUserid(),'car_id':I('car_id'),'mileage':I('mileage')},function (res) {
+            if(res.status==1){
+                WxShare.title = res.data.title;
+                WxShare.desc = res.data.content;
+                WxShare.imgUrl = res.data.img;
+                WxShare.link = res.data.link;
+                onWxShare();
+            }
+        });
+    }
+
+</script>
+</html>

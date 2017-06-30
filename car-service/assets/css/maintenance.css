@@ -1,0 +1,88 @@
+*{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;-webkit-user-select: none; user-select: none;}
+html,body{width: 100%;height: 100%;margin: 0;padding: 0;background: #f0f0f0;font-size: 1.6rem;color: #333;}
+/*html{font-size: 62.5%;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}*/
+ul,p,h1,h2,h3,input{margin: 0;padding: 0;}
+ul,li{list-style: none;}
+a{text-decoration: none;}
+input, textarea{-moz-user-select: text;-webkit-user-select: text;-ms-user-select: text;user-select: text;-webkit-appearance: none;outline: none;border: none;}
+.db{display: block;}
+.maintenance-wrap i{font-style: normal;color: #999;margin-top: 1.2rem;}
+.maintenance-wrap .list .item{
+    background: url(/web/car-service/assets/image/back2x.png) no-repeat;
+    background-position: right center;
+    background-size: .8rem;
+    border-top: 1px solid #ddd;
+}
+.maintenance-wrap .list .item .item-head{
+    background: #fff;
+    padding: .8rem;
+    position: relative;
+}
+.maintenance-wrap .list .item .item-head .car-name{
+    margin-right: 2rem;
+}
+.maintenance-wrap .list .item .item-data{
+    text-align: center;
+    background: #fff;
+    overflow: hidden;
+}
+.maintenance-wrap .list .item .item-data>div{
+    float: left;
+    width: 50%;
+    padding: 1rem;
+}
+.maintenance-wrap .list .item .item-data>div:first-child{
+    border-right: 1px solid #ddd;
+    margin-left: -1px;
+}
+.maintenance-wrap .list .item .item-data span.circle {
+    width: 7.8rem;
+    height: 7.8rem;
+    border-radius: 50%;
+    border: 5px solid #3791d0;
+    text-align: center;
+    display: block;
+    margin: 1rem auto;
+}
+.maintenance-wrap .list .item .item-bottom{
+    font-size:1.2rem;
+    text-align: center;
+    color: #999;
+    padding: 1rem;
+    overflow: hidden;
+    background: #fff;
+    border-top: 1px solid #ddd;
+}
+.maintenance-wrap .list .item .item-bottom>div{
+    float: left;
+    width: 50%;
+}
+.maintenance-wrap .btn-box{background: #fff;padding: 1rem;}
+.maintenance-wrap .btn{background: #fff;height: 4.4rem;line-height: 4.4rem;text-align: center;width: 100%;border-radius:6px;-webkit-border-radius:6px;border:1px solid #ddd;margin-bottom: 1rem;}
+.history-record{margin-top: 0.8rem;background: #ffffff;padding: 0 1rem;}
+.history-record .title{height: 3.5rem;line-height: 3.5rem;font-size: 1.4rem;color: #333333;}
+.history-record .list{padding:1.2rem 0;}
+.history-record .list li{position: relative;}
+.time{font-size: 1.3rem;color: #0098ff;height: 2.5rem;line-height: 2.5rem;}
+.time span{margin-right:1.2rem;display:inline-block;background:url('/web/car-service/assets/image/time_1.png') no-repeat center;width: 1.5rem;height: 1.5rem;background-size: 100% auto;vertical-align: middle;}
+.service{border-left:2px #0098ff solid;margin-left: 0.6rem;font-size: 1.3rem;padding: 1rem 0;}
+.service i{color:#0098ff;}
+li:last-child .service{border-left:2px transparent solid;}
+.service div{margin-left: 1.7rem;}
+.upkeep{position:absolute;width:7.5rem;height:4rem;right: 0;top: 0;font-size:1.2rem;text-align: center;}
+.upkeep div{height: 2rem;line-height: 2rem;}
+.upkeep div:first-child{background:#eeeeee;color: #999999;}
+.upkeep div:nth-child(2){color: #0098ff;}
+.mask{position:fixed;width: 100%;height: 100%;background: #000000;opacity: 0.6;top: 0;left: 0;display: none;}
+.alert-box{display:none;width: 90%;background: #ffffff;border-radius: 0.6rem;position: absolute;top:6rem;margin: 0 5%;}
+.alert-box h3{text-align: center;padding:2rem 0 1.6rem;font-size: 1.8rem;color:#333333;}
+.alert-box .main{width:24.4rem;margin: 0 auto;}
+.alert-box .main .input-box{width:24.4rem;height:3.4rem;border:1px solid #dddddd;line-height:3.4rem;padding:0 1rem;}
+.alert-box .main .tips{font-size: 0.9rem;height: 3rem;line-height: 3rem;padding:0 1rem;}
+.alert-box .btn-box{display: box;display: -webkit-box;box-sizing: border-box;-webkit-box-sizing: -webkit-border-box;}
+.alert-box .btn-box div{box-flex:1;-webkit-box-flex:1;text-align: center;height: 4.4rem;line-height: 4.4rem;}
+.cancel{color:#999999;}
+.confirm{color: #333333;}
+.edit{background: url('/web/car-service/assets/image/edit1.png') no-repeat center;width: 2rem;height: 2rem;background-size:2rem auto;position: absolute;top:1rem;right: 1rem;display: block;}
+
+

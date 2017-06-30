@@ -1,0 +1,235 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>场地详情</title>
+    <script src="/web/assets/js/load.head3.js"></script>
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/racetracks.css">
+</head>
+<body>
+<div class="attention-now"><a href="javascrip:;"></a></div>
+<div class="racetracks-map">
+    <img src="">
+</div>
+<div class="race-dtls-nav clear">
+    <ul class="clear">
+        <li class="cur"><a href="javascript:;">场地介绍</a></li>
+        <li><a href="javascript:;">场地视频</a></li>
+        <li><a href="javascript:;">场地比赛</a></li>
+    </ul>
+</div>
+<div class="race-dtls-container"></div>
+</body>
+</html>
+<script type="text/template" id="racetracks-details1">
+    {{ var val = it.data; }}
+        {{
+            var _stat = parseInt(val.stat);
+        }}
+        <div>
+            <div class="race-info" border="bottom">
+                <p><span>地址</span>{{=val.address}}</p>
+                <p><span>支持项目</span>{{=val.support}}</p>
+                <p><span>营业时间</span>{{=val.business_time}}</p>
+                <p><span>人气</span><span class="addcart-tip">+1</span><em class="gone-num">{{=val.buzz}}</em>人去过</p>
+            </div>
+            <div class="race-tese">
+                <h4>地方特色</h4>
+                {{ for(var k in val.feature){ }}
+                    <span border="all">{{=val.feature[k]}}</span>
+                {{ } }}
+            </div>
+            {{? _stat == 0 }}
+            <div class="have-ungo" border="all">去过</div>
+            {{??_stat == 1 }}
+            <div class="have-gone" border="all" style="color:#999;">去过</div>
+            {{?}}
+        </div>    
+</script>
+<script type="text/template" id="racetracks-details2">
+    {{ var val = it.data.vedio; }}
+        <ul class="racetracks-video">
+            {{ for(var i in val){ }}
+            {{
+                var _id = parseInt(val[i].id)|| undefined ;
+            }}
+            <li border="bottom" id="{{=val[i].id}}">
+                <div class="video-box">
+                    <img src="{{=val[i].image}}">
+                    <img class="playbtn" src="/web/assets/image/smdg/playbtn@2x.png">
+                </div>
+                <div class="racetracks-video-text">
+                    <h4 class="tow-ellipsis">{{=val[i].title}}</h4>
+                    <p>{{=val[i].add_time}}</p>
+                </div>
+            </li>
+            {{ } }}
+        </ul>
+</script>
+<script type="text/template" id="racetracks-details3">
+    {{ var val = it.data.place; }}
+        <ul class="racetracks-race">
+            {{ for(var j in val){ }}
+            {{
+                var live = parseInt(val[j].is_live);
+                var _url = val[j].url;
+            }}
+            <li border="bottom" id="{{=val[j].id}}" link="{{=val[j].url}}" u_t="{{=val[j].url_type}}" u_i="{{=val[j].url_id}}" islive="{{=val[j].is_live}}" > 
+                <h4 class="tow-ellipsis">{{=val[j].name}}
+                    {{? live == 1 }}
+                    <i class=""></i>
+                    {{?}}
+                </h4>
+                <p class="tow-ellipsis">时间：{{=val[j].begin_time}} - {{=val[j].end_time}}</p>
+            </li>
+            {{ } }}
+        </ul>
+</script>
+<script>
+   var nums=1;
+   var share = I('share');   //是否为分享,是1;否0;
+   var racetracks_detail1=getRender('racetracks-details1');
+   var racetracks_detail2=getRender('racetracks-details2');
+   var racetracks_detail3=getRender('racetracks-details3');
+   function onStart(){
+        var _num = $.cookie('nums');
+        // var _src = $.cookie('src');
+        if(_num >= 0){
+            getRaceDetail(_num)
+            $('.race-dtls-nav li').eq(_num-1).addClass('cur').siblings().removeClass('cur');
+            // $('.racetracks-map img').attr('src',_src);
+        }else{
+            jsonAjax(API.API_LIST.RACETRACKS_DETAIL, {'type':I('type',1),'id':I('id'),'userid': getUserid()}, function (data) {
+                if (data.status == 1) {
+                    $('.race-dtls-container').html(racetracks_detail1(data));
+                    $('.racetracks-map img').attr('src',data.data.img);
+                    $.cookie('src', data.data.img, {expires: 30});
+                    
+                    WxShare.title = data.data.share_title;
+                    WxShare.desc = data.data.share_concent;
+                    WxShare.imgUrl = data.data.share_img;
+                    WxShare.link = data.data.share_link;
+                    loadWxObject(true); //加载微信对象
+                }
+            });
+        };
+        if(!is_weixn(true)){
+            $('.attention-now').addClass('attention-web');
+        }
+        if (share) {
+            $('.attention-now').show();
+        } else {
+            $('.attention-now').hide();
+        }
+        loadEnd();
+   }
+   
+   $(document).on('click','.race-dtls-nav li',function(){
+       var nums = parseInt($(this).index()) + 1;
+       $.cookie('nums', nums, {expires: 30});
+       $(this).addClass('cur').siblings().removeClass('cur');
+       $(".race-dtls-container").children().eq($(this).index()).show().siblings().hide();
+       getRaceDetail(nums);
+   })
+
+   function getRaceDetail(nums) {
+       jsonAjax(API.API_LIST.RACETRACKS_DETAIL, {'type':nums,'id':I('id'),'userid': getUserid()}, function (data) {
+            if (data.status == 1) {
+                $('.racetracks-map img').attr('src',data.data.img);
+                WxShare.title = data.data.share_title;
+                WxShare.desc = data.data.share_concent;
+                WxShare.imgUrl = data.data.share_img;
+                WxShare.link = data.data.share_link;
+                loadWxObject(true); //加载微信对象
+                if (nums == 1){
+                    if (data.data==''){
+                        $('.race-dtls-container').html('<div class="nullData"><img src="/web/assets/image/wudingdan_ico.png"><p>暂无数据</p></div>');
+                    } else{
+                        $('.race-dtls-container').html(racetracks_detail1(data));
+                    };    
+                } else if(nums == 2){
+                    if (data.data==''){
+                        $('.race-dtls-container').html('<div class="nullData"><img src="/web/assets/image/wudingdan_ico.png"><p>暂无数据</p></div>');
+                    } else{
+                        $('.race-dtls-container').html(racetracks_detail2(data));
+                    };
+                    
+                }else{
+                     if (data.data==''){
+                        $('.race-dtls-container').html('<div class="nullData"><img src="/web/assets/image/wudingdan_ico.png"><p>暂无数据</p></div>');
+                    } else{
+                        $('.race-dtls-container').html(racetracks_detail3(data));
+                    };
+                };
+            }
+        });
+   }
+
+   $(document).on('click','.have-ungo',function(){
+       var _num = parseInt($('.gone-num').html());
+       var _this = this;
+        isLogin(function(ret) {
+            if (ret){
+                console.log(_num+'  去过')
+                jsonAjax(API.API_LIST.IS_HVAE_GONE, {'pid':I('id'),'userid': getUserid()}, function (data) {
+                    if (data.status == 1) {
+                        $('.gone-num').html(_num+1);
+                        //$(_this).css('color','#999').addClass('have-gone');
+                        $(_this).removeClass().addClass('have-gone');
+                        setTimeout(function () {
+                            $('.addcart-tip').animate({opacity: '0.9'}, "slow").animate({opacity: '0'}, "slow");
+                        }, 300);
+                    }
+                });
+            };
+        })
+   })
+
+   $('.race-dtls-container').on('click','.racetracks-video li',function(){
+       var id = $(this).attr('id');
+       var obj = new Object();
+        obj.id = id;
+        InterfaceTap('gotoSmSports', JSON.stringify(obj));
+
+   })
+
+   $('.race-dtls-container').on('click','.racetracks-race li',function(){
+       var id = parseInt($(this).attr('id'));
+       var u_t = parseInt($(this).attr('u_t'));
+       var u_id = parseInt($(this).attr('u_i'));
+       var islive = parseInt($(this).attr('islive'));
+       console.log(u_t+','+u_id+','+islive)
+       var alink =$(this).attr("link");
+       var obj = new Object();
+        if(islive == 1){  //直播
+            if(alink != ''){
+                obj.link = alink;
+                InterfaceTap('gotoLink', JSON.stringify(obj));
+            }else{
+                obj.id = id;
+                InterfaceTap('gotoSmSports', JSON.stringify(obj));
+            };
+                
+        }else{
+            if(u_t == 0){  //链接
+                obj.link = alink;
+                InterfaceTap('gotoLink', JSON.stringify(obj));
+            }else if(u_t == 16){  //嘉年华
+                obj.activity_id = u_id;
+                InterfaceTap('gotoCarnivalDetail', JSON.stringify(obj));
+            }else if(u_t == -1){  //图文
+                obj.aid = id;
+                InterfaceTap('gotoRaceTuwen', JSON.stringify(obj));
+            }
+
+        };
+
+
+   })
+    
+   
+</script>   
+
+

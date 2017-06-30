@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>我的顾问</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/exclusive-adviser.css"/>
+</head>
+<body >
+    <div class="adviser-data">
+        <div class="no-consultant-prompt">
+            <div></div>
+            <span>暂无专属顾问</span>
+        </div>
+    </div>
+    <!--<div class="prompt" scl-pe="before">-->
+        <!--<div class="phone-no">123 6548 9653</div>-->
+        <!--<div>-->
+            <!--<a class="close">取消</a>-->
+            <!--<a class="open">确定</a>-->
+        <!--</div>-->
+    <!--</div>-->
+    <div id="share-alert-box">
+        <div></div>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="temp1">
+    {{var val=it.data.lists;}}
+    {{for(var i in val){}}
+    <div class="my-consultant">
+        <div class="hou-data">
+            <div class="title ">我的{{=val[i].name}}</div>
+            <div class="guwen flex-box">
+                <div scl-pe='before'>
+                    <img src="{{=val[i].list.logo}}" alt=""/>
+                </div>
+                <div class="info box-item" aid="{{=val[i].list.aid}}">
+                    <div class="name"><span>{{=val[i].list.realname}}</span><i class="zx" aid="{{=val[i].list.aid}}"></i></div>
+                    <div class="call-number">
+                        <span></span><span  class="phone"><a href="tel:{{=val[i].list.mobile}}">{{=val[i].list.mobile}}</a></span>
+                        <!--<span></span><span  class="weixin">{{=val[i].list.wx_number}}</span>-->
+                    </div>
+                    <div class="hello" border="top">您好，我是您的专属顾问，您可以直接联系我！</div>
+                </div>
+            </div>
+        </div>
+        <div class="big-box  flex-box" scl-pe="before" >
+            <div  class="box-item"  aid="{{=val[i].list.aid}}" name="{{=val[i].list.realname}}" data-phop="{{=val[i].list.mobile}}">
+                <span></span>
+                投诉</div>
+            <div  class="box-item" scl-pe="before" aid="{{=val[i].list.aid}}" name="{{=val[i].list.realname}}">
+                <span></span>
+                评价</div>
+            <div  class="box-item" title="{{=val[i].list.title}}" desc="{{=val[i].list.desc}}" imgUrl="{{=val[i].list.imgUrl}}" link="{{=val[i].list.link}}">
+                <span></span>
+                分享</div>
+        </div>
+    </div>
+    {{}}}
+</script>
+<script>
+    function onStart(){
+//        getData();
+//        loadWxObject(true);
+    }
+    function getData(){
+        var render=getRender('temp1');
+        jsonAjax(API.API_LIST.CAR_USER_COUNSELOR,{'userid':getUserid()},function(data){
+            if(data.status==1){
+                if(data.data.lists.length>0||data.data.lists.length!=undefined){
+                    $('.adviser-data').html(render(data));
+                }
+                WxShare.title = data.data.lists[0].list.title;
+                WxShare.desc = data.data.lists[0].list.desc;
+                WxShare.imgUrl = data.data.lists[0].list.imgUrl;
+                WxShare.link = data.data.lists[0].list.link;
+                    onWxShare();
+
+            }
+            loadEnd();
+        });
+    }
+    function onWxReady(){
+        getData();
+    }
+    //拨打电话
+//    $('.adviser-data').on('click','.phone',function(){
+//        $('.prompt').addClass('show');
+//        var tel=$(this).text();
+//        $('.phone-no').text(tel);
+//        $('.open').attr('href',"tel:"+tel);
+//    });
+//    $('.close').on('click',function(){
+//        $('.prompt').removeClass('show');
+//    });
+    //咨询
+    $('.adviser-data').on('click','.zx',function(){
+        consult($(this).attr('aid'));
+    })
+    $('.adviser-data').on('click','.big-box div',function(){
+        var obj=M();
+        obj.userid=getUserid();
+        obj.aid=$(this).attr('aid');
+        obj.contacts=$(this).attr('name');
+        var index=$(this).index();
+        if(index==1){//评价
+            obj.secord=0;
+            PageJumpTap('gotoEvaluta',obj);
+        }else if(index==0){//投诉
+            obj.phone=$(this).attr('data-phop');
+            obj.secord=I('secord');
+            if(I('secord')=='hui'){
+                changeBackUrlL("pub-acct/myinfo",{car_public:1});
+            }
+            PageJumpTap('gotoCoplain',obj)
+        }else if(index==2){//分享
+            $('#share-alert-box').show();
+            WxShare.title = $(this).attr('title');
+            WxShare.desc = $(this).attr('desc');
+            WxShare.imgUrl = $(this).attr('imgUrl');
+            WxShare.link = $(this).attr('link');
+            onWxShare();
+        }
+    });
+    //关闭分享提示;
+    $('#share-alert-box').on('click',function(){
+        $('#share-alert-box').hide();
+    });
+</script>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>套餐卡</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mall.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/lottery/swiper-3.3.1.min.css">
+    <script src="/web/assets/js/mui_2_7_0.js?v=2c5b292962" charset="utf-8"></script>
+    <script src="/web/assets/js/lottery/swiper3.3.1.min.js"></script>
+    <script src="/web/assets/js/jquery.lazyload.min.js?v=5c01d7aff0"></script>
+</head>
+<body>
+<div class="mall-combo" style="margin:0;">
+    <div class="title" border="bottom">
+        <div class="fl">套餐卡</div>
+    </div>
+    <div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="margin-top:4rem;">
+        <div class="mui-scroll">
+            <div class="main flex" id="combo-list">
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/template" id="temp-data-list">
+    {{~it.data:item:index}}
+    <div class="item" border="right bottom" data-id="{{=item.package_card_id}}">
+        <div class="pic-box flex flex-y">
+            <img data-original="{{=item.image?item.image:'/web/assets/image/default_ico.svg'}}" class="lazy"/>
+            <div class="mask">套餐卡</div>
+        </div>
+        <div class="name" limitline='1'>{{=item.title+Service(item.item)}}</div>
+        <div class="price">￥{{=item.price}}</div>
+    </div>
+    {{~}}
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var render = getRender("temp-data-list");
+    var p = 1;
+    function onStart(){
+        _initMui();
+        getData();
+    }
+    //获取套餐商品
+    function getData(){
+        var data = M();
+        data.p = p;
+        jsonAjax(API.API_LIST.CAR_PACKAGECARD_MALLCARDLIST,data,function(data){
+            if (data.status == 1) {
+                if (data.data.length <= 0) {
+                    if(pull_action ==  'up'){
+                        mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                    }
+                    else if(pull_action == 'down'){
+                        mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                    }
+                    loadEnd();
+                    return false;
+                }
+                if (p == 1) {
+                    $('#combo-list').html(render(data));
+                }else {
+                    $('#combo-list').append(render(data));
+                }
+                LazyLoad();
+                setTimeout(function(){
+                    mui('#pullrefresh').pullRefresh().setStopped(false);
+                },200);
+                p++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(pull_action == 'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+                if(p==1){
+                    $('.mui-pull-caption').hide();
+                    mui('#pullrefresh').pullRefresh().setStopped(true);
+                }
+            }
+            loadEnd();
+        });
+    }
+
+    function LazyLoad(){
+        $(".lazy").lazyload({
+            effect : "fadeIn",
+            threshold : 10,
+            placeholder:"/web/assets/image/default_ico.svg"
+        });
+    }
+    //拼接服务
+    function Service(arr){
+        var len = arr.length;
+        var txt;
+        var B = [];
+        for(var i=0;i<len;i++){
+            B.push(arr[i].name+arr[i].quantity+'次');
+        }
+        txt = B.join("+");
+        if(txt == ''){
+            return txt;
+        }else{
+            return '('+txt+')';
+        }
+    }
+    //套餐卡详情
+    $("#combo-list").on("tap",".item",function(){
+        var param = M();
+        param.card_id = $(this).attr("data-id");
+        PageJump("gotoPackageCardDetail",param);
+    });
+</script>
+</html>

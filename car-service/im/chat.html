@@ -1,0 +1,309 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>我的消息</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script type="text/javascript" src="/web/webIm/js/swfobject.js"></script>
+    <script type="text/javascript" src="/web/webIm/js/web_socket.js"></script>
+    <script type="text/javascript" src="/web/car-service/assets/js/chat.js"></script>
+    <!-- <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script> -->
+    <!-- <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/mui.min.3.3.css"> -->
+    <script src="/web/car-service/assets/js/mui.min.3.3.js"></script>
+    <script src="/web/assets/js/jquery.swipebox.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/swipebox.min.css">
+    <link rel="stylesheet" href="/web/car-service/assets/css/chat.css"/>
+</head>
+<body>
+<div class="chatBox">
+    <div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+        <div class="mui-scroll">
+            <div id="content-box" class="content"></div>
+        </div>
+    </div>
+    <div class="bot-info">
+        <div class="send flex-y">
+            <div class="voice"></div>
+            <div class="recVoice-box flex-c">按住 说话</div>
+            <div class="input-box flex-c"><input id="content" type="text" value=""/></div>
+            <div class="add"></div>
+            <div class="btn-send">发送</div>
+        </div>
+        <div class="add-image flex-y">
+            <!-- <img src="/web/car-service/assets/image/banner@2x.png"> -->
+        </div>
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="temp-msg">
+    {{
+        var msg_show='left';
+        var msg_css='message';
+        if(appid=='1'){
+            msg_show=it.appid=='1'?'right':'left';
+            msg_css=it.appid=='1'?'messageleft':'message';
+        }else{
+            msg_show=it.appid=='1'?'left':'right';
+            msg_css=it.appid=='1'?'message':'messageleft';
+        }
+    }}
+    <div class="message_content {{=msg_show}}">
+        <div class="face">
+            <img src="{{=it.photo}}" />
+        </div>
+        <div class="{{=msg_css}}">
+            {{?it.type=='text'}}
+                {{=it.content}}
+            {{??it.type=='image'}}
+                <a class="swipebox" href="{{=it.content}}"><img src="{{=it.content}}"/></a>
+            {{??it.type=='link'}}
+                <a class="msg-link" href="javascript:void(0);" hrefUrl="{{=it.content}}">{{=it.content}}</a>
+            {{??it.type=='voice'}}
+                <a class="msg-voice" href="javascript:void(0);" ev="0">
+                    <div class="ico_voice {{=msg_show}}"></div>
+                    <div class="audio_effect">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    {{?it.content.indexOf('.mp3')>0}}
+                        <audio>
+                            <source src="{{=it.content}}" type="audio/mpeg"/>
+                        </audio>
+                    {{?}}
+                </a>
+            {{?}}
+            <em class="msg-after-block"></em>
+        </div>
+    </div>
+</script>
+<script>
+    var render=getRender('temp-msg');// /web/car-service/assets/image/banner@2x.png
+    var message={'content':'','type':'text'};
+    var appid = I('appid', 0);
+    var inited=false;
+
+    function onStart(){
+        if(!inited){
+            TitleReSet(decodeURIComponent(I('nickname','')));
+            inited=true;
+            _initMui(false,{
+                contentinit:'下拉加载更多',
+                contentdown:'下拉加载更多',
+                contentover:'释放加载更多',
+                contentrefresh: '正在加载....',
+                callback: pulldownRefresh
+            },false);
+            $('.mui-pull-bottom-pocket').remove();
+            setTimeout(function(){mui('#pullrefresh').pullRefresh().setStopped(false);},200);
+            connect();
+            if(!is_weixn(true)){//multiple="multiple" accept="image/*"
+                $('<input type="file" capture="camera" id="cameraInput" name="cameraInput" />').appendTo($('.add'));
+                document.getElementById("cameraInput").addEventListener("change",
+                    function(){
+                        var fileList = this.files;
+                        if(fileList.length<=0 || fileList==null){
+                            return;
+                        }
+                        imgToal = fileList.length;
+                        if(img_index+imgToal>IMAGE_MAX){
+                            imgToal = IMAGE_MAX - img_index;
+                        }
+                        if(imgToal==0){inputTipsText('每次次最多发送'+IMAGE_MAX+'张图片!');return;}
+                        console.log('imgToal:'+imgToal);
+                        for(var index=0;index < imgToal;index++ ){
+                            inputTipsText('正在上传...');
+                            console.log(index,fileList[index].name);
+                            drawOnCanvas(fileList[index],img_index,function(data){
+                                //上传完成,成功
+                                console.log('upload success '+data.data);
+                                if(!$('.add-image').hasClass('fade')){
+                                    //$('.content').css('margin-bottom','15rem');
+                                    $('#pullrefresh').addClass('upDataImg');
+                                    $('.add-image').addClass('fade');
+                                    scrollToEnd();
+                                }
+                                $('.add-image').append('<img src="'+data.data+'"/>');
+                            },function(){
+                                //$('.swipebox').swipebox({clickEventType:'tap',showByGroup:false});
+                            });
+                            img_index++;
+                        }
+                    }
+                );
+            }
+        }
+
+        if(is_weixn(true)){//预览图片 微信
+            $('.voice').show();
+            $(".content").on("tap", ".message img,.messageleft img", function (event) {
+                //预览图片接口
+                var imgArray = [];
+                var curImageSrc = $(this).attr('src');
+                if (curImageSrc) {
+                    $('.message img,.messageleft img').each(function (index, el) {
+                        var itemSrc = $(this).attr('src');
+                        imgArray.push(itemSrc);
+                    });
+                    wx.previewImage({
+                        current: curImageSrc,   // 当前显示图片的http链接
+                        urls: imgArray  // 需要预览的图片http链接列表
+                    });
+                }
+            });
+        }else{//预览图片 pc
+            $('.content .swipebox').swipebox({clickEventType:'tap',showByGroup:false,showIndex:true});
+        }
+    }
+
+    function getData(){
+        if(pull_action ==  'up'){
+            mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+        }
+        else if(pull_action == 'down'){
+            getHistory();
+            mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+        }
+    }
+
+    $('.chatBox').on('tap','.msg-link',function(ev){
+        ev.preventDefault();
+        redirect($(this).attr('hrefUrl'));
+    });
+
+    $('.chatBox').on('tap','.msg-voice',function(ev){
+        ev.preventDefault();
+        playVoice($(this));
+    });
+
+    $('.add').on('click',function(){
+        if(is_weixn(true)&&img_index<IMAGE_MAX){
+            //拍照或从手机相册中选图接口
+            var j=0;
+            var img=[];
+            wx.chooseImage({
+                count: IMAGE_MAX-img_index,
+                sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+                success: function (res) {
+                    var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+                    img = localIds.toString().split(',');
+                    var length = img.length;
+                    var upload = function(){
+                        wx.uploadImage({
+                            localId: img[j], // 需要上传的图片的本地ID，由chooseImage接口获得
+                            isShowProgressTips: 1, // 默认为1，显示进度提示
+                            success: function (res) {
+                                var serverId = res.serverId; // 返回图片的服务器端ID
+                                $.ajax({
+                                    url: '/Gold/Wechat/uploadImage',
+                                    type: 'get',
+                                    data: {serverId: serverId.toString()},
+                                    dataType: 'json',
+                                    success: function (result) {
+                                        if (result.status==1) {
+                                            if(!$('.add-image').hasClass('fade')){
+                                                //$('.content').css('margin-bottom','15rem');
+                                                $('#pullrefresh').addClass('upDataImg');
+                                                $('.add-image').addClass('fade');
+                                                scrollToEnd();
+                                            }
+                                            //$('.add-image').append('<img src="'+result.data+'"/>');
+                                            $('.add-image').append('<img src="'+img[j]+'"/>');
+                                            images[img_index]=result.data;
+                                            img_index++;
+                                        }else {
+                                            inputTipsText('上传失败!');
+                                        }
+                                        j++;
+                                        if (j < length) {
+                                            upload();
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    upload();
+                }
+            });
+        }else if(img_index>=IMAGE_MAX){
+            inputTipsText('每次次最多发送'+IMAGE_MAX+'张图片!');return;
+        }
+    });
+
+    $('.btn-send').on('click',function(){
+        console.log(images.length,images);
+        if(images.length>0){
+            $('#content').val('');
+            var len=images.length;
+            for(var i=0;i<len;i++){
+                message.type='image';
+                message.content=images[0];
+                sendMessage(message);
+                images.splice(0,1);
+            }
+            images=[];
+            img_index=0;
+            $('#pullrefresh').removeClass('upDataImg');
+            $('.add-image').removeClass('fade');
+            $('.add-image').children().remove();
+            scrollToEnd();
+            return;
+        }
+        if($('#content').val().trim()==""){
+            $('#content').focus();
+            return;
+        }
+        message.type='text';
+        if($('#content').val().indexOf('http')>=0){
+            message.type='link';
+        }
+        message.content=$('#content').val();
+        sendMessage(message);
+        $('#content').val('');
+    });
+
+    $('.voice').on('click',function(){
+        if($('.recVoice-box').is(':hidden')){
+            $('.recVoice-box').show();
+            $('.input-box').hide();
+        }else{
+            $('.recVoice-box').hide();
+            $('.input-box').show();
+            $('.input-box #content').focus().val('');
+        }
+    });
+
+    var interval_rec=0;
+    $('.recVoice-box').on('touchstart',function(){
+        clearTimeout(interval_rec);
+        interval_rec=setTimeout(record,500);
+        showRecordState(1);
+    }).on('touchend',function(){
+        showRecordState(0);
+        stopRecord();
+    });
+
+    function showRecordState(state){
+        if(state==0){
+            $('.recVoice-box').text('按住 说话');
+            $('.recVoice-box').css({'background':'#fff','border-color':'#eee'});
+        }else if(state==1){
+            $('.recVoice-box').text('松开 结束');
+            $('.recVoice-box').css({'background':'#ddd','border-color':'#ccc'});
+        }
+    }
+
+    function record(){
+       startRecord();
+    }
+</script>
+</html>

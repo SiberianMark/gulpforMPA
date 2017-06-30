@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/pc/common/js/load.meta.js"></script>
+    <title>摇一摇</title>
+    <script src="/web/pc/common/js/load.head.js"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/shake.css"/>
+    <script src="/web/pc/common/js/timegoing.js"></script>
+</head>
+<body>
+<div class="shake-pc">
+    <div class="section">
+        <div class="sec-l">
+            <img class="ewm" src="/web/assets/image/default_ico.svg" id="code">
+            <div class="tit">参赛选手</div>
+            <div id="players">
+                <!--tmp-player-list-->
+            </div>
+        </div>
+        <div class="sec-r">
+            <div class="time-box">
+                <div class="djs">
+                    <!-- <span class="hour colon" style="display: inline;">02</span> : -->
+                    <i>距离结束</i>
+                    <span class="mini colon" style="display: inline;">00</span> :
+                    <span class="sec colon" style="display: inline;">00</span> :
+                    <span class="hm" style="display: inline;">00</span>
+                </div>
+            </div>
+            <div class="bw"></div>
+            <div class="col-list">
+                <div class="begin" id="start" style="display: none;"></div>
+                <div id="cars">
+                    <!--tmp-car-list-->
+                </div>
+            </div>
+            <div class="winner" style="display: none;">
+                <i></i>
+                <div id="winners"></div>
+                <div id="win">
+                    <!--tmp-winner-list-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="template/javascript" id="tmp-player-list">
+    {{~it:item:index}}
+    <div class="player-list">
+        <div class="num flex-cc">
+            {{?item.level==1}}
+            <img src="/web/car-service/assets/image/game/huangguan-1.png">
+            {{??item.level==2}}
+            <img src="/web/car-service/assets/image/game/huangguan-2.png">
+            {{??item.level==3}}
+            <img src="/web/car-service/assets/image/game/huangguan-3.png">
+            {{??}}
+            <div class="num flex-cc">{{=item.index+1}}</div>
+            {{?}}
+        </div>
+        <div class="pic"><img src="{{=item.photo?item.photo:'/web/assets/image/default_ico.svg'}}"></div>
+        <div class="name">{{=item.nickname}}</div>
+        <p>{{=Xphone(item.mobile)}}</p>
+        <div class="speed" >速度值：{{=item.value}}</div>
+    </div>
+    {{~}}
+</script>
+<script type="template/javascript" id="tmp-car-list">
+    {{~it:item:index}}
+    <div class="col col-0{{=index+1}}">
+        <div class="track">
+            <div class="car-do"></div>
+            <div class="car-go">
+                <div class="car" style="bottom:{{=item.value}}%;">
+                    <p>{{=Xphone(item.mobile)}}</p>
+                    <img src="/web/car-service/assets/image/game/car.png">
+                </div>
+            </div>
+        </div>
+        <div class="num">{{=index+1}}</div>
+    </div>
+    {{~}}
+</script>
+<script type="template/javascript" id="tmp-winner-list">
+    {{~it:item:index}}
+    <div class="list">
+        <div class="pic">
+            <img src="{{=item.photo?item.photo:'/web/assets/image/default_ico.svg'}}">
+        </div>
+        <div class="name">{{=item.nickname}}</div>
+        <p>{{=Xphone(item.mobile)}}</p>
+        <div class="win">一等奖</div>
+        <div class="pro">iPhone6s</div>
+    </div>
+    {{~}}
+</script>
+<script>
+    var game_id = I('id');
+    var items_id;
+    var serverTime = formatDate(new Date().getTime());//服务器当前时间戳
+    var render = getRender('tmp-player-list');
+    var render2 = getRender('tmp-car-list');
+    var render3 = getRender('tmp-winner-list');
+    var page = 0;
+    var startLoad = false;
+    var begin_time;
+    var end_time;
+    function onStart(){
+        getShakeItems()
+    }
+
+    function getShakeItems(){
+        var data = M();
+        data.id = game_id;
+        data.userid = getUserid();
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKEITEMS,data,function(res){
+           if(res.status==1){
+               items_id = res.data.id;
+               var game_img = res.data.game_img?res.data.game_id:'/web/assets/image/default_ico.svg';//游戏背景图
+               var code = res.data.code?res.data.code:'/web/assets/image/default_ico.svg';//二维码图片
+               $(".shake-pc").css('background','url('+game_img+') no-repeat center');
+               $("#code").attr('src',code);
+               begin_time = res.data.start_time;
+               end_time = res.data.end_time;
+               if(res.data.type==2){
+                   $("#start").show();
+               }else {
+                   startGame()
+               }
+           }else{
+                inputTipsText(res.info);
+           }
+        });
+    }
+    //手动开始游戏
+    $("#start").on('click',function(){
+        startGame();
+    });
+    //开始游戏
+    function startGame(){
+        var data = M();
+        data.id = game_id;
+        data.items_id = items_id;
+        if(compareTime(begin_time,serverTime)){
+            inputTipsText("活动还没开始");
+        }else if(compareTime(end_time,serverTime)){
+            inputTipsText("活动已经结束");
+        }else{
+            //倒计时
+            $(".djs").fnTimeCountDown(end_time,serverTime,null,null,false,true,timeCallback,null);
+            $("#start").hide();
+            jsonAjax(API.API_LIST.CAR_GAME_STARTGAME,data,function(res){
+                if(res.status==1){
+                    $("#start").hide();
+                    startLoad = true;
+                    refresh();
+                }
+            })
+        }
+    }
+    //倒计时回调函数
+    function timeCallback(){
+        getWinners();
+        clearTimeout(t);
+    }
+    //获取参与列表
+    function getPlayList(){
+        var data = M();
+        data.id = game_id;
+        data.items_id = items_id;
+        data.userid = getUserid();
+        data.page = page;
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKELOG,data,function(res){
+            if(res.status==1){
+                if(page==0) $("#playList").html(render(res.data));
+                $("#playList").append(render(res.data));
+            }else{
+                inputTipsText(res.info);
+            }
+        })
+    }
+    //获取获奖列表
+    function getWinners(){
+        var data = M();
+        data.id = game_id;
+        data.userid = getUserid();
+        data.items_id = items_id;
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKEWINNING,data,function(res){
+            if(res.status==1){
+                $("#win").html(render3(res.data));
+                $("#win").show();
+            }else{
+                inputTipsText(res.info);
+            }
+        })
+    }
+    //获取车辆
+    function getShakeCar(){
+        var data = M();
+        data.id = game_id;
+        data.items_id = items_id;
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKECAR,data,function(res){
+            if(res.status==1){
+                $("#cars").html(render2(res.data));
+            }else{
+                inputTipsText(res.info);
+            }
+        })
+    }
+    //5秒一刷新
+    var t;
+    function refresh(){
+        console.log(startLoad);
+        if(!startLoad){
+            getPlayList();
+            getShakeCar();
+            t = setTimeout('refresh()',5000);
+        }
+    }
+    //比较时间
+    function compareTime(time,otime){
+        var a = new Date(time).getTime();
+        var b = new Date(otime).getTime();
+        return (a > b ? true : false);
+    }
+    //手机号码加密
+    function Xphone(mobile){
+        var pattern =  /^1[34578]\d{8}$/;
+        if(pattern.test(mobile)){
+            mobile = typeof mobile != 'string'? mobile.toString() : mobile;
+            var head = mobile.substr(0,3);
+            var tail = mobile.substr(7);
+            return (head+'****'+tail);
+        }else{
+            return '';
+        }
+    }
+</script>
+</html>

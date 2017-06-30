@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>查看排名</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/shake.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/mui_2_7_0.css">
+    <script src="/web/assets/js/mui_2_7_0.js" charset="utf-8"></script>
+</head>
+<body>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+    <div class="mui-scroll">
+        <div class="shake-list"></div>
+    </div>
+    <div class="listNoData">
+        <img src="/web/assets/image/wudingdan_ico.png">
+        <p>暂无数据</p>
+    </div>
+</div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/x-dot-template" id="tmpl-data">
+    {{~it.data:item:index}}
+        <div class="list" border="bottom">
+            <div class="pic"><img src="{{=item.photo?item.photo:'/web/car-service/assets/image/game/yaoyiyao@2x2.png'}}"></div>
+            <div class="name">{{=item.nickname}}</div>
+            <div class="num">速度值：{{=item.value}}
+                {{?item.level}}
+                    <i>{{=item.level}}</i>
+                {{?}}
+            </div>
+        </div>
+    {{~}}
+</script>
+<script>
+    var page=1;
+    var render_data=getRender('tmpl-data');
+    function onStart() {
+        getData();
+        _initMui();
+    }
+    function getData(){
+        jsonAjax(API.API_LIST.CAR_GAME_SHAKELOG,{'userid':getUserid(),id:I('id',0),items_id:I('items_id',0),page:page},function(data){
+            if(data.status==1&&data.data.length>0){
+                $('.listNoData').hide();
+                if(page==1){
+                    $('.shake-list').html(render_data(data));
+                }else{
+                    $('.shake-list').append(render_data(data));
+                }
+                setTimeout(function(){mui('#pullrefresh').pullRefresh().setStopped(false);},200);
+                page++;
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh();
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }else{
+                if(page==1){
+                    $('.listNoData').show();
+                }
+                if(pull_action ==  'up'){
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+                }
+                else if(pull_action == 'down'){
+                    mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+                }
+            }
+            loadEnd();
+        });
+    }
+</script>
+</html>

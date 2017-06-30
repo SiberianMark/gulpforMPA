@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>提交成功</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+</head>
+<body>
+    <div class="wrap suc-wrap">
+        <div class="success tc">
+            <img src="/web/car-service/assets/image/success@2x.png">
+            <p class="reserve-num" style="padding: 0 2rem; text-align: center; font-size: 1.5rem; line-height: 2rem; margin-top: 4 brem;">您已提交成功，请等待专属顾问与您联系。如果您等不及，您可以直接联系专属顾问。</p>
+            <a class="zy" href="" style="display: none;"><img src="/web/car-service/assets/image/phone2@2x.png">联系专属顾问</a>
+        </div>
+        <div class="guwen" style="display: none;"></div>
+    </div>
+</body>
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    var url;
+    var empLoad = false;
+    function onStart(){
+        if(I('phone','0')!=0){
+            console.log(I('phone','0'));
+            $('.zy').attr('href','tel:'+I('phone')).show();
+            loadEnd();
+        }
+
+        switch(I('type')){
+            case '1':
+                url = API.API_LIST.CAR_UPKEEP_ONEKEYSAVEEMPLOYEE;
+                getEmployee(url,$(".guwen"));
+                $(".guwen").show();
+                break;
+            case '3':
+                url = API.API_LIST.CAR_INSURANCE_PAYMONEYEMPLOYEE;
+                getEmployee(url,$(".guwen"));
+                $(".guwen").show();
+                break;
+        }
+    }
+
+    function allLoadEnd(){
+        loadEnd();
+    }
+</script>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>评估结果</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/upkeep.css"></lin>
+</head>
+<body>
+    <div class="wrap evaluate-wrap">
+        <div class="car-tips">
+            <p id="car"></p>
+            <p><span id="mileage"></span>公里/<span id="time"></span>上牌/<span id="city"></span></p>
+        </div>
+        <div class="deal-price tc">
+            参考成交价<p>￥<span id="price"></span></p>
+            <div style="font-size: 1.1rem">以上价格由第三方平台（公平价）提供</div>
+        </div>
+        <div class="phone_msg mgt-2">
+            <div class="input-box" id="choseCar">
+                <label>目标车款</label>
+                <span id="res">选择您的爱车</span>
+                <span class="arrow"></span>
+            </div>
+
+            <div class="flex-box">
+                <div class="input-box box-item">
+                    <label>联&nbsp;系&nbsp;人&nbsp;</label>
+                    <input type="text" placeholder="请输入联系人" name="contacts" maxlength="32"/>
+                </div>
+                <div class="chose-sex box-auto">
+                    <label>男</label>
+                    <span class="selected" style="margin-right: 1rem;" rel="1"></span>
+                    <label>女</label>
+                    <span class="no_select" rel="0"></span>
+                </div>
+            </div>
+
+            <div class="input-box">
+                <label>手机号码</label>
+                <input type="text" name="phone"/>
+            </div>
+        </div>
+        <div class="btn-box">
+            <a class="btn">申请置换</a>
+        </div>
+        <div class="guwen"></div>
+    </div>
+</body>
+<script>
+    var dataLoad = false;
+    var empLoad = false;
+    function onStart(){
+        getdata();
+        getEmployee(API.API_LIST.CAR_ASSESS_GET_SERVER,$('.guwen'));
+    }
+
+    $("#choseCar").on('click',function(){
+        var param = M();
+        param.source = 'eval';
+        param.carid = I('carid');
+        param.getcardtime = I('getcardtime');
+        param.mileage = I('mileage');
+        param.model = decodeURIComponent(I('model'));
+        param.price = I('price');
+        param.contacts = $("input[name='contacts']").val();
+        param.sex = $(".selected").attr('rel');
+        param.phone = $("input[name='phone']").val();
+        param.car_name=decodeURIComponent(I('car_name'));
+        PageJump('gotoBuyCarIndex',param);
+    })
+
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected').addClass('no_select');
+        $(this).removeClass('no_select').addClass('selected');
+    });
+
+    function getdata(){
+
+        if(I('source')=='eval'){
+            $("input[name='detailid']").val(I('detailid'));
+            $("#res").text(decodeURIComponent(I('detailname'))).css("color","#333333");
+            $("input[name='contacts']").val(decodeURIComponent(I('contacts')));
+            $("input[name='phone']").val(I('phone'));
+            if(UserInfo.sex==1){
+                $("span[sex='1']").addClass('selected').removeClass('no_select');
+                $("span[sex='2']").addClass('no_select').removeClass('selected');
+            }else{
+                $("span[sex='1']").addClass('no_select').removeClass('selected');
+                $("span[sex='2']").addClass('selected').removeClass('no_select');
+            }
+        }else{
+            $("input[name='contacts']").val(UserInfo.nickname);
+            $("input[name='phone']").val(UserInfo.mobile);
+
+            if(UserInfo.sex==1){
+                $("span[sex='1']").addClass('selected').removeClass('no_select');
+                $("span[sex='2']").addClass('no_select').removeClass('selected');
+            }else{
+                $("span[sex='1']").addClass('no_select').removeClass('selected');
+                $("span[sex='2']").addClass('selected').removeClass('no_select');
+            }
+        }
+        $("#mileage").text(I('mileage'));
+        $("#time").text(I('getcardtime').replace("-0","年").replace("-","年")+"月");
+        $("#car").text(decodeURIComponent(I('car_name')));
+        $('#city').text(decodeURIComponent(I('model')));
+        if(I('price')==='0'){
+            $(".deal-price p").text('暂无报价');
+        }else{
+            var price=I('price');
+            $(".deal-price p span").text(getMonly(price));
+        }
+        $("#price").val(I('price'));
+        dataLoad = true;
+        allLoadEnd();
+    }
+
+    $(".btn").on('click',function(){
+        var data = M();
+        data.userid = getUserid();
+        data.contacts = $("input[name='contacts']").val();
+        data.sex = $(".selected").attr('rel');
+        data.phone = $("input[name='phone']").val();
+        data.carid = I('carid',0);
+        data.price = I('price');
+        data.change_id = I('detailid',0);
+        data.server_id = $(".info").attr('aid')?$(".info").attr('aid'):'';
+        data.mileage = I('mileage');
+        data.first_brand = I('getcardtime');
+        var pattern = /^1[34578]\d{9}$/;
+        if(!data.contacts.isContacts()){
+            inputTipsText('联系人不能输入特殊字符且中文不能超过16个，字符不能超过32个!');
+        }else if(!data.phone.isMobile()){
+            inputTipsText("请输入正确的手机号码");
+        }else if(data.change_id==0){
+            inputTipsText("请输选择目标车型");
+        }else{
+            jsonAjax(API.API_LIST.CAR_ASSESS_ADD_ASSESSS,data,function(res){
+                if(res.status==1){
+                    var obj = M();
+                    obj.code = res.data.code;
+                    obj.id = res.data.id;
+                    obj.name = res.data.name;
+                    obj.type = res.data.type;
+                    PageJump('gotoKeepCarRS',obj);
+                }else{
+                    inputTipsText(res.info);
+                    BackKeepIndex();
+                }
+            })
+        }
+
+    });
+    var value;//输入的内容
+    //限制联系人输入长度
+    $('input[name="contacts"]').on('input',function(){
+        var len=$(this).val().gblen();
+        if(len<32){
+             value=$(this).val();
+        }
+       if(len>=32){
+           $(this).val(value);
+       }
+    });
+    //将数字字符串转成金额格式
+    function getMonly(price){
+        var value;
+        var newStr = "";
+        var count = 0;
+        if(price.indexOf(".")==-1){
+            for(var i=price.length-1;i>=0;i--){
+                if(count % 3 == 0 && count != 0){
+                    newStr = price.charAt(i) + "," + newStr;
+                }else{
+                    newStr = price.charAt(i) + newStr;
+                }
+                count++;
+            }
+            value = newStr ; //自动补小数点后两位
+        }
+        else
+        {
+            for(var i = price.indexOf(".")-1;i>=0;i--){
+                if(count % 3 == 0 && count != 0){
+                    newStr = price.charAt(i) + "," + newStr;
+                }else{
+                    newStr = price.charAt(i) + newStr; //逐个字符相接起来
+                }
+                count++;
+            }
+            if((price + "00").substr((price + "00").indexOf("."),3)=='.00'){
+                value = newStr
+            }else{
+                value = newStr + (price + "00").substr((price + "00").indexOf("."),3);
+            }
+        }
+        return value;
+    }
+    function allLoadEnd(){
+        console.log(dataLoad,empLoad);
+        if(dataLoad&&empLoad){
+            loadEnd();
+        }
+    }
+</script>
+</html>

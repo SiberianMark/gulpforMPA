@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>图文详情</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script type="text/javascript" src="/web/assets/js/jquery.lazyload.min.js?v=5c01d7aff0"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/smdg/racetracks.css">
+</head>
+<body>
+    <div class="racetracks-tuwen"></div>
+</body>
+</html>
+<script type="text/template" id="racetracks-tuwen">
+    {{ var val = it.data; }}
+        {{var div=document.createElement('div');div.innerHTML=val.detail;var con=div.innerText || div.textContent;}}
+        {{=con}}
+</script>
+<script>
+   
+   var racetracks_detail=getRender('racetracks-tuwen');
+   function onStart(){
+        jsonAjax(API.API_LIST.GROUPLIST, {'aid':I('aid')}, function (data) {
+            if (data.status == 1) {
+                $('.racetracks-tuwen').html(racetracks_detail(data));               
+            }
+        });
+        loadEnd();
+   }
+   
+</script>   
+
+

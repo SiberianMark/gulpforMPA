@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>领取优惠券</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/coupon.css"/>
+</head>
+<body>
+<div class="modal" id="showSharePic">
+    <!--fade-->
+    <div class="sharepic-right">
+        <img src="/web/assets/image/fenxiangtishi_ico.png">
+    </div>
+</div>
+<div id="drawShop"></div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script type="text/template" id="tmpl-data-list">
+    {{
+    item = it.data;
+    }}
+    {{?item.status==0}}
+    <div class="dm-list {{?item.get!=0}}lose{{?}}">
+        {{?item.get==1}}
+            <em class="lq finish top"></em>
+        {{??item.get==2}}
+            <em class="sx top"></em>
+        {{??item.get==3}}
+            <em class="lw top"></em>
+        {{?}}
+        <span>{{?item.click_status==0}}￥{{?}}<i>{{=item.ticket_much}}</i>{{?item.click_status==2}}折{{?}}</span>
+        <div class="tit">{{=item.activity_name}}</div>
+        <div class="time">有效期至{{=item.maxtime.split(' ')[0]}}</div>
+        <div class="handle flex-y">
+            <div class="name flex-c">{{=item.name}}</div>
+        </div>
+    </div>
+    <div class="shopHandle">
+        <div class="pull {{?item.get!=0}}gray{{?}}">立即领取</div>
+        <div class="share {{?item.get==2}}gray{{?}}">分享给小伙伴</div>
+    </div>
+    {{??}}
+        <div class="nullify">
+            <img src="/web/car-service/assets/image/mall/ico_zuofei@2x.png">
+            <p>该优惠券已作废，请联系商家</p>
+        </div>
+    {{?}}
+    {{?item.status==0}}
+        <p class="ewmTxt">使用条件：搜索关注“{{=item.city}}”公众号或者扫码下方二维码关注公众号即可使用。</p>
+    {{??}}
+        <p class="ewmTxt">搜索关注"{{=item.city}}"公众号或扫描下方二维码关注公众号</p>
+    {{?}}
+    <img class="ewmPic" src="{{=item.qr_code}}">
+</script>
+<script>
+    var render_list = getRender('tmpl-data-list');
+    var hasMobile = 0;
+
+    function onStart(){
+
+    }
+
+    function getData(){
+        jsonAjax(API.API_LIST.GOLD_PRIVILEGE_SHOWPRIVILEGE,{'giveperson':I('giveperson',''),'code':I('code',''),'pid':I('pid',''),'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+                hasMobile = data.data.is_bind;
+                if(data.data.get!=2){
+                    WxShare.title = data.data.share_title;
+                    WxShare.desc = data.data.share_content;
+                    WxShare.imgUrl = data.data.share_img;
+                    WxShare.link = data.data.share_link;
+                    onWxShare();
+                }
+                $('#drawShop').html(render_list(data));
+                loadEnd();
+            }
+        })
+    }
+
+    $('#drawShop').on('click','.share',function(){
+        if(!$(this).hasClass('gray')){
+            $('#showSharePic').addClass('fade');
+        }
+    }).on('click','.pull ',function(){
+        if(hasMobile==1){
+            if(!$(this).hasClass('gray')){
+                jsonAjax(API.API_LIST.GOLD_PRIVILEGE_GETPRIVILEGE,{'pid':I('pid',''),'userid':getUserid(),'code':I('code',''),'giveperson':I('giveperson','')},function(data){
+                    if(data.status==1){
+                        inputTipsText('领取成功');
+                        getData();
+                    }else {
+                        inputTipsText(data.info);
+                    }
+                })
+            }
+        }else {
+            var obj = M();
+            obj.redirect = 'pubBidPhone';
+            PageJumpTap('gotoBindMobile',obj);
+        }
+    });
+
+    $('#showSharePic').on('click',function(){
+        $(this).removeClass('fade');
+    });
+
+    function onWxReady(){
+        getData();
+    }
+
+    function JumpAfterSharing(){
+        jsonAjax(API.API_LIST.CAR_INTEGRAL_GETSHARE,{'rid':I('pid',''),'source':3,'wxappid':getWxappid(),'userid':getUserid()},function(data){
+            if(data.status==1){
+            }
+        })
+    }
+
+</script>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>登录</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <style>
+
+    </style>
+</head>
+<body>
+    <div class="fill-tips">————您暂未登录，请先登录————</div>
+    <div class="main">
+        <div class="msg-ph clear input-box" border="bottom">
+            <label>图形验证</label>
+            <input type="tel" class="in-pic" value="" maxlength="11" placeholder="请输入图形验证码"/>
+            <div class="ph-pic" style="width: 9.8rem;"><img id="picCode" onclick="fleshVerify()" style="width: 8.4rem; height: 3.4rem;display: block;margin: .3rem 0 0 .7rem;" src=""></div>
+        </div>
+        <div class="input-box">
+            <label>手机号码</label>
+            <input type="number" name="mobile" placeholder="请输入手机号">
+        </div>
+        <div class="input-box">
+            <label>验证码&nbsp;&nbsp;&nbsp;</label>
+            <input type="number" name="code" placeholder="请输入验证码" >
+            <span class="getCode"><i>获取验证码</i></span>
+        </div>
+    </div>
+    <div class="modal" id="modal-Pop">
+        <div class="pop-cover modal-content">
+        </div>
+    </div>
+    <div class="btn-box">
+        <a class="btn" id="login">登录</a>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script src="/web/car-service/assets/js/bind-phone.js?v=1.5.0"></script>
+<script>
+    function onStart(){
+//        $('.ph-pic').attr('src',fleshVerify());
+        $('#picCode').attr('src',API.SERVER_URL+'gold/public/verify');
+        loadEnd();
+    }
+</script>
+</html>

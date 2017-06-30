@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <script src="/web/assets/js/swiper.min.js?v=98bdc01186"></script>
+    <script src="/web/assets/js/jquery.swipebox.min.js?v=b60f071a81"></script>
+    <title>查看相册</title>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/swiper.css">
+    <link rel="stylesheet" type="text/css" href="/web/assets/css/swipebox.min.css">
+    <style>
+    *{margin:0;padding:0;}
+      body{background:rgb(0,0,0);}
+      .container{margin:0 auto;position:relative;}
+      .container .swiper-container{height:53.35rem;margin-bottom:3rem;}
+      .container .swiper-container .swiper-slide{height:42.25rem;width:77.5%;}
+      .container .swiper-container .swiper-slide .header{width:12.8rem;margin:3.2rem auto 1rem auto;text-align:center;height:2.35rem;line-height:2.365rem;background:rgb(58,58,62);border-radius:0.3rem;color:#fff;font-size:1.5rem;}
+      .container .swiper-container .swiper-slide .pic{position:relative;height:42.25rem;width:100%;}
+      .container .swiper-container .swiper-slide .pic a{width:100%;overflow:hidden;height:94%;filter:alpha(opacity=30);-moz-opacity:0.3; opacity:0.3;}
+      .container .swiper-container .swiper-slide-active .pic a{height:100%;margin:0;filter:alpha(opacity=100);-moz-opacity:1.0; opacity:1.0;}
+      .swiper-pagination-bullet{background:rgb(221,221,221);}
+      .swiper-pagination-bullet-active{background:rgb(235,182,23);}
+    </style>
+</head>
+<body>
+    <div class="container">
+
+    </div>
+</body>
+<script type="text/template" id='photos'>
+  <div class="swiper-container">
+    <div class="swiper-wrapper">
+      {{for (i in it.data){ }}
+      <div class="swiper-slide">
+      {{console.log(it.data[i].date.split(" ")[0]);}}
+        <div class="header">{{=it.data[i].date.split(" ")[0]}}</div>
+        <div class="pic content-img flex-y" id="swipebox-of-0"><a href="{{=it.data[i].img}}" class="swipebox flex-x flex-y"><img src="{{=it.data[i].img}}" alt="" /></a></div>
+      </div>
+      {{ } }}
+    </div>
+    <div class="swiper-pagination"></div>
+  </div>
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+var uid=I("uid");
+var month = ['JAN.','FEB.','MAR.','APR.','MAY','JUNE','JULY','AUG.','SEP.','OCT.','NOV.','DEC.']
+var render = getRender("photos");
+var nickname=decodeURI(I("nickname"));
+$("title").text(decodeURI(nickname)+"的相册");
+function onStart(){
+  jsonAjax(API.API_LIST.ALBUM_SHOW, {"userid":uid}, function (data) {
+    if(data.status==1){
+      if(data.data==''){
+        $(".container").html("<img style='pointer-events: none' src='/web/assets/image/smdg/morenphoto.jpg' />");
+        $(".container").find("img").css("width","100%");
+      }else{
+        $(".container").html(render(data));
+        $('.swipebox').swipebox({clickEventType: 'click'});
+        var swiper = new Swiper ('.swiper-container', {
+                roundLengths : true,
+                initialSlide :1,//设定初始化时slide的索引
+                speed:600,//滑动速度
+                slidesPerView:"auto",//设置slider容器能够同时显示的slides数量
+                centeredSlides : true,//活动块居中
+                followFinger : false,//拖动后释放鼠标或手指时slide滑动
+                spaceBetween : 20,//活动块间隔
+                loop : true,//循环
+                pagination : '.swiper-pagination',
+                paginationType : 'bullets',//分页器样式类型
+
+            });
+      };
+    }
+    loadEnd();
+  });
+}
+//转换日期格式
+// function time(date){
+//   return (month[date.split("-")[1]-1]+" "+date.split("-")[2]+","+date.split("-")[0]);
+// };
+</script>
+</html>

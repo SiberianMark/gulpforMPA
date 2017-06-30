@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>常用电话</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/style.css">
+</head>
+<body >
+    <div class="used-phone">
+       <ul>
+            <li class="list clear" style="background: none;">
+                <span class="list-left"><img src="/web/assets/image/baoxian@2x.png" alt="">保险公司电话</span>
+            </li>
+            <div id="dataPhone">
+                <script type="text/template">
+                    {{~it.data:val:index}}
+                    <li class="list" border="top">
+                        <a href="tel:{{=val.telephone}}">
+                            <p class="ls-name">{{=val.name}}</p>
+                            <p class="ls-number">{{=val.telephone}}</p>
+                        </a>
+                    </li>
+                    {{~}}
+                </script>
+            </div>
+       </ul>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+    function onStart(){
+        jsonAjax(API.API_LIST.CAR_INSURANCE_PAYMONEYPHONE,{},function (res) {
+            if(res.status == 1){
+                doTer(res, $('#dataPhone'));
+            }else {
+                inputTipsText(res.data.info);
+            }
+            loadEnd();
+        });
+    }
+</script>
+</html>

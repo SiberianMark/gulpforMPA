@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>中國第四届兒童摩托車錦標賽</title>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <link rel="stylesheet" href="/web/assets/css/smdg/carnival-racing.css">
+    <!-- .single-group  212x229 -->
+    <!-- .three-group  332x229 -->
+    <!-- .nine-group  332x480 -->
+</head>
+<body>
+    <div class="racing-wrap">
+        <!--<div class="group group3">
+            <img src="/web/assets/image/smdg/race/race05.png" alt="">
+            <div class="left-side three-group">
+                <p class="title">A组前三名</p>
+                <ul class="honors flex">
+                    <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                    <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                    <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                </ul>
+            </div>
+            <div class="right-side three-group">
+                <p class="title">B组前三名</p>
+                <ul class="honors flex">
+                    <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                    <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                    <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="group group4">
+            <img src="/web/assets/image/smdg/race/race06.png" alt="">
+            <div class="left-side nine-group">
+                <p class="title">A组</p>
+                <div class="honor-list" style="margin-top:2.2rem;">
+                    <ul class="honors flex">
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                    </ul>
+                    <ul class="honors flex">
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                        <li><a class="staic-img"></a></li>
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                    </ul>
+                    <ul class="honors flex">
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="right-side nine-group">
+                <p class="title">B组</p>
+                <div class="honor-list" style="margin-top:2.2rem;">
+                    <ul class="honors">
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                        <li><a class="radius-circle"><div class="del-btn"></div></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>-->
+    </div>
+    <div class="modal input-modal">
+        <div class="modal-content ol-content">
+            <div class="ol-pn">
+                <div class="modal-title">录入信息</div>
+                <div class="uploads">
+                    <input type="tel" placeholder="请输入嘀嘀号或手机号" maxlength="11">
+                    <div class="modal-img pub-btn">
+
+                    </div>
+                </div>
+            </div>
+            <div class="ol-cover-btn" border="top">
+                <a class="hv" id="btn-cancel">取消</a>
+                <a class="hv" border="left" id="btn-confirm" style="color:#ff5555;">确定</a>
+            </div>
+        </div>
+    </div>
+    <div class="modal-del modal">
+       <div class="modal-content ol-content">
+           <div class="ol-pn">
+               <div class="modal-title">删除记录</div>
+               <div class="modal-cons">确定要删除该记录吗？</div>
+           </div>
+           <div class="ol-cover-btn" border="top">
+               <a class="hv" id="btn-cancel1">取消</a>
+               <a class="hv" orderid="" border="left" id="btn-confirm1" style="color:#ff5555;">确定</a>
+           </div>
+       </div>
+    </div>
+</body>
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script src="/web/assets/js/smdg/carnival-racing.js"></script>
+<script type="text/template" id="live-act">
+    <img style="width:100%;margin:0 auto;" src="/web/assets/image/smdg/race/01.png" alt="">
+    {{?it.can_update==1}}
+        <div class="group group1">
+            <img src="/web/assets/image/smdg/race/race03.png" alt="">
+            <div class="three-group hcenter-item">
+                <p class="title">决赛</p>
+                <ul class="all-honors flex-x-about">
+                    {{?it.one!='0'||it.one_img!=''}}
+                    <li class="flex-c"><div class="radius-circle" types="6" edit="{{=it.can_update}}" acid="" didiid="{{=it.one}}"><img src="{{=it.one_img}}" alt=""><div class="del-btn"></div></div></li>
+                    {{??}}
+                    <li class="flex-c"><div class="radius-circle" types="6" edit="{{=it.can_update}}" acid="" didiid=""><div class="adds-btn"></div></div></li>
+                    {{?}}
+                    {{?it.two!='0'||it.two_img!=''}}
+                    <li class="flex-c"><div class="radius-circle" types="7" edit="{{=it.can_update}}" acid="" didiid="{{=it.two}}"><img src="{{=it.two_img}}" alt=""><div class="del-btn"></div></div></li>
+                    {{??}}
+                    <li class="flex-c"><div class="radius-circle" types="7" edit="{{=it.can_update}}" acid="" didiid=""><div class="adds-btn"></div></div></li>
+                    {{?}}
+                    {{?it.three!='0'||it.three_img!=''}}
+                    <li class="flex-c"><div class="radius-circle" types="8" edit="{{=it.can_update}}" acid="" didiid="{{=it.three}}"><img src="{{=it.three_img}}" alt=""><div class="del-btn"></div></div></li>
+                    {{??}}
+                    <li class="flex-c"><div class="radius-circle" types="8" edit="{{=it.can_update}}" acid="" didiid=""><div class="adds-btn"></div></div></li>
+                    {{?}}
+                </ul>
+            </div>
+            <div class="left-side single-group">
+                <p class="title">{{=it.result[0].group_name}}晋级</p>
+                {{?it.result[0].first!='0'||it.result[0].first_img!=''}}
+                <div class="radius-circle" types="5" edit="{{=it.can_update}}" acid="{{=it.result[0].id}}" didiid="{{=it.result[0].first}}" style="bottom:1.8rem;left:37.86%;"><img src="{{=it.result[0].first_img}}" alt=""><div class="del-btn"></div></div>
+                {{??}}
+                <div class="radius-circle " types="5" edit="{{=it.can_update}}" acid="{{=it.result[0].id}}" didiid="" style="bottom:1.8rem;left:37.86%;"><div class="adds-btn"></div></div>
+                {{?}}
+            </div>
+            <div class="right-side single-group">
+                <p class="title">{{=it.result[1].group_name}}晋级</p>
+                {{?it.result[1].first!='0'||it.result[1].first_img!=''}}
+                <div class="radius-circle" types="5" edit="{{=it.can_update}}" acid="{{=it.result[1].id}}" didiid="{{=it.result[1].first}}" style="bottom:1.8rem;right:37.86%"><img src="{{=it.result[1].first_img}}" alt=""><div class="del-btn"></div></div>
+                {{??}}
+                <div class="radius-circle" types="5" edit="{{=it.can_update}}" acid="{{=it.result[1].id}}" didiid="" style="bottom:1.8rem;right:37.86%"><div class="adds-btn"></div></div>
+                {{?}}
+            </div>
+        </div>
+        <div class="group group2">
+            <img src="/web/assets/image/smdg/race/race04.png" alt="">
+            <div class="left-side single-group">
+                <p class="title">{{=it.result[2].group_name}}晋级</p>
+                {{?it.result[2].first!='0'||it.result[2].first_img!=''}}
+                <div class="radius-circle" types="5" edit="{{=it.can_update}}" acid="{{=it.result[2].id}}" didiid="{{=it.result[2].first}}" style="bottom:1.8rem;left:37.86%"><img src="{{=it.result[2].first_img}}" alt=""><div class="del-btn"></div></div>
+                {{??}}
+                <div class="radius-circle" types="5" edit="{{=it.can_update}}" acid="{{=it.result[2].id}}" didiid="" style="bottom:1.8rem;left:37.86%"><div class="adds-btn"></div></div>
+                {{?}}
+            </div>
+            <div class="right-side single-group">
+                <p class="title">{{=it.result[3].group_name}}晋级</p>
+                {{?it.result[3].first!='0'||it.result[3].first_img!=''}}
+                <div class="radius-circle" types="5" edit="{{=it.can_update}}" acid="{{=it.result[3].id}}" didiid="{{=it.result[3].first}}" style="bottom:1.8rem;right:37.86%"><img src="{{=it.result[3].first_img}}" alt=""><div class="del-btn"></div></div>
+                {{??}}
+                <div class="radius-circle" types="5" edit="{{=it.can_update}}" acid="{{=it.result[3].id}}" didiid="" style="bottom:1.8rem;right:37.86%"><div class="adds-btn"></div></div>
+                {{?}}
+            </div>
+        </div>
+        {{~it.result:item:index}}
+        <div class="group groups">
+            <img src="/web/assets/image/smdg/race/04.png" alt="">
+            <div class="group-title">
+                <h3>{{=item.group_name}}</h3>
+                <div class="group-tips">
+                    <p><a class="radius-circle-l"></a>车手组</p>
+                    <p><a class="radius-circle-l red-circle"></a>亲子组</p>
+                </div>
+            </div>
+            <div class="third-rank">
+                <div class="third-rank-head">前3名</div>
+                <ul class="rank-list hcenter-item flex">
+                    {{?item.one!='0'||item.one_img!=''}}
+                    <li><div class="radius-circle" types="2" edit="{{=it.can_update}}" acid="{{=item.id}}" didiid="{{=item.one}}"><img src="{{=item.one_img}}" alt=""><div class="del-btn"></div></div></li>
+                    {{??}}
+                    <li><div class="radius-circle" types="2" edit="{{=it.can_update}}" acid="{{=item.id}}" didiid=""><div class="adds-btn"></div></div></li>
+                    {{?}}
+                    {{?item.two!='0'||item.two_img!=''}}
+                    <li><div class="radius-circle" types="3" edit="{{=it.can_update}}" acid="{{=item.id}}" didiid="{{=item.two}}"><img src="{{=item.two_img}}" alt=""><div class="del-btn"></div></div></li>
+                    {{??}}
+                    <li><div class="radius-circle" types="3" edit="{{=it.can_update}}" acid="{{=item.id}}" didiid=""><div class="adds-btn"></div></div></li>
+                    {{?}}
+                    {{?item.three!='0'||item.three_img!=''}}
+                    <li><div class="radius-circle" types="4" edit="{{=it.can_update}}" acid="{{=item.id}}" didiid="{{=item.three}}"><img src="{{=item.three_img}}" alt=""><div class="del-btn"></div></div></li>
+                    {{??}}
+                    <li><div class="radius-circle" types="4" edit="{{=it.can_update}}" acid="{{=item.id}}" didiid=""><div class="adds-btn"></div></div></li>
+                    {{?}}
+                </ul>
+            </div>
+            <div class="group-bottom">
+                <ul class="driver flex">
+                    {{~item.list:ilist:iindex}}
+                        {{?iindex < 5}}
+                            {{?ilist.userid!='0'||ilist.photo!=''}}
+                            <li><div class="radius-circle" types="1" edit="{{=it.can_update}}" acid="{{=ilist.id}}" didiid="{{=ilist.userid}}"><img src="{{=ilist.photo}}" alt=""><div class="del-btn"></div></div></li>
+                            {{??}}
+                                <li><div class="radius-circle" types="1" edit="{{=it.can_update}}" acid="{{=ilist.id}}" didiid=""><div class="adds-btn"></div></div></li>
+                            {{?}}
+                        {{?}}
+                    {{~}}
+                </ul>
+                <ul class="parental flex">
+                    {{~item.list:ilist:iindex}}
+                        {{?iindex >= 5}}
+                            {{?ilist.userid!='0'||ilist.photo!=''}}
+                            <li><div class="radius-circle red-circle" types="1" edit="{{=it.can_update}}" acid="{{=ilist.id}}" didiid="{{=ilist.userid}}"><img src="{{=ilist.photo}}" alt=""><div class="del-btn"></div></div></li>
+                            {{??}}
+                                <li><div class="radius-circle red-circle" types="1" edit="{{=it.can_update}}" acid="{{=ilist.id}}" didiid=""><div class="adds-btn"></div></div></li>
+                            {{?}}
+                        {{?}}
+                    {{~}}
+                </ul>
+            </div>
+        </div>
+        {{~}}
+    {{??}}
+        <div class="group group1">
+            <img src="/web/assets/image/smdg/race/race03.png" alt="">
+            <div class="three-group hcenter-item">
+                <p class="title">决赛</p>
+                <ul class="all-honors flex-x-about">
+                    <li class="flex-c"><div class="radius-circle">
+                        {{?it.one_img && it.one_img!=''}}
+                        <img src="{{=it.one_img}}" alt="">
+                        {{?}}
+                    </div></li>
+                    <li class="flex-c"><div class="radius-circle">
+                        {{?it.two_img && it.two_img!=''}}
+                        <img src="{{=it.two_img}}" alt="">
+                        {{?}}
+                    </div></li>
+                    <li class="flex-c"><div class="radius-circle">
+                        {{?it.three_img && it.three_img!=''}}
+                        <img src="{{=it.three_img}}" alt="">
+                        {{?}}
+                    </div></li>
+                </ul>
+            </div>
+            <div class="left-side single-group">
+                <p class="title">{{=it.result[0].group_name}}晋级</p>
+                <div class="radius-circle" style="bottom:1.8rem;left:37.86%;">
+                    {{?it.result[0].first_img && it.result[0].first_img!=''}}
+                    <img src="{{=it.result[0].first_img}}" alt="">
+                    {{?}}
+                </div>
+            </div>
+            <div class="right-side single-group">
+                <p class="title">{{=it.result[1].group_name}}晋级</p>
+                <div class="radius-circle" style="bottom:1.8rem;left:37.86%;">
+                    {{?it.result[1].first_img && it.result[1].first_img!=''}}
+                    <img src="{{=it.result[1].first_img}}" alt="">
+                    {{?}}
+                </div>
+            </div>
+        </div>
+        <div class="group group2">
+            <img src="/web/assets/image/smdg/race/race04.png" alt="">
+            <div class="left-side single-group">
+                <p class="title">{{=it.result[2].group_name}}晋级</p>
+                <div class="radius-circle" style="bottom:1.8rem;left:37.86%;">
+                    {{?it.result[2].first_img && it.result[2].first_img!=''}}
+                    <img src="{{=it.result[2].first_img}}" alt="">
+                    {{?}}
+                </div>
+            </div>
+            <div class="right-side single-group">
+                <p class="title">{{=it.result[3].group_name}}晋级</p>
+                <div class="radius-circle" style="bottom:1.8rem;left:37.86%;">
+                    {{?it.result[3].first_img && it.result[3].first_img!=''}}
+                    <img src="{{=it.result[3].first_img}}" alt="">
+                    {{?}}
+                </div>
+            </div>
+        </div>
+        {{~it.result:item:index}}
+        <div class="group groups">
+            <img src="/web/assets/image/smdg/race/04.png" alt="">
+            <div class="group-title">
+                <h3>{{=item.group_name}}</h3>
+                <div class="group-tips">
+                    <p><a class="radius-circle-l"></a>车手组</p>
+                    <p><a class="radius-circle-l red-circle"></a>亲子组</p>
+                </div>
+            </div>
+            <div class="third-rank">
+                <div class="third-rank-head">前3名</div>
+                <ul class="rank-list hcenter-item flex">
+                    <li><div class="radius-circle">
+                        {{?item.one_img && item.one_img!=''}}
+                        <img src="{{=item.one_img}}" alt="">
+                        {{?}}
+                    </div></li>
+                    <li><div class="radius-circle">
+                        {{?item.two_img && item.two_img!=''}}
+                        <img src="{{=item.two_img}}" alt="">
+                        {{?}}
+                    </div></li>
+                    <li><div class="radius-circle">
+                        {{?item.three_img && item.three_img!=''}}
+                        <img src="{{=item.three_img}}" alt="">
+                        {{?}}
+                    </div></li>
+                </ul>
+            </div>
+            <div class="group-bottom">
+                <ul class="driver flex">
+                    {{~item.list:ilist:iindex}}
+                        {{?iindex < 5}}
+                            <li><div class="radius-circle">
+                                {{?ilist.photo && ilist.photo!=''}}
+                                <img src="{{=ilist.photo}}" alt="">
+                                {{?}}
+                            </div></li>
+                        {{?}}
+                    {{~}}
+                </ul>
+                <ul class="parental flex">
+                    {{~item.list:ilist:iindex}}
+                        {{?iindex >= 5}}
+                            <li><div class="radius-circle red-circle">
+                                {{?ilist.photo && ilist.photo!=''}}
+                                <img src="{{=ilist.photo}}" alt="">
+                                {{?}}
+                                </div></li>
+                        {{?}}
+                    {{~}}
+                </ul>
+            </div>
+        </div>
+        {{~}}
+    {{?}}
+    <img style="width:100%;margin:0 auto;" src="/web/assets/image/smdg/race/race09.png" alt="">
+</script>
+<script>
+var race_tml=getRender('live-act');
+var imgToal=0;
+var match_id='';
+    function onStart(){
+        getData();
+    }
+
+</script>
+</html>

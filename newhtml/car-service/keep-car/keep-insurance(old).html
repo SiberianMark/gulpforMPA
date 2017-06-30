@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <title>车险续保</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=a0f791163c"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <style>
+        .insurance-tip img{width:100%;}
+    </style>
+</head>
+<body>
+    <div class="insurance-tip">
+        <!--<div>敬爱的车主，首先非常感谢您选择本店为您服务。</div>-->
+        <!--<div>7-8月在本店续保的车主，将获得免费保养一次！</div>-->
+        <!--<div>赶快联系您的保险顾问吧！</div>-->
+    </div>
+    <div class="guwen">
+
+    </div>
+    <div class="chose-insurance" style="display: none;">
+        <div class="title">您可以选择下面的保险公司试算保费：</div>
+        <ul>
+            <li>
+                <img src=""/>
+                <div class="con">平安车险</div>
+                <div class="index"></div>
+            </li>
+            <li>
+                <img src=""/>
+                <div class="con">人保车险</div>
+                <div class="index"></div>
+            </li>
+            <li>
+                <img src=""/>
+                <div class="con">太平洋车险</div>
+                <div class="index"></div>
+            </li>
+        </ul>
+    </div>
+    <div class="trial">
+        <div>试算爱车保费</div>
+    </div>
+    <!--<div class="copy-box">-->
+        <!--<p scl-pe="before">请长按下列文字进行复制<span>	&darr;</span></p>-->
+        <!--<p id="copy">dadfasdfsadfasdf</p>-->
+        <!--<div class="close">关闭</div>-->
+    <!--</div>-->
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script type="text/template" id="temp">
+    {{var val=it.data.Employee;}}
+    <img src="{{=val.logo}}" alt=""/>
+    <div class="info" aid="{{=val.aid}}">
+        <div class="name">{{=val.realname}}</div>
+        <div class="contact">
+            <span class="shouji"><i></i><span><a href="tel:{{=val.mobile}}">{{=val.mobile}}</a></span></span>
+            <!--<span class="weixin"><i></i><span id="span">{{=val.wx_number}}</span></span>-->
+        </div>
+        <div class="hello">你好，我是您的服务顾问，我会接待您！</div>
+    </div>
+</script>
+<script>
+    function onStart(){
+        getData();
+    }
+    var render=getRender('temp');
+    var userid=getUserid();
+
+    function getData(){
+//        getEmployee(API.API_LIST.CAR_INSURANCE_RENEWINSURANCEEMPLOYEE,$('.guwen'));
+        jsonAjax(API.API_LIST.CAR_INSURANCE_RENEWINSURANCEEMPLOYEE,{'userid':userid},function(data){
+            if(data.status==1){
+                if(data.data.Employee.aid){
+                    $('.guwen').html(render(data));
+                    $('#copy').text($('#span').text());
+                }else{
+                    $('.guwen').hide();
+                }
+                if(data.data.welcome!=''){
+                    $('.insurance-tip').html(data.data.welcome);
+                }else{
+                    $('.insurance-tip').hide();
+                }
+
+                loadEnd();
+            }else{
+                inputTipsText(data.info);
+            }
+        })
+    }
+    $('.trial').on('click',function(){
+        PageJumpTap('gotoCarInsurance');
+    });
+  /*  $('.guwen').on('click','.weixin',function(){
+        $('.copy-box').show();
+        var selection,range;
+        var text = document.getElementById('copy');
+        if(window.getSelection) {
+            selection = window.getSelection();
+            range = document.createRange();
+            range.selectNodeContents(text);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+        }else{
+            inputTipsText('浏览器不支持');
+        }
+    });
+    $('.close').on('click',function(){
+        $('.copy-box').hide();
+    });*/
+   /* $('.trial').on('click',function(){
+        var obj=new Object();
+        obj.userid=userid;
+        obj.advisorid=$('.info').attr('aid');
+        jsonAjax(API.API_LIST.CAR_INSURANCE_RENEWINSURANCEORDER,obj,function(data){
+            if(data.status==1){
+                PageJumpTap('gotoCarInsurance');
+            }else{
+                inputTipsText(data.info);
+            }
+        });
+
+    });*/
+    //保险公司跳转
+
+</script>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>车险续保</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.min.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.picker.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/mui.poppicker.css"/>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <script src="/web/car-service/assets/js/mui.min.js"></script>
+    <script src="/web/car-service/assets/js/mui.picker.js"></script>
+    <script src="/web/car-service/assets/js/mui.poppicker.js"></script>
+    <script src="/web/car-service/assets/js/license.data.js"></script>
+    <script src="/web/car-service/assets/js/chose_car.js"></script>
+    <link href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css" rel="stylesheet" type="text/css"/>
+    <script src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js" type="text/javascript"></script>
+    <style>
+        .insurance-ad img{width:100%;}
+        .insurance-bottom{text-align: center;}
+        #license{margin: 0;}
+        .first-items .item span{display: inline-block;}
+    </style>
+</head>
+<body >
+
+</body>
+<script type="text/template" id="temp-user-info">
+    {{?it.data.welcome}}
+    <div class="insurance-ad">{{=it.data.welcome}}</div>
+    {{?}}
+    <div class="first-items">
+        <div class="title">基本信息</div>
+        <div class="item flex" scl-pe="before">
+            <span>姓名</span>
+            <input type="text" name="user" class="input" value="{{=it.data.list.nickname}}" maxlength="16"/>
+        </div>
+        <div class="item flex" >
+            <span>车牌</span>
+            <div class="quyu" id="quyu">
+                <div>
+                    <span id="license">{{=it.data.list.carnum.substr(0,2)}}</span>
+                    <span class="down" id="arrow"></span>
+                </div>
+            </div>
+            <input type="text" name="carNum" maxlength="5" value="{{=it.data.list.carnum.substr(2,7)}}" verify>
+        </div>
+        <div class="item flex" scl-pe="before">
+            <span>联系电话</span>
+            <input type="tel" name="phone" class="input" value="{{=it.data.list.mobile}}" maxlength="11"/>
+        </div>
+    </div>
+    <div class="first-items" style="padding-bottom:4.5rem;">
+        <div class="title">行驶证信息<a>（示例）</a></div>
+        <div class="item flex" scl-pe="before">
+            <span>车架号</span>
+            <input type="text" name="vin" class="input" value="{{=it.data.list.vin}}" maxlength="17" verify/>
+        </div>
+        <div class="item flex" >
+            <span>发动机号</span>
+            <input type="text" name="engineno"  class="input" value="{{=it.data.list.engineno}}" maxlength="17" verify/>
+        </div>
+        <div class="item flex" scl-pe="before" >
+            <span>初登日期</span>
+            <input type="text" name="earlytime" class="input"/>
+        </div>
+    </div>
+    <div class="insurance-bottom" onclick="nextStep()">下一步</div>
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script>
+var data_render = getRender("temp-user-info");
+var aid = I("aid"),carid;
+function onStart(){
+    getData();
+}
+function getData(){
+    var data = M();
+    data.userid = getUserid();
+    jsonAjax(API.API_LIST.CAR_INSURANCE_GETINSURANCEUSERINFO,data,function(res){
+        if(res.status==1){
+            $("body").html(data_render(res));
+            carid=res.data.list.id;
+            choseLicense('license','quyu');
+            var now = new Date();
+            $('input[name=earlytime]').mobiscroll().datetime({
+                theme: 'android-holo-light',
+                lang: 'zh',
+                display: 'bottom',
+                mode: 'scroller',
+                max:new Date(now.getFullYear(), now.getMonth(), now.getDate(),now.getHours(),now.getMinutes()),
+                /*invalid: ['w0', 'w6', '5/1', '12/24', '12/25'],*/
+                rows:3
+            });
+        }
+       loadEnd();
+    });
+}
+//点击下一步
+function nextStep(){
+    //验证车牌号
+    var pattern1 = /^[\u4e00-\u9fa5]{1}[a-zA-Z]{1}[a-zA-Z0-9]{5}$/;
+    //验证发动机号
+    var pattern2 = /^[a-zA-Z0-9]{0,17}$/;
+    //验证车架号
+    var pattern3 = /^[a-zA-Z0-9]{0,17}$/;
+    var data = M();
+    data.username = $("input[name='user']").val();
+    data.carnum = $("#license").text()+$("input[name='carNum']").val();
+    data.phone = $("input[name='phone']").val();
+    data.vin = $("input[name='vin']").val();
+    data.engineno = $("input[name='engineno']").val();
+    data.earlytime = $("input[name='earlytime']").val();
+    data.source_page = 'customer';
+    data.aid = aid;
+    data.carid=carid;
+    if(!data.username.isContacts()||data.username==''){
+        inputTipsText("名字不能输入特殊字符且中文不能超过16个，字符不能超过32个");
+        return;
+    }
+    if(!pattern1.test(data.carnum)||data.carnum==''){
+        inputTipsText("请输入正确的车牌号");
+        return;
+    }
+    if(!data.phone.isMobile()||data.phone==""){
+        inputTipsText("请输入正确的手机号");
+        return;
+    }
+    if(!pattern3.test(data.vin)||data.vin==""){
+        inputTipsText("请输入正确的车架号");
+        return;
+    }
+    if(!pattern2.test(data.engineno)||data.engineno==""){
+        inputTipsText("请输入正确的发动机号");
+        return;
+    }
+    PageJump('gotoCarInsurance',data);
+}
+
+$("body").on("input","input[verify]",function(){
+    var result = $(this).val();
+    if(result.isExistChinese()){
+        result = result.substr(0,result.length-1);
+    }
+    $(this).val(result);
+});
+</script>
+</html>

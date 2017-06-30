@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js?v=37fc4c585f"></script>
+    <script src="/web/assets/js/load.head3.js?v=93bae95859"></script>
+    <title>车队介绍</title>
+    <!-- ↑ 顶部共用 ↑ -->
+</head>
+<style>
+  body{
+    background:#fff;
+  }
+  .default {
+    margin-top:20rem;
+  }
+  .default>img {
+    height:7.1rem;
+  }
+  .default>span {
+    margin-top:1.0rem;
+    font-size:1.3rem;
+    color:#999;
+  }
+  .content {
+    margin:0 1rem;
+    overflow:hidden;
+  }
+  .content div img {
+    width:100%
+  }
+  #edit {
+    margin: 3rem auto 0 auto;
+    width: 50%;
+    height: 3.3rem;
+    line-height: 3.3rem;
+    font-size: 1.4rem;
+    text-align: center;
+    background: #eee;
+    border-radius: 3px;
+    display:none;
+  }
+  .attention-now {
+    position:relative;
+  }
+  .attention-now a {
+    position:absolute;
+    top:0;
+    right:0;
+    width: 1.2rem;
+    height:1.2rem;
+  }
+</style>
+<body>
+  <div class="attention-now">
+    <img src="/web/assets/image/didi365.png" alt="" style="width:100%;">
+    <a href="javascrip:;" style=""></a>
+  </div>
+  <div class="content"></div>
+  <div id="edit">编辑</div>
+</body>
+<script type="text/template" id='box'>
+  {{~it.data.res:item:index}}
+  {{console.log(item);}}
+  {{?item.cid == 1}}
+    <div style="font-size:1.4rem;margin:1rem 0">{{=item.content}}</div>
+  {{??item.cid == 2}}
+    <img style="width:100%" src="{{=item.content}}" alt="">
+  {{?}}
+  {{~}}
+</script>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js?v=d41d8cd98f"></script>
+<script>
+var render = getRender("box"),
+    tid = I('tid'), // 车队id
+    share = I('share');
+function onStart() {
+
+    getData();
+    if(share) {
+      $('.attention-now').show();
+    }else {
+      $('.attention-now').hide();
+    }
+    loadEnd();
+};
+function getData() {
+  jsonAjax('/Gold/Play/teamIntroduce',{'tid':tid,'userid':getUserid()},function(data) {
+      if(data.status == 1) {
+        if(data.data.length != 0) {
+          $(".content").html(render(data));
+          WxShare.title=data.data.share.title;
+          // WxShare.imgUrl=data.data.share_pic;
+          WxShare.link=data.data.share.share;
+          WxShare.desc=data.data.share.content;
+          loadWxObject(true); //获取微信分享对象
+        }else {
+          var content = '<div class="flex-y default flex-top">' +
+                          '<img style="width:auto" src="/web/assets/image/smdg/sousuoshibai@2x.png" />' +
+                          '<span>这个队长不懒，但就是还没编辑车队介绍~</span>' +
+                        '</div>';
+          $(".content").html(content);
+          if(I("is_captain") == 1 || I('uid') == getUserid()) {
+            $("#edit").show();
+          }
+        }
+      }else {
+        inputTipsText(data.info);
+      }
+  })
+};
+// 编辑介绍文章
+$("#edit").on("click",function() {
+    var obj = new Object();
+    obj.tid = tid;
+    InterfaceTap("gotoFleetIntroduceEdit",obj);
+})
+
+</script>
+</html>

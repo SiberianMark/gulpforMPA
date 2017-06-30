@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>最新优惠</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <!-- ↑ 顶部共用 ↑ -->
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/normal.css">
+    <link rel="stylesheet" type="text/css" href="/web/car-service/assets/css/index.css">
+    <style>
+        .data img{width: 100%;height: auto;}
+    </style>
+</head>
+<body style="width: 100%;overflow-x: hidden;">
+    <div class="wrap preference-wrap" style="padding:0.6rem 0.8rem;">
+        <div class="data">
+            <!-- data from web api -->
+        </div>
+        <div class="db-btn tc mgl-2 mgr-2 mgt-3">交定金</div>
+    </div>
+</body>
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    $('.db-btn').on('click',function(){
+        PageJump('gotoOneKeyPay');
+    });
+    function onStart(){
+        jsonAjax(API.API_LIST.CAR_CARINFO_NEWESTCUT,{'userid':getUserid()},function(data){
+            if(data.status==1){
+                $('.data').html(data.data.detail.decodeHtml());
+            }
+            loadEnd();
+        });
+
+    }
+    //分享
+    function onWxReady(){
+        jsonAjax(API.API_LIST.CAR_BUYCAR_NEWESTSHARE,{'userid':getUserid()},function(data){
+            if(data.status==1){
+                WxShare.title = data.data.title;
+                WxShare.desc = data.data.content;
+                WxShare.imgUrl = data.data.img;
+                WxShare.link = data.data.linkurl;
+                onWxShare();
+            }
+        });
+    }
+</script>
+</html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <script src="/web/assets/js/load.meta.js"></script>
+    <title>预约保养</title>
+    <script src="/web/car-service/assets/js/load-head.js?v=3.0.0"></script>
+    <link rel="stylesheet" type="text/css" href="/web/assets/date-plug-js.3.0/css/date.3.0.min.css"/>
+    <script type="text/javascript" src="/web/assets/date-plug-js.3.0/js/date.3.0.min.js"></script>
+    <link rel="stylesheet" href="/web/car-service/assets/css/upkeep.css"/>
+    <!-- ↑ 顶部共用 ↑ -->
+</head>
+<body>
+    <div class="main" style="margin-top: 1rem;">
+        <div class="input-box" id="choseCar" scl-pe="before">
+            <label>车&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;系</label>
+            <span id="res" style="color: #333333;">雅阁 2016款2.4L CVT 智尊版</span>
+
+        </div>
+        <div class="input-box">
+            <label>购车时间</label>
+            <input type="text" value="2015-6-27">
+        </div>
+        <div class="flex-box">
+            <div class="input-box box-item">
+                <label>行驶里程</label>
+                <input type="text" id="info-name"  value="1.8"/>
+            </div>
+            <div class="chose-sex box-auto" style="width: 8.1rem;font-size: 1.4rem;">
+               万公里
+            </div>
+        </div>
+        <div class="flex-box">
+            <div class="input-box box-item">
+                <label>联系人&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <input type="text"  value="陈宇峰"/>
+            </div>
+            <div class="chose-sex box-auto">
+                <label>男</label>
+                <span class="selected" sex='1'></span>
+                <label>女</label>
+                <span class="no_select" sex='2'></span>
+            </div>
+        </div>
+        <div class="input-box">
+            <label>手机号码</label>
+            <input type="text" id="phone"/>
+        </div>
+
+        <div class="input-box">
+            <label>预约时间</label>
+            <input type="text" id="time">
+        </div>
+    </div>
+
+    <div class="btn-box" id="save">
+        <span class="btn" >一键保养</span>
+    </div>
+
+    <div class="mask"></div>
+    <div class="menu">
+        <ul>
+            <li><a href="tel:18682346880">全国服务热线</a></li>
+            <li><a href="tel:18682346880">我的专营店</a></li>
+            <li><a href="tel:18682346880">最近专营店</a></li>
+        </ul>
+    </div>
+</body>
+<!-- ↓ 底部公用 ↓ -->
+<script src="/web/assets/js/load.foot.js"></script>
+<script>
+    function onStart(){
+        getdata()
+        loadEnd();
+    }
+
+    $(".chose-sex span").on('click',function(){
+        $(".chose-sex span").removeClass('selected').addClass('no_select');
+        $(this).removeClass('no_select').addClass('selected');
+    });
+
+
+    function getdata(){
+        $("#phone").val(UserInfo.mobile);
+        if(UserInfo.sex==1){
+            $("span[sex='1']").addClass('selected').removeClass('no_select');
+            $("span[sex='2']").addClass('no_select').removeClass('selected');
+        }else{
+            $("span[sex='1']").addClass('no_select').removeClass('selected');
+            $("span[sex='2']").addClass('selected').removeClass('no_select');
+        }
+    }
+
+    var now = new Date();
+    $('#time').mobiscroll().datetime({
+        theme: 'android-holo-light',
+        lang: 'zh',
+        display: 'bottom',
+        mode: 'scroller',
+        min: new Date(now.getFullYear(), now.getMonth(), now.getDate(),now.getHours(),now.getMinutes()),
+        max:new Date(now.getFullYear()+3, now.getMonth(), now.getDate()),
+        /*invalid: ['w0', 'w6', '5/1', '12/24', '12/25'],*/
+        dateOrder: 'Mddyy',
+        timeWheels: 'HHii',
+        rows:3
+    });
+
+    $(".btn").on('click',function(){
+        var time = $("#time").val();
+        if(time==""){
+            inputTipsText('请选择预约时间');
+            return;
+        }
+        $(".mask").fadeIn();
+        $(".menu").animate({'bottom':'0'},500);
+        $.getJSON("http://Nzj.didi365.com/api/demo/upkeep?callback=?",function(data) {
+            if(data.code==1){
+                //inputTipsText(data.message);
+                //location.href = '/web/car-service/demo/booking-success.html';
+            }else{
+                inputTipsText(data.message);
+            }
+        });
+    });
+
+    $(".mask").on("click",function () {
+        $(".mask").fadeOut();
+        $(".menu").animate({'bottom':'-100%'},500);
+        //location.href = '/web/car-service/demo/booking-success.html';
+    });
+</script>
+</html>
