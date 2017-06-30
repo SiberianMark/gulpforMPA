@@ -10,12 +10,28 @@
  */
 /*
 *author:JM
-*time:2017-06-03
+*time:2017-06-30
 *version:1.0.3
 *
 *功能： 增加监控指定文件夹内文件css/img变化，
 *       自动修改更新引用对应更新css/img的版本号
 *       防止用户客户端缓存未及时更新造成bug
+* 
+ */
+
+/*note：引用插件前请先安装
+        npm install gulp gulp-asset-rev gulp-rev gulp-rev-collector --save-dev
+*/
+
+/*
+*author:JM
+*time:2017-06-30
+*version:1.0.4
+*
+*功能： 
+*      代码重构分成三个环境进行运行
+*      测试环境，开发环境，生产环境
+*      增加压缩功能
 * 
  */
 
@@ -169,22 +185,56 @@ var gulp = require('gulp'),
 //生产版本
         //定义css、js源文件路径，可在这里修改监控js路径
     // var jsSrc = './assets/js/**/*.js'; //监控assets/js/下所有js
-    var jsSrc = './**/*.js'; //监控web下所有js变化
+    var jsSrcProd = './**/*.js'; //监控web下所有js变化
+    var cssSrcProd='./**/*.css';
+
+    //定义font,img等资源的监控路径
+    var fontSrcProd='./**/fonts/*';
+    var imgSrcProd=['./**/*.png','./**/*.jpg','./**/*.jpeg','./**/*.gif','./**/*.svg','./**/*.TGA','./**/*.TIFF'];
 
     //定义html文件
-    var htmlSrc='./**/*.html';//修改web下所有html
+    var htmlSrcProd='./**/*.html';//修改web下所有html
     // var htmlSrc='./smdg/*.html';//修改smdg下所有html
-    //js生成文件hash编码并生成 rev-manifest.json文件名对照映射
-    gulp.task('revJs', function(){
-        return gulp.src(jsSrc)
+    
+
+    //Fonts & Images 根据MD5获取版本号并生成 rev-manifest.json文件名对照映射
+    gulp.task('revFont_PROD',function(){
+        return gulp.src(fontSrcProd)
             .pipe(rev())
             .pipe(rev.manifest())
-            .pipe(gulp.dest('./rev/js'));
+            .pipe(gulp.dest('./rev/prod/fonts'));
+    });
+    gulp.task('revImg_PROD',function(){
+        return gulp.src(imgSrcProd)
+            .pipe(rev())
+            .pipe(rev.manifest())
+            .pipe(gulp.dest('./rev/prod/img'))
+    });
+    gulp.task('revCss_PROD',function(){
+        console.log('revCss');
+        return gulp.src(cssSrcProd)
+                   .pipe(rev())
+                   .pipe(rev.manifest())
+                   .pipe(gulp.dest('./rev/prod/css'));
+    });
+    //js生成文件hash编码并生成 rev-manifest.json文件名对照映射
+    gulp.task('revJs_PROD', function(){
+        return gulp.src(jsSrcProd)
+            .pipe(rev())
+            .pipe(rev.manifest())
+            .pipe(gulp.dest('./rev/prod/js'));
     });
 
     //Html替换css、js文件版本--替换
-     gulp.task('revHtml', function () {
-         return gulp.src(['./rev/js/*.json', htmlSrc])
+     gulp.task('revHtml_PROD', function () {
+         return gulp.src(['./rev/prod/**/*.json', htmlSrcProd])
+             .pipe(revCollector())
+             .pipe(gulp.dest('./'),{base:'.'});
+     });
+
+     //更新CSS里引入文件版本号
+     gulp.task('revColCSS_PROD', function () {
+         return gulp.src(['./rev/prod/**/*.json', cssSrcProd])
              .pipe(revCollector())
              .pipe(gulp.dest('./'),{base:'.'});
      });
@@ -193,8 +243,11 @@ var gulp = require('gulp'),
     gulp.task('default', function (done) {
         condition = false;
         runSequence(       //需要说明的是，用gulp.run也可以实现以上所有任务的执行，只是gulp.run是最大限度的并行执行这些任务，而在添加版本号时需要串行执行（顺序执行）这些任务，故使用了runSequence.
-            ['revJs'],
-            ['revHtml'],
+            ['revFont_PROD', 'revImg_PROD'],
+            ['revCss_PROD'],
+            ['revJs_PROD'],
+            ['revColCSS_PROD'],
+            ['revHtml_PROD'],
             done);
     });
 
