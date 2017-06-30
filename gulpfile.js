@@ -21,6 +21,9 @@
 
 /*note：引用插件前请先安装
         npm install gulp gulp-asset-rev gulp-rev gulp-rev-collector --save-dev
+        npm install gulp-if --save-dev
+        npm install gulp-uglify gulp-minify-css gulp-minify-html --save-dev     //压缩相关
+        npm install gulp-postcss gulp-autoprefixer gulp-precss --save-dev --css浏览器兼容性补全,从左到右，补全控制插件，浏览器私有前缀补全，css未来语法，像Sass的函数
 */
 
 /*
@@ -31,23 +34,27 @@
 *功能： 
 *      代码重构分成三个环境进行运行
 *      测试环境，开发环境，生产环境
-*      增加压缩功能
+*      测试增加压缩处理--……注意文件输出流的顺序以及在gulpif内运行，先压缩后处理或先处理后压缩
+*      测试增加css代码补全处理
 * 
  */
 
-/*note：引用插件前请先安装
-        npm install gulp gulp-asset-rev gulp-rev gulp-rev-collector --save-dev
-*/
+
 
 //引入gulp和gulp插件:
 var gulp = require('gulp'),
     assetRev = require('gulp-asset-rev'),
     runSequence = require('run-sequence'),
     rev = require('gulp-rev'),
-    revCollector = require('gulp-rev-collector');
+    revCollector = require('gulp-rev-collector'),
+    gulpif = require('gulp-if'),
+    uglify = require('gulp-uglify'),
+    minifyCss = require('gulp-minify-css'),
+    minifyHtml = require('gulp-minify-html');
 
 
 
+var condition = true;
 
 //测试版本
     //定义css、js源文件路径，可在这里修改监控js路径
@@ -78,14 +85,20 @@ var gulp = require('gulp'),
     gulp.task('revJs_TEST', function(){
         console.log('revJs_TEST');
         return gulp.src(jsSrcTest)
+            .pipe(gulpif(
+                condition, uglify()
+            ))
             .pipe(rev())
+            .pipe(gulp.dest('./ddshop/test',{base:'.'}))
             .pipe(rev.manifest())
             .pipe(gulp.dest('./rev/test/js'));
     });
     gulp.task('revCss_TEST',function(){
         console.log('revCss_TEST');
         return gulp.src(cssSrcTest)
+                   .pipe(gulpif(condition,minifyCss({compatibility:'ie7'})))
                    .pipe(rev())
+                   .pipe(gulp.dest('./ddshop/test',{base:'.'}))
                    .pipe(rev.manifest())
                    .pipe(gulp.dest('./rev/test/css'));
     });
@@ -93,15 +106,25 @@ var gulp = require('gulp'),
      gulp.task('revHtml_TEST', function () {
          return gulp.src(['./rev/test/**/*.json', htmlSrcTest])
              .pipe(revCollector())
-             .pipe(gulp.dest('./ddshop/testhtml'),{base:'.'});
+             .pipe(gulpif(
+                    condition, minifyHtml({
+                        empty: true,
+                        spare: true,
+                        quotes: true
+                    })
+                ))//压缩html
+             .pipe(gulp.dest('./ddshop/test'),{base:'.'});
      });
    //更新CSS里引入文件版本号
      gulp.task('revColCSS_TEST', function () {
-         return gulp.src(['./rev/test/**/*.json', cssSrcTest])
+         return gulp.src(['./rev/test/**/*.json', cssSrcTest])            
              .pipe(revCollector())
-             .pipe(gulp.dest('./ddshop/testcss'),{base:'.'});
+             .pipe(gulp.dest('./ddshop/test'),{base:'.'});
      });
 
+     //添加postCss
+     
+     //压缩css/js/html
 
      //测试开发构建
     gulp.task('test', function (done) {

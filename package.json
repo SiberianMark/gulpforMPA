@@ -11,8 +11,12 @@
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-asset-rev": "0.0.15",
+    "gulp-if": "^2.0.2",
+    "gulp-minify-css": "^1.2.4",
+    "gulp-minify-html": "^1.0.6",
     "gulp-rev": "^7.1.2",
     "gulp-rev-collector": "^1.2.2",
+    "gulp-uglify": "^3.0.0",
     "run": "^1.4.0",
     "run-sequence": "^1.2.2",
     "sequence": "^3.0.0"
