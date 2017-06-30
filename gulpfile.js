@@ -77,13 +77,13 @@ var gulp = require('gulp'),
      gulp.task('revHtml_TEST', function () {
          return gulp.src(['./rev/test/**/*.json', htmlSrcTest])
              .pipe(revCollector())
-             .pipe(gulp.dest('./ddshop/newhtml'),{base:'.'});
+             .pipe(gulp.dest('./ddshop/testhtml'),{base:'.'});
      });
    //更新CSS里引入文件版本号
      gulp.task('revColCSS_TEST', function () {
          return gulp.src(['./rev/test/**/*.json', cssSrcTest])
              .pipe(revCollector())
-             .pipe(gulp.dest('./ddshop/newcss'),{base:'.'});
+             .pipe(gulp.dest('./ddshop/testcss'),{base:'.'});
      });
 
 
@@ -143,19 +143,19 @@ var gulp = require('gulp'),
     });
 
     //Html替换css、js文件版本--替换
-     gulp.task('revHtmlDEV', function () {
+     gulp.task('revHtml_DEV', function () {
          return gulp.src(['./rev/dev/**/*.json', htmlSrcDEV])
              .pipe(revCollector())
-             .pipe(gulp.dest('./dev/'),{base:'.'});
+             .pipe(gulp.dest('./ddshop/devhtml'),{base:'.'});
      });
      //更新CSS里引入文件版本号
      gulp.task('revColCSS_DEV', function () {
          return gulp.src(['./rev/dev/**/*.json', cssSrcDEV])
              .pipe(revCollector())
-             .pipe(gulp.dest('./ddshop/dev/'),{base:'.'});
+             .pipe(gulp.dest('./ddshop/devcss'),{base:'.'});
      });
     //开发构建
-    gulp.task('DEV', function (done) {
+    gulp.task('dev', function (done) {
         condition = false;
         runSequence(       //需要说明的是，用gulp.run也可以实现以上所有任务的执行，只是gulp.run是最大限度的并行执行这些任务，而在添加版本号时需要串行执行（顺序执行）这些任务，故使用了runSequence.
             ['revFont_DEV', 'revImg_DEV'],
